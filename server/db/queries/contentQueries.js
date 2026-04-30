@@ -1,4 +1,4 @@
-import db from "#db/client";
+import db from "#db/db";
 
 /** gets all content */
 export async function getAllContent() {
@@ -21,7 +21,7 @@ export async function getContentById(id) {
     FROM content
     WHERE id = $1;
     `,
-    [id]
+    [id],
   );
 
   return content;
@@ -36,7 +36,7 @@ export async function getContentByDifficulty(difficulty) {
     WHERE difficulty = $1
     ORDER BY id;
     `,
-    [difficulty]
+    [difficulty],
   );
 
   return rows;
@@ -51,7 +51,7 @@ export async function getContentByType(type) {
     WHERE type = $1
     ORDER BY id;
     `,
-    [type]
+    [type],
   );
 
   return rows;
@@ -96,7 +96,7 @@ export async function createContent(content) {
       thumbnail_url,
       description,
       xp_reward,
-    ]
+    ],
   );
 
   return newContent;
@@ -112,7 +112,7 @@ export async function deleteContent(id) {
     WHERE id = $1
     RETURNING *;
     `,
-    [id]
+    [id],
   );
 
   return deletedContent;
