@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS user_progress;
+DROP TABLE IF EXISTS play_sessions;
 DROP TABLE IF EXISTS bookmarks;
 DROP TABLE IF EXISTS content;
 DROP TABLE IF EXISTS users;
