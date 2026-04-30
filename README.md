@@ -5,10 +5,11 @@ Simple Theory is a music website/app designed for people who are trying to learn
 # How it's done
 
 simple-theory/
+    
     server/ # BACKEND (Node/Express/SQL)
-    .env # API Keys & DB Credentials
-    index.js # Entry point (App.listen)
-    package.json
+        .env # API Keys & DB Credentials
+        index.js # Entry point (App.listen)
+        package.json
 
     config/ # Configuration Layer
         db.js # PostgreSQL Pool connection logic
