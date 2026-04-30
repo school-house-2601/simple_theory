@@ -57,10 +57,10 @@ UNIQUE(user_id, content_id)
 
 -- 5. SESSIONS: Plays the session
 CREATE TABLE play_sessions(
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    content_id INTEGER REFERENCES content(id) ON DELETE CASCADE,
-    accuracy_score NUMERIC(5,2),
-    xp_earned INTEGER DEFAULT 0,
-    played_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+id SERIAL PRIMARY KEY,
+user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+content_id INTEGER REFERENCES content(id) ON DELETE CASCADE,
+accuracy_score NUMERIC(5,2),
+xp_earned INTEGER DEFAULT 0,
+played_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
