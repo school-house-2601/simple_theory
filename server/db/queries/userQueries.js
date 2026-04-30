@@ -1,14 +1,14 @@
 import db from "#db/client";
 
 /**creates a new user */
-export async function createUser(username, email, password_hash) {
+export async function createUser(username, email, password_hash, selected_path) {
   const {
     rows: [user],
   } = await db.query(
-    `INSERT INTO users (username, email, password_hash)
-        VALUES $1, $2, $3)
-        RETURNING id, username, email, selected_path, total_xp`,
-    [username, email, password_hash],
+    `INSERT INTO users (username, email, password_hash, selected_path, current_level)
+        VALUES ($1, $2, $3, $4, $4)
+        RETURNING id, username, email, selected_path, current_level, total_xp`,
+    [username, email, password_hash, selected_path],
   );
   return user;
 }
@@ -18,7 +18,7 @@ export async function getUserById(id) {
   const {
     rows: [user],
   } = await db.query(
-    "SELECT id, username, email, selected_path, total_xp, current_streak FROM users WHERE id = $1",
+    "SELECT id, username, email, selected_path, current_level, total_xp, current_streak FROM users WHERE id = $1",
     [id],
   );
   return user;

@@ -14,13 +14,13 @@ id SERIAL PRIMARY KEY,
 username VARCHAR(50) UNIQUE NOT NULL,
 email VARCHAR(100) UNIQUE NOT NULL,
 password_hash TEXT NOT NULL,
-selected_path user_level DEFAULT 'Novice',
+selected_path user_level NOT NULL,
+current_level user_level NOT NULL,
 total_xp INTEGER DEFAULT 0,
 current_streak INTEGER DEFAULT 0,
 last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 
 -- 2. CONTENT: Lessons, Sheet Music, and Plugins
 CREATE TABLE content (
@@ -51,5 +51,16 @@ CREATE TABLE bookmarks (
 id SERIAL PRIMARY KEY,
 user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
 content_id INTEGER REFERENCES content(id) ON DELETE CASCADE,
-saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+UNIQUE(user_id, content_id)
+);
+
+-- 5. SESSIONS: Plays the session
+CREATE TABLE play_sessions(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    content_id INTEGER REFERENCES content(id) ON DELETE CASCADE,
+    accuracy_score NUMERIC(5,2),
+    xp_earned INTEGER DEFAULT 0,
+    played_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
