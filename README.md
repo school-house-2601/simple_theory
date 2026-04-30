@@ -1,10 +1,10 @@
-# simple_theory
+# simple theory
 
 Simple Theory is a music website/app designed for people who are trying to learn to play music on any instrument. We have teaching videos, a game-like learning experience, and more!
 
 # How it's done
 
-simple-theory/
+    simple-theory/
     
     server/ # BACKEND (Node/Express/SQL)
         .env # API Keys & DB Credentials
