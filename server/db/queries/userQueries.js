@@ -108,3 +108,24 @@ export async function recordPlaySession(userId, contentId, accuracy, xp) {
   );
   return session;
 }
+
+/** gets full stats for the dashboard */
+export async function getUserStats(userId) {
+  const { rows: [stats] } = await db.query(
+    `SELECT
+      u.username,
+      u.selected_path,
+      u.current_level,
+      u.total_xp,
+      u.current_streak,
+      COUNT(DISTINCT up.id) AS completed_count,
+      ROUND(AVG(ps.accuracy_score), 2) AS avg_accuracy
+    FROM users u
+    LEFT JOIN user_progress up ON up.user_id = u.id
+    LEFT JOIN play_sessions ps ON ps.user_id = u.id
+    WHERE u.id = $1
+    GROUP BY u.username, u.selected_path, u.current_level, u.total_xp, u.current_streak`,
+    [userId]
+  );
+  return stats;
+}
