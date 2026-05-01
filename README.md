@@ -23,14 +23,14 @@ Simple Theory is a music website/app designed for people who are trying to learn
 │   └── api/                       # ROUTE LAYER
 │       ├── middleware/            # Auth (JWT) & Validation
 │       └── routes/                # Express Route Definitions
-│           ├── auth.js            # /api/auth
+│           ├── users.js           # /api/users
 │           ├── lessons.js         # /api/lessons
 │           └── stats.js           # /api/stats
 
-│   └── middleware/                # ROUTE LAYER
-│           ├── getUserFromToken.js            # /api/auth
-│           ├── requireBody.js         # /api/lessons
-│           └── requireUser.js           # /api/stats
+│   └── middleware/                 # ROUTE LAYER
+│           ├── getUserFromToken.js # /api/users
+│           ├── requireBody.js      # /api/lessons
+│           └── requireUser.js      # /api/stats
 │
 ├── client/                        # FRONTEND (React/Vite)
 │   ├── package.json
