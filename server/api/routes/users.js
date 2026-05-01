@@ -8,6 +8,7 @@ import {
   toggleBookmark,
 } from "#db/queries/userQueries";
 import requireBody from "#middleware/requireBody";
+import requireUser from "#middleware/requireUser";
 import { createToken } from "#utils/jwt";
 import bcrypt from "bcrypt";
 
@@ -56,7 +57,7 @@ router.post(
   },
 );
 
-router.get("/me", async (req, res, next) => {
+router.get("/me", requireUser, async (req, res, next) => {
   try {
     const user = await getUserById(req.user.id);
     res.send(user);
@@ -65,16 +66,21 @@ router.get("/me", async (req, res, next) => {
   }
 });
 
-router.patch("/path", requireBody(["path"]), async (req, res, next) => {
-  try {
-    const updatedUser = await updateSelectedPath(req.user.id, req.body.path);
-    res.send(updatedUser);
-  } catch (error) {
-    next(error);
-  }
-});
+router.patch(
+  "/path",
+  requireUser,
+  requireBody(["path"]),
+  async (req, res, next) => {
+    try {
+      const updatedUser = await updateSelectedPath(req.user.id, req.body.path);
+      res.send(updatedUser);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
-router.get("/bookmarks", async (req, res, next) => {
+router.get("/bookmarks", requireUser, async (req, res, next) => {
   try {
     const bookmarks = await getBookmarkedContent(req.user.id);
     res.send(bookmarks);
@@ -83,7 +89,7 @@ router.get("/bookmarks", async (req, res, next) => {
   }
 });
 
-router.post("/bookmarks/:contentId", async (req, res, next) => {
+router.post("/bookmarks/:contentId", requireUser, async (req, res, next) => {
   try {
     const result = await toggleBookmark(req.user.id, req.params.contentId);
     res.send(result);

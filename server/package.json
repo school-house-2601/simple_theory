@@ -4,7 +4,10 @@
   "type": "module",
   "main": "index.js",
   "imports": {
-    "#*": "./*.js"
+    "#db/*": "./db/*.js",
+    "#middleware/*": "./middleware/*.js",
+    "#utils/*": "./utils/*.js",
+    "#api/*": "./api/*.js"
   },
   "scripts": {
     "start": "node --env-file=.env index.js",

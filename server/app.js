@@ -1,5 +1,4 @@
 import express from "express";
-import authRouter from "#api/routes/auth";
 import lessonsRouter from "#api/routes/lessons";
 import statsRouter from "#api/routes/stats";
 import usersRouter from "#api/routes/users";
@@ -11,7 +10,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(getUserFromToken);
 
-app.use("/auth", authRouter);
 app.use("/lessons", lessonsRouter);
 app.use("/stats", statsRouter);
 app.use("/users", usersRouter);

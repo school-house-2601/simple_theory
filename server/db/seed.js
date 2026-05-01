@@ -12,8 +12,6 @@ async function seed() {
     );
 
     // 1. Create Demo User
-    // EDITS: Changed 'password' to 'password_hash' and 'xp' to 'total_xp'
-    // EDITS: Added 'selected_path' and 'current_level' to satisfy NOT NULL constraints
     const hashedPassword = await bcrypt.hash("password123", 10);
     await db.query(
       `INSERT INTO users (username, email, password_hash, total_xp, selected_path, current_level) 
@@ -29,7 +27,6 @@ async function seed() {
     );
 
     // 2. Seed Content
-    // EDITS: Difficulty and Type values capitalized to match ENUM ('Novice', 'Video', etc.)
     const contentItems = [
       {
         title: "Beginner Guitar: First Chords",
@@ -43,7 +40,7 @@ async function seed() {
       },
       {
         title: "C Major Scale Sheet Music",
-        type: "Notation", // Matches your 'Notation' enum
+        type: "Notation",
         difficulty: "Novice",
         instrument: "guitar",
         external_url: "https://flat.io...",
@@ -74,7 +71,7 @@ async function seed() {
       {
         title: "Advanced Jazz Improv",
         type: "Video",
-        difficulty: "Professional", // Matches your 'Professional' enum
+        difficulty: "Professional",
         instrument: "guitar",
         external_url: "https://youtube.com",
         thumbnail_url: "https://unsplash.com",
