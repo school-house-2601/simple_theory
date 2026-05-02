@@ -20,18 +20,20 @@ Simple Theory is a music website/app designed for people who are trying to learn
 │   │       ├── contentQueries.js  # YouTube/Flat ID lookups
 │   │       └── progressQueries.js # Mark complete / Level up logic
 │   │
-│   └── api/                       # ROUTE LAYER
-│       ├── middleware/            # Auth (JWT) & Validation
-│       └── routes/                # Express Route Definitions
-│           ├── users.js           # /api/users
-│           ├── lessons.js         # /api/lessons
-│           └── stats.js           # /api/stats
+│   └── api/                        # ROUTE LAYER
+│   │    └── routes/                # Express Route Definitions
+│   │        ├── users.js           # /api/users
+│   │        ├── lessons.js         # /api/lessons
+│   │        └── stats.js           # /api/stats
+│   │
+│   └── middleware/                  # ROUTE LAYER
+│   │        ├── getUserFromToken.js # /api/users
+│   │        ├── requireBody.js      # /api/lessons
+│   │        └── requireUser.js      # /api/stats
+│   │
+│   └── utils/                      # Auth (JWT) & Validation
+│            └──jwt.js
 
-│   └── middleware/                 # ROUTE LAYER
-│           ├── getUserFromToken.js # /api/users
-│           ├── requireBody.js      # /api/lessons
-│           └── requireUser.js      # /api/stats
-│
 ├── client/                        # FRONTEND (React/Vite)
 │   ├── package.json
 │   ├── vite.config.js             # Proxy settings
