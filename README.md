@@ -47,7 +47,7 @@ Simple Theory is a music website/app designed for people who are trying to learn
 │   │   │   │   ├── Navbar.jsx
 │   │   │   │   └── Navbar.css     # Styles for navigation bar
 │   │   │   └── context/           # UserContext for XP/Auth state
-│   │   │       └── UserContext.js
+│   │   │       └── UserContext.jsx
 │   │   │
 │   │   └── features/              # PAGE-BASED FOLDERS
 │   │       ├── 01-Landing/        # The "Enter" Screen
