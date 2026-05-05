@@ -40,7 +40,7 @@ export default function Login() {
 
         <form action={tryLogin}>
           <div className="auth-form-group">
-            <label>Email or Username</label>
+            <label>Email</label>
             <input
               type="email"
               name="email"
