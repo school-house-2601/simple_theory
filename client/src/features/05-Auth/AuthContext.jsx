@@ -7,7 +7,7 @@ import {
 } from "react";
 
 const AuthContext = createContext();
-const API = "http://localhost:3000/api";
+const API = "/api";
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("token"));

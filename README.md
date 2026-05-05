@@ -41,13 +41,13 @@ Simple Theory is a music website/app designed for people who are trying to learn
 │   │   ├── main.jsx               # Entry point
 │   │   ├── App.jsx                # Router & Global Layout
 │   │   ├── index.css              # GLOBAL CSS (Colors, Fonts, Resets)
+│   │   ├── Error404.jsx           # Error page
 │   │   │
 │   │   ├── shared/                # Global UI components
 │   │   │   ├── components/        # Navbar, Footer, Buttons
-│   │   │   │   ├── Navbar.jsx
-│   │   │   │   └── Navbar.css     # Styles for navigation bar
-│   │   │   └── context/           # UserContext for XP/Auth state
-│   │   │       └── UserContext.jsx
+│   │   │      ├── Navbar.jsx
+│   │   │      └── Navbar.css      # Styles for navigation bar
+│   │   │      └── Layout.jsx
 │   │   │
 │   │   └── features/              # PAGE-BASED FOLDERS
 │   │       ├── 01-Landing/        # The "Enter" Screen
@@ -71,7 +71,8 @@ Simple Theory is a music website/app designed for people who are trying to learn
 │   │       │   └── Learning.css    # CSS for video/notation layout
 │   │       │
 │   │       └── 05-Auth/            # Login & Register
-│   │           ├── AuthPage.jsx
+│   │           ├── AuthContext.jsx
+│   │           ├── Register.jsx
 │   │           ├── LoginForm.jsx
 │   │           └── Auth.css        # CSS for login forms
 │   │
