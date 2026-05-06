@@ -1,0 +1,46 @@
+/* index.css */
+:root {
+  --bg-dark: #0f1117;
+  --bg-card: #1c1f26;
+  --primary-purple: #6366f1;
+  --text-main: #ffffff;
+  --text-muted: #94a3b8;
+  --border-color: #2d333d;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--primary-purple);
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Common input styling for all forms */
+input {
+  background: #2d333d;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: white;
+  padding: 10px;
+}
