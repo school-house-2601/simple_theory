@@ -1,4 +1,4 @@
-import "./landing.css";
+import "./Landing.css";
 
 export default function App() {
   return (
@@ -12,9 +12,7 @@ export default function App() {
           The focused path to mastering instruments and music production.
         </p>
 
-        <p className="small-text">
-          Learn any instrument. Start playing.
-        </p>
+        <p className="small-text">Learn any instrument. Start playing.</p>
 
         <button className="enter-button">
           Press Enter <span>›</span>
@@ -25,7 +23,9 @@ export default function App() {
 
       <footer className="footer">
         <div className="brand">
-          <h2><span>〽</span> SimpleTheory</h2>
+          <h2>
+            <span>〽</span> SimpleTheory
+          </h2>
           <p>
             Master your instrument with data-driven theory and interactive
             practice.
