@@ -1,0 +1,39 @@
+.footer {
+  display: flex;
+  justify-content: space-around;
+  padding: 60px 20px;
+  background-color: #0f1117;
+  border-top: 1px solid #2d333d;
+  color: #94a3b8;
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-column h3 {
+  color: white;
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+.footer-column a {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.footer-column a:hover {
+  color: #6366f1; /* Your signature purple */
+}
+
+.footer-logo {
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 10px;
+}

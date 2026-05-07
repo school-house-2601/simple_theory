@@ -20,39 +20,6 @@ export default function App() {
 
         <p className="hint">↵ to begin your journey</p>
       </main>
-
-      <footer className="footer">
-        <div className="brand">
-          <h2>
-            <span>〽</span> SimpleTheory
-          </h2>
-          <p>
-            Master your instrument with data-driven theory and interactive
-            practice.
-          </p>
-        </div>
-
-        <div>
-          <h3>Learning</h3>
-          <p>Novice Path</p>
-          <p>Intermediate DAW</p>
-          <p>Music Theory 101</p>
-        </div>
-
-        <div>
-          <h3>Platform</h3>
-          <p>How it works</p>
-          <p>Library</p>
-          <p>Pricing</p>
-        </div>
-
-        <div>
-          <h3>Support</h3>
-          <p>About Us</p>
-          <p>Contact</p>
-          <p>Account</p>
-        </div>
-      </footer>
     </div>
   );
 }
