@@ -64,7 +64,12 @@ export default function Register() {
             Join 50,000+ musicians mastering their craft.
           </p>
 
-          <form action={tryRegister}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              tryRegister(new FormData(e.currentTarget));
+            }}
+          >
             <div className="auth-form-group">
               <label>Full Name</label>
               <input

@@ -1,20 +1,35 @@
 import db from "#db/db";
 
 /**creates a new user */
-export async function createUser(
+/** Creates a new user with extended profile data */
+export async function createUser({
   username,
   email,
   password_hash,
-  selected_path,
-  current_level,
-) {
+  firstname,
+  lastname,
+  interests,
+  selected_path = "Novice",
+  current_level = "Novice",
+}) {
   const {
     rows: [user],
   } = await db.query(
-    `INSERT INTO users (username, email, password_hash, selected_path, current_level)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING id, username, email, selected_path, current_level, total_xp`,
-    [username, email, password_hash, selected_path, current_level],
+    `INSERT INTO users (
+      username, email, password_hash, firstname, lastname, interests, selected_path, current_level
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    RETURNING id, username, email, firstname, lastname, interests, selected_path, current_level, total_xp`,
+    [
+      username,
+      email,
+      password_hash,
+      firstname,
+      lastname,
+      interests,
+      selected_path,
+      current_level,
+    ],
   );
   return user;
 }
@@ -111,7 +126,9 @@ export async function recordPlaySession(userId, contentId, accuracy, xp) {
 
 /** gets full stats for the dashboard */
 export async function getUserStats(userId) {
-  const { rows: [stats] } = await db.query(
+  const {
+    rows: [stats],
+  } = await db.query(
     `SELECT
       u.username,
       u.selected_path,
@@ -125,7 +142,7 @@ export async function getUserStats(userId) {
     LEFT JOIN play_sessions ps ON ps.user_id = u.id
     WHERE u.id = $1
     GROUP BY u.username, u.selected_path, u.current_level, u.total_xp, u.current_streak`,
-    [userId]
+    [userId],
   );
   return stats;
 }
