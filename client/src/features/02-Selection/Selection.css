@@ -44,5 +44,177 @@
 }
 
 .path-card {
-    
+    background-color: #12122a;
+    border: 1px solid #2a2a4a;
+    border-radius: 16px;
+    padding: 32px 24px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.path-card:hover {
+    border-color: #6c63ff;
+    transform: translateY(-4px);
+}
+
+.badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #6c63ff;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.08em;
+}
+
+.card-icon {
+    background-color: #1e1e40;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+.path-card h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.path-card > p {
+    color: #a0a0c0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.path-card b {
+    color: #6a6a9a;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.path-card ul li {
+    font-size: 0.875rem;
+    color: #d0d0f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.path-card ul li::before {
+    content: "✓";
+    color: #6c63ff;
+    font-weight: 700;
+}
+
+.path-card button {
+    margin-top: auto;
+    padding 12px;
+    border-radius: 10px;
+    border: 1px solid #6c63ff;
+    background-color: transparent;
+    color: #6c63ff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.path-card button:hover {
+    background-color: #6c63ff;
+    color: #fff;
+}
+
+.path-card.popular button {
+    background-color: #6c63ff;
+    color: #fff;
+}
+
+.path-card.popular button:hover {
+    background-color: #5a52e0;
+}
+
+.quick-tip {
+    background-color: #12124a;
+    border: 1px solid #3b3b6b;
+    border-radius: 16px;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    max-width: 900px;
+    width: 100%;
+    margin-bottom: 32px;
+}
+
+.quick-tip span {
+    background-color: #1e1e60;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.quick-tip div {
+    flex: 1;
+}
+
+.quick-tip div b {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.quick-tip div p {
+    color: #a0a0c0;
+    font-size: 0.875rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.quick-tip button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s ease; 
+}
+
+.quick-tip button:first-of-type {
+    background-color: transparent;
+    border: 1px solid #6c63ff;
+    color: #6c63ff;
+}
+
+.quick-tip button:last-of-type {
+    background-color: #6c63ff;
+    border: 1px solid #6c63ff;
+    color: #fff;
+}
+
+.quick-tip button:hover {
+    opacity: 0.85;
+}
+
+.footer-note {
+    color: #6a6a9a;
+    font-size: 0.8rem;
+    text-align: center;
 }
