@@ -7,6 +7,7 @@ const PATHS = [
     {
         level: "Novice",
         icon: "🎵",
+        title: "Novice",
         description: "Perfect for those picking up an instrument for the very first time. No theory knowledge required.",
         features: [
             "Basic rhythm and timing",
