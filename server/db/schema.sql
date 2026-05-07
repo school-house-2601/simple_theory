@@ -4,6 +4,9 @@ DROP TABLE IF EXISTS bookmarks;
 DROP TABLE IF EXISTS content;
 DROP TABLE IF EXISTS users;
 
+DROP TYPE IF EXISTS user_level;
+DROP TYPE IF EXISTS content_type;
+
 
 CREATE TYPE user_level AS ENUM ('Novice', 'Intermediate', 'Professional');
 CREATE TYPE content_type AS ENUM ('Video', 'Notation', 'Plugin');
