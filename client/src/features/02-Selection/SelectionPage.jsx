@@ -17,7 +17,7 @@ const PATHS = [
             "5 Daily practice exercises",
         ],
         buttonText: "Start Learning →",
-        popular:false
+        popular: true
     },
     {
         level: "Intermediate",
@@ -32,7 +32,7 @@ const PATHS = [
             "Personalized feedback loops"
         ],
         buttonText: "Master the DAW →",
-        popular: true
+        popular: false
     },
     {
         level: "Professional",
