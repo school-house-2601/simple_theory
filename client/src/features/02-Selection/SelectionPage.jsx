@@ -83,7 +83,7 @@ export default function SelectionPage() {
                     <p>Create a free account to sync your learning data across devices and earn exclusive XP rewards as you complete paths.</p>
                 </div>
                 <button onClick={() => navigate("/auth")}>Learn More</button>
-                <button onClick={() => navigate("/auth?mode=register")}>Create Account</button>
+                <button onClick={() => navigate("/register")}>Create Account</button>
             </div>
 
             <p className="footer-note">ⓘ Not sure which path to choose? You can change your level at any time from your settings.</p>
