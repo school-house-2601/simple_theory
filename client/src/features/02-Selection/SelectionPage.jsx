@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../05-Auth/AuthContext";
 import PathCard from "./PathCard";
 import "./selection.css";
 
@@ -54,6 +55,7 @@ const PATHS = [
 export default function SelectionPage() {
     const [selected, setSelected] = useState(null);
     const navigate = useNavigate();
+    const { token } = useAuth();
 
     const handleSelect = (level) => {
         setSelected(level);
@@ -79,11 +81,13 @@ export default function SelectionPage() {
             <div className="quick-tip">
                 <span>⭐</span>
                 <div>
-                    <b>Quick Tip: Save Your Progress</b>
-                    <p>Create a free account to sync your learning data across devices and earn exclusive XP rewards as you complete paths.</p>
+                    <b> {token ? "Unsure where to start?" : "Quick Tip: Save Your Progress"}</b>
+                    <p> {token ?  "You can always switch paths later. Your XP and progress are tracked globally." : "Create a free account to sync your learning data across devices and earn exclusive XP rewards as you complete paths."}</p>
                 </div>
                 <button onClick={() => navigate("/auth")}>Learn More</button>
+                {!token && (
                 <button onClick={() => navigate("/register")}>Create Account</button>
+                )}
             </div>
 
             <p className="footer-note">ⓘ Not sure which path to choose? You can change your level at any time from your settings.</p>
