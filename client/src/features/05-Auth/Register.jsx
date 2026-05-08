@@ -55,7 +55,7 @@ export default function Register() {
       <div className="auth-column left">
         <div className="reg-content">
           <div className="logo-area">
-            <span className="logo-icon">♫</span>
+            <span className="logo-icon-1">♫</span>
             <span className="logo-text">SimpleTheory</span>
           </div>
 
