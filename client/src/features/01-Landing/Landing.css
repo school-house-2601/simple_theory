@@ -1,0 +1,175 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #17171f;
+  color: white;
+}
+
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, #282a55, transparent 35%),
+    radial-gradient(circle at bottom right, #253322, transparent 35%),
+    #17171f;
+}
+
+/* NAVBAR */
+.navbar {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 0 24px;
+  border-bottom: 1px solid #2a2b35;
+  background: #14151d;
+}
+
+.logo {
+  color: #6b6cff;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.links {
+  display: flex;
+  gap: 22px;
+  font-size: 14px;
+  color: #d6d6df;
+}
+
+.navbar input {
+  margin-left: auto;
+  width: 260px;
+  padding: 10px 12px;
+  border: 1px solid #3a3b47;
+  border-radius: 8px;
+  background: #22232d;
+  color: white;
+}
+
+.login {
+  background: transparent;
+  border: none;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.signup {
+  background: #6b6cff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: #111;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* HERO */
+.hero {
+  min-height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.badge {
+  color: #8c8dff;
+  border: 1px solid #4c4dc7;
+  background: rgba(107, 108, 255, 0.12);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  margin-bottom: 24px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 68px;
+  font-weight: 900;
+  letter-spacing: -3px;
+  text-shadow: 0 5px 0 #06060a;
+}
+
+.subtitle {
+  max-width: 620px;
+  color: #c8c8d2;
+  font-size: 20px;
+  line-height: 1.4;
+  margin: 20px 0 40px;
+}
+
+.enter-button {
+  background: #6b6cff;
+  border: none;
+  border-radius: 10px;
+  padding: 16px 34px;
+  color: #111;
+  font-weight: 900;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 0 22px rgba(107, 108, 255, 0.45);
+}
+
+.enter-button span {
+  margin-left: 14px;
+  font-size: 22px;
+}
+
+.hint {
+  margin-top: 16px;
+  color: #7f808b;
+  font-size: 13px;
+}
+
+/* FEATURE PILLS */
+.pills {
+  margin-top: 70px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pills span {
+  border: 1px solid #30313b;
+  background: rgba(20, 21, 29, 0.75);
+  color: #ddddE6;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* MOBILE */
+@media (max-width: 800px) {
+  .links,
+  .navbar input,
+  .login {
+    display: none;
+  }
+
+  .navbar {
+    justify-content: space-between;
+  }
+
+  h1 {
+    font-size: 46px;
+  }
+
+  .subtitle {
+    font-size: 17px;
+  }
+
+  .pills {
+    margin-top: 40px;
+  }
+}
