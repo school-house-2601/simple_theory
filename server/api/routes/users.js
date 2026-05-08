@@ -17,20 +17,23 @@ const SALT_ROUNDS = 10;
 
 router.post(
   "/register",
-  requireBody(["username", "email", "password", "selected_path"]),
+  requireBody(["email", "password", "firstname", "lastname"]),
   async (req, res, next) => {
     try {
-      const { username, email, password, selected_path } = req.body;
+      const { email, password, firstname, lastname, interests } = req.body;
       const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-      const user = await createUser(
-        username,
+      const user = await createUser({
+        username: email,
         email,
-        hashedPassword,
-        selected_path,
-        selected_path,
-      );
+        password_hash: hashedPassword,
+        firstname,
+        lastname,
+        interests: interests || [],
+        selected_path: "Novice",
+        current_level: "Novice",
+      });
       const token = createToken({ id: user.id });
-      res.status(201).send(token);
+      res.status(201).send({ token, user });
     } catch (error) {
       next(error);
     }
@@ -39,18 +42,18 @@ router.post(
 
 router.post(
   "/login",
-  requireBody(["username", "password"]),
+  requireBody(["email", "password"]),
   async (req, res, next) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
     try {
-      const user = await getUserByUsername(username);
+      const user = await getUserByUsername(email);
 
       if (!user || !(await bcrypt.compare(password, user.password_hash))) {
-        return res.status(401).send("Invalid credentials.");
+        return res.status(401).send({ message: "Invalid credentials." });
       }
 
       const token = createToken({ id: user.id });
-      res.send(token);
+      res.send({ token, user });
     } catch (error) {
       next(error);
     }

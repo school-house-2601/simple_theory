@@ -1,0 +1,51 @@
+import { useAuth } from "../../features/05-Auth/AuthContext";
+import { NavLink, Link } from "react-router-dom";
+import "./Footer.css";
+
+export default function Footer() {
+  const { token } = useAuth();
+
+  return (
+    <footer className="footer">
+      <div className="footer-brand">
+        <Link to="/" className="footer-logo">
+          <span className="logo-icon">♫</span> SimpleTheory
+        </Link>
+        <p>
+          Master your instrument with data-driven theory and interactive
+          practice.
+        </p>
+      </div>
+
+      <div className="footer-column">
+        <h3>Learning</h3>
+        <NavLink to="/selection">Courses</NavLink>
+        <NavLink to="/browse">Browse Videos</NavLink>
+        <NavLink to="/challenges">Challenges</NavLink>
+      </div>
+
+      <div className="footer-column">
+        <h3>Platform</h3>
+        <NavLink to="/how-it-works">How it works</NavLink>
+        <NavLink to="/library">Library</NavLink>
+        <NavLink to="/pricing">Pricing</NavLink>
+      </div>
+
+      <div className="footer-column">
+        <h3>Account</h3>
+        {token ? (
+          <>
+            <NavLink to="/dashboard">Dashboard</NavLink>
+            <NavLink to="/settings">Settings</NavLink>
+          </>
+        ) : (
+          <>
+            <NavLink to="/login">Login</NavLink>
+            <NavLink to="/register">Register</NavLink>
+          </>
+        )}
+        <NavLink to="/support">Support</NavLink>
+      </div>
+    </footer>
+  );
+}

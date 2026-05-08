@@ -1,4 +1,4 @@
-import "./landing.css";
+import "./Landing.css";
 
 export default function App() {
   return (

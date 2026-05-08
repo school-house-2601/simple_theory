@@ -4,6 +4,9 @@ DROP TABLE IF EXISTS bookmarks;
 DROP TABLE IF EXISTS content;
 DROP TABLE IF EXISTS users;
 
+DROP TYPE IF EXISTS user_level;
+DROP TYPE IF EXISTS content_type;
+
 
 CREATE TYPE user_level AS ENUM ('Novice', 'Intermediate', 'Professional');
 CREATE TYPE content_type AS ENUM ('Video', 'Notation', 'Plugin');
@@ -15,8 +18,11 @@ id SERIAL PRIMARY KEY,
 username VARCHAR(50) UNIQUE NOT NULL,
 email VARCHAR(100) UNIQUE NOT NULL,
 password_hash TEXT NOT NULL,
-selected_path user_level NOT NULL,
-current_level user_level NOT NULL,
+firstname VARCHAR(50),
+lastname VARCHAR(50),
+interests TEXT[],
+selected_path user_level DEFAULT 'Novice',
+current_level user_level DEFAULT 'Novice',
 total_xp INTEGER DEFAULT 0,
 current_streak INTEGER DEFAULT 0,
 last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
