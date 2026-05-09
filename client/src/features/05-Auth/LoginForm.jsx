@@ -24,7 +24,7 @@ export default function Login() {
   return (
     <div className="auth-container">
       <div className="login-form">
-        <h1>Welcome Back</h1>
+        <h1 className="welcome">Welcome Back</h1>
         <p>Continue your journey to musical mastery</p>
 
         <div className="social-buttons">

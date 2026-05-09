@@ -18,6 +18,12 @@
   display: flex;
   align-items: center;
   gap: 20px;
+
+  a {
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .nav-left {
@@ -55,6 +61,11 @@
 .nav-logo {
   font-size: 30px;
   font-weight: 500;
+  transition: filter 0.2s;
+
+  &:hover {
+    filter: brightness(2.2);
+  }
 }
 
 .logo-icon,

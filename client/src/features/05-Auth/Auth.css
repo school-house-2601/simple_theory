@@ -170,7 +170,7 @@
 }
 
 .pill.active {
-  background: #6366f1; /* Your signature purple */
+  background: #6366f1;
   color: white;
   border-color: #6366f1;
 }
@@ -183,12 +183,12 @@
 }
 
 .interest-header label {
-  margin-bottom: 0; /* Override the default form-group margin */
+  margin-bottom: 0;
 }
 
 .interest-header span {
   font-size: 0.75rem;
-  color: #4b5563; /* Muted gray for the sub-instruction */
+  color: #4b5563;
 }
 
 .interest-pills {
@@ -200,7 +200,7 @@
 
 .feature-content h2 {
   font-size: 1.8rem;
-  margin-bottom: 40px; /* Space between title and first feature */
+  margin-bottom: 40px;
   line-height: 1.2;
 }
 
@@ -219,33 +219,28 @@
   padding-left: 10px;
 }
 
-/* .logo-icon-1 {
-  background-color: #6366f1;
-  color: black;
-  border-radius: 6px;
-  padding: 5px 10px;
-  margin-bottom: 200px;
-} */
-
 .logo-area {
-  display: flex; /* 1. Enable flexbox */
-  flex-direction: row; /* 2. Stack icon and text vertically */
-  align-items: center; /* 3. Center them horizontally */
-  justify-content: center; /* 4. Center them vertically */
-  text-align: center; /* 5. Ensure text itself is centered */
-  margin-bottom: 2rem; /* 6. Add some space below the logo */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 .logo-icon-1 {
-  font-size: 2.5rem; /* Make the icon bigger if needed */
-  background: #6366f1; /* Optional: signature purple background */
+  font-size: 2.5rem;
+  background: #6366f1;
   color: black;
   border-radius: 6px;
   padding: 1px 10px;
-  /* margin-bottom: 0.5rem; */
 }
 
 .subtitle,
 .submit-btn {
   margin-bottom: 2rem;
+}
+
+.welcome {
+  padding-left: 50px;
 }
