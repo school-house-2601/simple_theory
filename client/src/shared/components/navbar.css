@@ -13,25 +13,65 @@
   border-bottom: 1px solid #2d333d;
 }
 
-.nav-left,
 .nav-right,
 .nav-menu {
   display: flex;
   align-items: center;
   gap: 20px;
+
+  a {
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1; /* This pushes everything to the right */
 }
 
 /* Style the search input to look like the mockup */
 .search-container {
+  width: 500px;
   background: #1c1f26;
   border: 1px solid #3f444e;
   border-radius: 6px;
   padding: 6px 12px;
+  margin-right: 30px;
 }
 
 .search-container input {
+  width: 450px;
   background: transparent;
   border: none;
   color: white;
   outline: none;
+}
+
+.signup-btn {
+  background-color: #6366f1;
+  color: black;
+  border-radius: 6px;
+  padding: 5px 10px;
+}
+
+.nav-logo {
+  font-size: 30px;
+  font-weight: 500;
+  transition: filter 0.2s;
+
+  &:hover {
+    filter: brightness(2.2);
+  }
+}
+
+.logo-icon,
+.logout-link {
+  background-color: #6366f1;
+  color: black;
+  border-radius: 6px;
+  padding: 5px 10px;
 }
