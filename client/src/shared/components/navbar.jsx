@@ -1,9 +1,19 @@
 import { useAuth } from "../../features/05-Auth/AuthContext";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import "./navbar.css";
 
 export default function Navbar() {
   const { token, logout } = useAuth();
+  const [navSearch, setNavSearch] = useState("");
+  const navigate = useNavigate();
+
+  const handleNavSearch = (e) => {
+    if (e.key === "Enter") {
+      // Navigates to browse page with the query in the URL
+      navigate(`/browse?search=${encodeURIComponent(navSearch)}`);
+    }
+  };
 
   return (
     <nav className="navbar">
@@ -21,7 +31,13 @@ export default function Navbar() {
       <div className="nav-center">
         <div className="search-container">
           <span className="search-icon">Q</span>
-          <input type="text" placeholder="Search theory, tabs, tutorials..." />
+          <input
+            type="text"
+            placeholder="Search theory, tabs, tutorials..."
+            value={navSearch}
+            onChange={(e) => setNavSearch(e.target.value)}
+            onKeyDown={handleNavSearch}
+          />
         </div>
       </div>
 

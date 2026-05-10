@@ -1,0 +1,138 @@
+.browse-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.browse-sidebar {
+  width: 250px;
+  background: #1c1f26;
+  padding: 20px;
+  border-right: 1px solid #2d333d;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-width: 250px;
+}
+
+.video-carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+  padding-bottom: 20px;
+  align-items: flex-start;
+}
+
+.video-card {
+  width: 280px;
+  flex-shrink: 0;
+  background: #111827;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.video-card:hover {
+  transform: scale(1.05);
+}
+
+.video-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+
+.browse-content {
+  flex: 1;
+  padding: 20px;
+  overflow-x: hidden;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.video-card h4 {
+  font-size: 0.9rem;
+  margin: 10px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  height: 2.4rem;
+}
+
+.video-card p {
+  font-size: 0.75rem;
+  padding: 0 8px 8px;
+  color: #9ca3af;
+}
+
+.video-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.video-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9); /* Dark background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.video-modal-content {
+  position: relative;
+  width: 80%;
+  max-width: 900px;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.close-button {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.browse-sidebar button,
+.sidebar-nav button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 5px;
+  text-align: left;
+  background: #2d333d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.browse-sidebar button:hover {
+  background: #3e4451;
+}
+
+.active-tab {
+  background: #4f46e5 !important; /* Highlights which tab you're on */
+  font-weight: bold;
+  color: black !important;
+}
