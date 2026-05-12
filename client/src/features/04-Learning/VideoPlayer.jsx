@@ -54,19 +54,31 @@ export default function BrowsePage() {
   }, [queryFromUrl]); // The magic happens here: it re-runs whenever the URL updates
 
   const handleSearch = async (query, setter = setSearchResults) => {
-    if (USE_MOCK_DATA) {
-      console.log(`Mock Search for: ${query}`);
-      setter(MOCK_VIDEOS);
-      return;
-    }
     try {
       const res = await fetch(`/api/lessons/youtube-search?query=${query}`);
+
+      // Check if the response is okay
+      if (!res.ok) {
+        // If the server returns 403 (Quota Exceeded) or 429 (Too Many Requests)
+        throw new Error(`API Error: ${res.status}`);
+      }
+
       const data = await res.json();
-      if (data.items) {
+
+      if (data.items && data.items.length > 0) {
         setter(data.items);
+      } else {
+        // If the API returns empty results, you might still want mock data
+        console.warn("No results from API, falling back to mock data.");
+        setter(MOCK_VIDEOS);
       }
     } catch (err) {
-      console.error("Search failed", err);
+      console.error(
+        "Search API failed or quota exceeded. Using mock data.",
+        err,
+      );
+      // FALLBACK: This is where the magic happens
+      setter(MOCK_VIDEOS);
     }
   };
 
