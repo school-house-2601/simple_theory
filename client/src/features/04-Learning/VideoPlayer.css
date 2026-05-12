@@ -136,3 +136,36 @@
   font-weight: bold;
   color: black !important;
 }
+
+.category-pills {
+  display: flex;
+  gap: 12px;
+  padding: 20px 0;
+  overflow-x: auto; /* Allows scrolling on mobile */
+  white-space: nowrap;
+  scrollbar-width: none; /* Hides scrollbar on Firefox */
+}
+
+.category-pills::-webkit-scrollbar {
+  display: none; /* Hides scrollbar on Chrome/Safari */
+}
+
+.pill {
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: 1px solid #333;
+  background: #1a1a1a;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pill:hover {
+  background: #333;
+}
+
+.pill.active {
+  background: white;
+  color: black;
+  border-color: white;
+}
