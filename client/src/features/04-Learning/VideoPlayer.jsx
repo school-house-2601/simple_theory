@@ -5,17 +5,17 @@ import { MOCK_VIDEOS } from "../../mockData";
 
 export default function BrowsePage() {
   const [searchResults, setSearchResults] = useState([]);
-  const [theoryBasics, setTheoryBasics] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedVideoId, setSelectedVideoId] = useState(null);
   const [activeInstrument, setActiveInstrument] = useState(null);
   const [currentTab, setCurrentTab] = useState("browse");
-  const [vocals, setVocals] = useState([]);
-  const [production, setProduction] = useState([]);
-  const [otherResults, setOtherResults] = useState([]);
   const [searchParams] = useSearchParams();
   const queryFromUrl = searchParams.get("search");
   const USE_MOCK_DATA = true;
+  // 1. Initialize cache from localStorage so it survives refreshes
+  const [searchCache, setSearchCache] = useState(() => {
+    const savedCache = localStorage.getItem("youtube_cache");
+    return savedCache ? JSON.parse(savedCache) : {};
+  });
 
   const [savedVideos, setSavedVideos] = useState(() => {
     const saved = localStorage.getItem("savedLessons");
@@ -47,31 +47,40 @@ export default function BrowsePage() {
     }
   }, [queryFromUrl]); // The magic happens here: it re-runs whenever the URL updates
 
+  useEffect(() => {
+    // If there's no search in the URL and no category selected yet, default to Theory
+    if (!queryFromUrl && !activeInstrument) {
+      setActiveInstrument("Theory");
+      handleSearch("Music Theory for Beginners");
+    }
+  }, [queryFromUrl, activeInstrument]); // Runs once on mount
+
   const handleSearch = async (query, setter = setSearchResults) => {
+    // NEW: Check if we have already searched for this query in this session
+    if (searchCache[query]) {
+      console.log(`Loading "${query}" from cache. No credits used!`);
+      setter(searchCache[query]);
+      return; // Stop here so we don't fetch again
+    }
+
     try {
       const res = await fetch(`/api/lessons/youtube-search?query=${query}`);
-
-      // Check if the response is okay
-      if (!res.ok) {
-        // If the server returns 403 (Quota Exceeded) or 429 (Too Many Requests)
-        throw new Error(`API Error: ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`API Error: ${res.status}`);
 
       const data = await res.json();
 
       if (data.items && data.items.length > 0) {
+        // 3. Update State AND LocalStorage
+        const newCache = { ...searchCache, [query]: data.items };
+        setSearchCache(newCache);
+        localStorage.setItem("youtube_cache", JSON.stringify(newCache));
+
         setter(data.items);
       } else {
-        // If the API returns empty results, you might still want mock data
-        console.warn("No results from API, falling back to mock data.");
         setter(MOCK_VIDEOS);
       }
     } catch (err) {
-      console.error(
-        "Search API failed or quota exceeded. Using mock data.",
-        err,
-      );
-      // FALLBACK: This is where the magic happens
+      console.error("Quota exceeded. Using mock data.", err);
       setter(MOCK_VIDEOS);
     }
   };
@@ -80,86 +89,94 @@ export default function BrowsePage() {
     <div className="browse-container">
       {/* MAIN CONTENT AREA */}
       <main className="browse-content">
-        {/* CATEGORY PILL NAVIGATION */}
-        <nav className="category-pills">
-          <button
-            className={activeInstrument === "Theory" ? "pill active" : "pill"}
-            onClick={() => {
-              setActiveInstrument("Theory");
-              setCurrentTab("theory");
-              handleSearch("Music Theory for Beginners", setTheoryBasics);
-            }}
-          >
-            🎼 Theory
-          </button>
+        {/* NEW HEADER SECTION */}
+        <header className="browse-header">
+          <h1>Browse Video Knowledge</h1>
+          <p>Aggregated tutorials and theory from across the web.</p>
+        </header>
 
-          <button
-            className={activeInstrument === "Piano" ? "pill active" : "pill"}
-            onClick={() => {
-              setActiveInstrument("Piano");
-              setCurrentTab("browse");
-              handleSearch("Piano tutorials");
-            }}
-          >
-            🎹 Piano
-          </button>
+        {/* WRAP NAV AND SORT IN A FLEX CONTAINER */}
+        <div className="filter-bar">
+          <nav className="category-pills">
+            <button
+              className={activeInstrument === "Theory" ? "pill active" : "pill"}
+              onClick={() => {
+                setActiveInstrument("Theory");
+                setCurrentTab("browse");
+                handleSearch("Music Theory for Beginners");
+              }}
+            >
+              🎼 Theory
+            </button>
 
-          <button
-            className={activeInstrument === "Guitar" ? "pill active" : "pill"}
-            onClick={() => {
-              setActiveInstrument("Guitar");
-              setCurrentTab("browse");
-              handleSearch("Guitar lessons");
-            }}
-          >
-            🎸 Guitar
-          </button>
+            <button
+              className={activeInstrument === "Piano" ? "pill active" : "pill"}
+              onClick={() => {
+                setActiveInstrument("Piano");
+                setCurrentTab("browse");
+                handleSearch("Piano tutorials");
+              }}
+            >
+              🎹 Piano
+            </button>
 
-          <button
-            className={activeInstrument === "Drums" ? "pill active" : "pill"}
-            onClick={() => {
-              setActiveInstrument("Drums");
-              setCurrentTab("browse");
-              handleSearch("Drum basics");
-            }}
-          >
-            🥁 Drums
-          </button>
+            <button
+              className={activeInstrument === "Guitar" ? "pill active" : "pill"}
+              onClick={() => {
+                setActiveInstrument("Guitar");
+                setCurrentTab("browse");
+                handleSearch("Guitar lessons");
+              }}
+            >
+              🎸 Guitar
+            </button>
 
-          <button
-            className={activeInstrument === "Vocals" ? "pill active" : "pill"}
-            onClick={() => {
-              setActiveInstrument("Vocals");
-              setCurrentTab("browse");
-              handleSearch("Vocal lessons");
-            }}
-          >
-            🎤 Vocals
-          </button>
+            <button
+              className={activeInstrument === "Drums" ? "pill active" : "pill"}
+              onClick={() => {
+                setActiveInstrument("Drums");
+                setCurrentTab("browse");
+                handleSearch("Drum basics");
+              }}
+            >
+              🥁 Drums
+            </button>
 
-          <button
-            className={
-              activeInstrument === "Production" ? "pill active" : "pill"
-            }
-            onClick={() => {
-              setActiveInstrument("Production");
-              setCurrentTab("browse");
-              handleSearch("DAW production tutorials");
-            }}
-          >
-            🎚️ Production
-          </button>
+            <button
+              className={activeInstrument === "Vocals" ? "pill active" : "pill"}
+              onClick={() => {
+                setActiveInstrument("Vocals");
+                setCurrentTab("browse");
+                handleSearch("Vocal lessons");
+              }}
+            >
+              🎤 Vocals
+            </button>
 
-          <button
-            className={currentTab === "saved" ? "pill active" : "pill"}
-            onClick={() => {
-              setCurrentTab("saved");
-              setActiveInstrument(null);
-            }}
-          >
-            🔖 Saved ({savedVideos.length})
-          </button>
-        </nav>
+            <button
+              className={
+                activeInstrument === "Production" ? "pill active" : "pill"
+              }
+              onClick={() => {
+                setActiveInstrument("Production");
+                setCurrentTab("browse");
+                handleSearch("DAW production tutorials");
+              }}
+            >
+              🎚️ Production
+            </button>
+
+            <button
+              className={currentTab === "saved" ? "pill active" : "pill"}
+              onClick={() => {
+                setCurrentTab("saved");
+                setActiveInstrument(null);
+              }}
+            >
+              🔖 Saved ({savedVideos.length})
+            </button>
+          </nav>
+        </div>
 
         {/* VIDEO GRID SECTION */}
         <div className="results-container">
@@ -180,23 +197,6 @@ export default function BrowsePage() {
                 ) : (
                   <p>You haven't saved any...yet.</p>
                 )}
-              </div>
-            </section>
-          ) : currentTab === "theory" ? (
-            <section className="video-section">
-              <h2>Theory Fundamentals</h2>
-              <div className="video-grid">
-                {theoryBasics.map((video) => (
-                  <VideoCard
-                    key={video.id.videoId}
-                    video={video}
-                    onSelect={setSelectedVideoId}
-                    onSave={toggleSaveVideo}
-                    isSaved={savedVideos.some(
-                      (v) => v.id.videoId === video.id.videoId,
-                    )}
-                  />
-                ))}
               </div>
             </section>
           ) : (
@@ -223,13 +223,34 @@ export default function BrowsePage() {
           )}
         </div>
 
-        {/* MODAL (unchanged) */}
+        {/* MODAL */}
         {selectedVideoId && (
           <div
             className="video-modal-overlay"
             onClick={() => setSelectedVideoId(null)}
           >
-            {/* ... Modal Content ... */}
+            <div
+              className="video-modal-content"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="close-modal"
+                onClick={() => setSelectedVideoId(null)}
+              >
+                &times;
+              </button>
+              <div className="video-responsive">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={`https://youtube.com/embed/${selectedVideoId}?autoplay=1`}
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </div>
           </div>
         )}
       </main>

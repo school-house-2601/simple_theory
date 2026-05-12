@@ -74,4 +74,8 @@
   color: black;
   border-radius: 6px;
   padding: 5px 10px;
+  transition: filter 0.2s;
+  &:hover {
+    color: white;
+  }
 }
