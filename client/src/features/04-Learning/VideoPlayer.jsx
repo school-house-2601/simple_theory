@@ -40,27 +40,24 @@ export default function BrowsePage() {
 
   useEffect(() => {
     if (queryFromUrl) {
-      // When a search comes from the Navbar:
-      setCurrentTab("other"); // Switch to the 'Other/Search' tab to show results
-      setActiveInstrument(null); // Clear any instrument filters
-      handleSearch(queryFromUrl); // Run the actual search
+      setCurrentTab("other");
+      setActiveInstrument(null);
+      handleSearch(queryFromUrl);
     }
-  }, [queryFromUrl]); // The magic happens here: it re-runs whenever the URL updates
+  }, [queryFromUrl]);
 
   useEffect(() => {
-    // If there's no search in the URL and no category selected yet, default to Theory
     if (!queryFromUrl && !activeInstrument) {
       setActiveInstrument("Theory");
       handleSearch("Music Theory for Beginners");
     }
-  }, [queryFromUrl, activeInstrument]); // Runs once on mount
+  }, [queryFromUrl, activeInstrument]);
 
   const handleSearch = async (query, setter = setSearchResults) => {
-    // NEW: Check if we have already searched for this query in this session
     if (searchCache[query]) {
       console.log(`Loading "${query}" from cache. No credits used!`);
       setter(searchCache[query]);
-      return; // Stop here so we don't fetch again
+      return;
     }
 
     try {
@@ -70,7 +67,6 @@ export default function BrowsePage() {
       const data = await res.json();
 
       if (data.items && data.items.length > 0) {
-        // 3. Update State AND LocalStorage
         const newCache = { ...searchCache, [query]: data.items };
         setSearchCache(newCache);
         localStorage.setItem("youtube_cache", JSON.stringify(newCache));
