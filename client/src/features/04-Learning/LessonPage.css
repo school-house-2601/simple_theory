@@ -1,19 +1,12 @@
 .lessons-container {
   display: grid;
-  grid-template-columns: 1fr 1.2fr; /* Curriculum slightly narrower than Tabs */
+  grid-template-columns: 1fr 1fr;
   gap: 40px;
   padding: 30px;
-  background-color: #0d0d0f; /* Dark background from mockup */
+  background-color: #0d0d0f;
   color: white;
+  align-items: start;
 }
-
-/* .lesson-card {
-  background: #1a1a1e;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  border: 1px solid #2d2d32;
-} */
 
 .progress-bg {
   height: 6px;
@@ -25,24 +18,12 @@
 
 .progress-fill {
   height: 100%;
-  background: #6366f1; /* Purple color from mockup */
+  background: #6366f1;
   transition: width 0.3s ease;
 }
 
-.practice-btn {
-  width: 100%;
-  padding: 10px;
-  background: #312e81;
-  color: #c7d2fe;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-/* Tab Cards on the right */
 .tab-placeholder {
-  aspect-ratio: 3/4; /* Looks like a sheet of paper */
+  aspect-ratio: 3/4;
   background: #252529;
   border-radius: 8px;
   display: flex;
@@ -51,21 +32,16 @@
   color: #555;
 }
 
-.resource-card {
+.resource-icon-box {
+  width: 60px;
+  height: 60px;
+  background: #252529;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 15px;
-  background: #1a1a1e;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-}
-
-.resource-icon-box {
-  font-size: 2rem;
-  background: #2d2d32;
-  padding: 10px;
-  border-radius: 8px;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
 }
 
 .download-btn {
@@ -78,20 +54,26 @@
   margin-top: 8px;
 }
 
-.lesson-card {
-  display: flex; /* Makes it a horizontal row */
-  gap: 20px;
+.lesson-card,
+.resource-card {
+  display: flex;
   background: #1a1a1e;
   border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 15px;
+  padding: 16px;
   border: 1px solid #2d2d32;
+  min-height: 150px;
+  box-sizing: border-box;
+  gap: 20px;
 }
 
 .lesson-preview {
   position: relative;
-  width: 180px; /* Fixed size for the tile */
+  width: 140px; /* or your preferred width */
+  height: 120px; /* FIXED HEIGHT prevents stretching */
   flex-shrink: 0;
+  background: #252529; /* Placeholder color if image fails */
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .lesson-preview img {
@@ -111,14 +93,13 @@
   font-size: 11px;
 }
 
-.lesson-content {
+.lesson-content,
+.resource-info {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
-/* Progress Bar Styling */
 .progress-container {
   margin: 10px 0;
 }
@@ -140,7 +121,7 @@
 
 .progress-bar-fill {
   height: 100%;
-  background: #6366f1; /* Purple theme */
+  background: #6366f1;
   transition: width 0.3s ease;
 }
 
@@ -149,4 +130,109 @@
   color: #9ca3af;
   font-style: italic;
   margin: 10px 0;
+}
+
+.resource-text h4 {
+  margin: 4px 0 0 0;
+  font-size: 1.1rem;
+}
+
+.resource-tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #6366f1;
+  font-weight: bold;
+}
+
+.practice-btn,
+.resource-action-btn {
+  margin-top: auto;
+  width: 100%;
+  padding: 10px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.lesson-text,
+.resource-text {
+  height: 65px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lesson-text h3,
+.resource-text h4 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.resource-icon-box {
+  width: 120px;
+  height: 120px;
+  background: #252529;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.lesson-list,
+.resources-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.practice-modal-content {
+  background: #1a1a1e;
+  width: 90%;
+  max-width: 1000px;
+  height: 85vh;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.practice-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  background: #252529;
+  border-bottom: 1px solid #333;
+}
+
+.flat-embed-container {
+  flex-grow: 1;
+  background: white;
+}
+
+.practice-footer {
+  padding: 15px 25px;
+  background: #252529;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.complete-practice-btn {
+  padding: 8px 16px;
+  background: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
 }
