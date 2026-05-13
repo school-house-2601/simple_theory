@@ -1,11 +1,17 @@
 .lessons-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  padding: 30px;
-  background-color: #0d0d0f;
-  color: white;
-  align-items: start;
+  /* DEFAULT: 1 column for mobile */
+  grid-template-columns: 1fr;
+  gap: 20px;
+  padding: 10px;
+}
+
+@media (min-width: 1024px) {
+  .lessons-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding: 30px;
+  }
 }
 
 .progress-bg {
@@ -65,13 +71,23 @@
   box-sizing: border-box;
   gap: 20px;
 }
+@media (max-width: 600px) {
+  .lesson-card,
+  .resource-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    min-height: auto;
+  }
+}
 
 .lesson-preview {
   position: relative;
-  width: 140px; /* or your preferred width */
-  height: 120px; /* FIXED HEIGHT prevents stretching */
+  width: 140px;
+  height: 120px;
   flex-shrink: 0;
-  background: #252529; /* Placeholder color if image fails */
+  background: #252529;
   border-radius: 6px;
   overflow: hidden;
 }
@@ -98,6 +114,8 @@
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  align-items: center;
 }
 
 .progress-container {
@@ -160,10 +178,11 @@
 
 .lesson-text,
 .resource-text {
-  height: 65px;
+  height: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  margin: 15px 0;
 }
 
 .lesson-text h3,
@@ -235,4 +254,11 @@
   border-radius: 6px;
   font-weight: bold;
   cursor: pointer;
+}
+
+.lesson-preview,
+.resource-icon-box {
+  width: 100% !important;
+  max-width: 280px;
+  height: 160px;
 }

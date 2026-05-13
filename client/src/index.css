@@ -45,11 +45,31 @@ input {
   padding: 10px;
 }
 main {
-  flex: 1; /* This tells the middle content to "grow" and fill the gap */
+  flex: 1;
 }
 
 #root {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Takes up at least the full height of the screen */
+  min-height: 100vh;
+}
+
+/* index.css */
+
+.app-container {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background-color: #0d0d0f;
+}
+
+/* Tablet & Desktop Adjustments */
+@media (min-width: 768px) {
+  .app-container {
+    max-width: 1400px;
+    padding: 20px 40px;
+  }
 }
