@@ -26,7 +26,7 @@
 }
 
 .footer-column a:hover {
-  color: #6366f1; /* Your signature purple */
+  color: #6366f1;
 }
 
 .footer-logo {
@@ -36,4 +36,22 @@
   text-decoration: none;
   display: block;
   margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 40px;
+    padding: 40px 20px;
+  }
+  .footer-column {
+    align-items: center;
+    width: 100%;
+  }
+
+  .footer-column:first-child {
+    max-width: 250px;
+  }
 }
