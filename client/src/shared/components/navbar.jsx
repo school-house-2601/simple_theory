@@ -24,7 +24,6 @@ export default function Navbar() {
           <span className="logo-icon">♫</span>
           <span className="logo-text">SimpleTheory</span>
         </Link>
-
         {/* These links only show on Desktop via CSS */}
         <div className="desktop-only-links">
           <NavLink to="/selection">Courses</NavLink>

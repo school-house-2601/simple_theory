@@ -1,7 +1,9 @@
 import express from "express";
 import session from "express-session";
 import passport from "passport";
+import cors from "cors";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import pool from "./db/db.js";
 import lessonsRouter from "#api/routes/lessons";
 import statsRouter from "#api/routes/stats";
 import usersRouter from "#api/routes/users";
@@ -9,18 +11,46 @@ import getUserFromToken from "#middleware/getUserFromToken";
 
 const app = express();
 
+// 1. MUST BE FIRST: Configure CORS with strict credential permissions
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
+
+// 2. MUST BE SECOND: Configure your unified session store rules cleanly
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      sameSite: "lax",
+    },
   }),
 );
 
+// 3. Initialize passport session tracking
 app.use(passport.initialize());
 app.use(passport.session());
 
-// 2. Passport Google Strategy configuration
+// 4. Global parse structures
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// 5. Auth validation status endpoint for Vite fetch requests
+app.get("/auth/user-status", (req, res) => {
+  if (req.isAuthenticated() && req.user) {
+    res.json({ loggedIn: true, user: req.user });
+  } else {
+    res.json({ loggedIn: false, user: null });
+  }
+});
+
+// 6. Passport Google Strategy configuration
 passport.use(
   new GoogleStrategy(
     {
@@ -29,7 +59,25 @@ passport.use(
       callbackURL: "/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
-      return done(null, profile);
+      try {
+        const userEmail = profile.emails[0].value;
+        const firstName = profile.name.givenName || "Google User";
+        const result = await pool.query(
+          "SELECT * FROM users WHERE email = $1",
+          [userEmail],
+        );
+        if (result.rows.length > 0) {
+          return done(null, result.rows[0]);
+        } else {
+          const newUser = await pool.query(
+            "INSERT INTO users (firstname, email, password) VALUES ($1, $2, $3) RETURNING *",
+            [firstName, userEmail, "OAUTH_GOOGLE_ACCOUNT"],
+          );
+          return done(null, newUser.rows[0]);
+        }
+      } catch (err) {
+        return done(err, null);
+      }
     },
   ),
 );
@@ -37,9 +85,13 @@ passport.use(
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
+// 7. Core Authentication Redirect Paths
 app.get(
   "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] }),
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    prompt: "select_account",
+  }),
 );
 
 app.get(
@@ -48,26 +100,29 @@ app.get(
     failureRedirect: "http://localhost:5173/login",
   }),
   (req, res) => {
-    res.redirect("http://localhost:5173/dashboard");
+    res.redirect("http://localhost:5173/selection");
   },
 );
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(getUserFromToken);
+// 8. Dynamic middleware wrapper to prevent manual JWT bypass breaks
+app.use((req, res, next) => {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    return next();
+  }
+  getUserFromToken(req, res, next);
+});
 
+// 9. Standard Feature API Routers
 app.use("/lessons", lessonsRouter);
 app.use("/stats", statsRouter);
 app.use("/users", usersRouter);
 
+// 10. Central Error handling structures
 app.use((err, req, res, next) => {
   switch (err.code) {
-    // Invalid type
     case "22P02":
       return res.status(400).send(err.message);
-    // Unique constraint violation
     case "23505":
-    // Foreign key violation
     case "23503":
       return res.status(400).send(err.detail);
     default:

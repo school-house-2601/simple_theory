@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../05-Auth/AuthContext";
 import PathCard from "./PathCard";
@@ -58,7 +58,27 @@ const PATHS = [
 export default function SelectionPage() {
   const [selected, setSelected] = useState(null);
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, loginWithGoogle } = useAuth();
+
+  useEffect(() => {
+    fetch("http://localhost:3000/auth/user-status", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.loggedIn) {
+          console.log("Successfully Authenticated via Google:", data.user);
+
+          // 2. REPLACE the old placeholder logic with your new handler:
+          if (loginWithGoogle && !token) {
+            const generatedToken =
+              data.user.token || `google-oauth-${data.user.id}`;
+            loginWithGoogle(data.user, generatedToken);
+          }
+        } else {
+          console.log("Not logged in, stay on public page");
+        }
+      })
+      .catch((err) => console.error("Session check failed:", err));
+  }, [token, loginWithGoogle]);
 
   const handleSelect = (level) => {
     setSelected(level);
