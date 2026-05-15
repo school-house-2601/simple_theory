@@ -29,7 +29,7 @@
 .submit-btn {
   width: 100%;
   background: #6366f1;
-  color: white;
+  color: black;
   padding: 12px;
   border-radius: 6px;
   border: none;
@@ -38,20 +38,72 @@
 }
 
 .social-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   margin: 24px 0;
 }
 
 .social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+
+  width: 100%;
   background: #2d333d;
   border: 1px solid #3f444e;
   color: white;
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 500;
+  font-size: large;
+}
+
+.google-sign-in-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+
+  /* Google Brand Specifications */
+  background-color: #6366f1;
+  color: #1f1f1f;
+  border: 1px solid #747775;
+  border-radius: 4px;
+  padding: 12px;
+  font-family: "Roboto", arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+
+  /* Smooth interaction animations */
+  transition:
+    background-color 0.218s,
+    border-color 0.218s,
+    box-shadow 0.218s;
+  cursor: pointer;
+}
+
+.sign-in-text {
+  color: black;
+  font-weight: bold;
+}
+
+/* Active clicked state */
+.google-sign-in-btn:active {
+  background-color: #ebf1fa;
+}
+
+/* Spacing out the integrated logo from the text */
+.google-icon {
+  margin-right: 12px;
+  flex-shrink: 0;
+  display: block;
 }
 
 .divider {
@@ -80,7 +132,7 @@
 
 .auth-form-group {
   margin-bottom: 20px;
-  text-align: left; /* Ensures labels stay left-aligned */
+  text-align: left;
 }
 
 .auth-form-group label {
@@ -93,7 +145,7 @@
 .auth-form-group input {
   width: 100%;
   padding: 12px;
-  background: #0f1117; /* Darker input than card */
+  background: #0f1117;
   border: 1px solid #3f444e;
   border-radius: 8px;
   color: white;
@@ -243,4 +295,28 @@
 
 .welcome {
   padding-left: 50px;
+}
+
+p {
+  align-items: center;
+  justify-content: center;
+  padding-left: 10px;
+}
+
+@media (max-width: 900px) {
+  .auth-column.right {
+    display: none;
+  }
+
+  .login-form h1,
+  .login-form h2,
+  .auth-column.left h1 {
+    font-size: 2rem !important;
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+  }
+
+  .login-form {
+    padding: 24px;
+  }
 }

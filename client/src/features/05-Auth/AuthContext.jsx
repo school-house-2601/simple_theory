@@ -12,10 +12,13 @@ const API = "/api";
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [user, setUser] = useState(null);
-
-  // We wrap this in useCallback so it doesn't trigger unnecessary re-renders
   const fetchUser = useCallback(async () => {
     if (!token) return;
+    if (token.startsWith("google-oauth")) {
+      console.log("Skipping local fetch user check for stable Google Session.");
+      return;
+    }
+
     try {
       const response = await fetch(`${API}/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -24,7 +27,6 @@ export function AuthProvider({ children }) {
       if (response.ok) {
         setUser(result);
       } else {
-        // If the token is invalid or expired, log them out
         logout();
       }
     } catch (error) {
@@ -66,12 +68,25 @@ export function AuthProvider({ children }) {
     setToken(result.token);
   };
 
+  const loginWithGoogle = (userData, userToken) => {
+    localStorage.setItem("token", userToken);
+    setToken(userToken);
+    setUser(userData);
+  };
   const logout = () => {
     setToken(null);
     setUser(null);
   };
 
-  const value = { token, register, login, logout, user, fetchUser };
+  const value = {
+    token,
+    register,
+    login,
+    logout,
+    user,
+    fetchUser,
+    loginWithGoogle,
+  };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
