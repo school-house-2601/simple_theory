@@ -135,19 +135,19 @@ export default function LessonsPage() {
         title: "Ode to Joy (Tab)",
         type: "Notation",
         icon: "📄",
-        link: "https://flat.io",
+        link: "https://imra-review-2026.flat.io/embed/5f37361cf3456860172bec2c",
       },
       {
         title: "C Major Scale",
         type: "Tab",
         icon: "📄",
-        link: "https://flat.io",
+        link: "https://imra-review-2026.flat.io/embed/67299a11d738101bbf973938",
       },
       {
         title: "Essential Chord Cheat Sheet",
         type: "Notation",
         icon: "📄",
-        link: "https://flat.io",
+        link: "https://imra-review-2026.flat.io/embed/5a7215d637c62b676aae6be2",
       },
     ],
     Intermediate: [
