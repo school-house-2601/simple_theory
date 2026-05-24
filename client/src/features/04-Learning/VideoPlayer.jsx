@@ -5,16 +5,22 @@ import { MOCK_VIDEOS } from "../../mockData";
 
 export default function BrowsePage() {
   const [searchResults, setSearchResults] = useState([]);
+  const [flatResults, setFlatResults] = useState([]); // New state for sheet music
   const [selectedVideoId, setSelectedVideoId] = useState(null);
   const [activeInstrument, setActiveInstrument] = useState(null);
   const [currentTab, setCurrentTab] = useState("browse");
   const [searchParams] = useSearchParams();
   const queryFromUrl = searchParams.get("search");
-  const USE_MOCK_DATA = true;
-  // 1. Initialize cache from localStorage so it survives refreshes
+
+  // 1. Initialize caches from localStorage so they survive refreshes
   const [searchCache, setSearchCache] = useState(() => {
     const savedCache = localStorage.getItem("youtube_cache");
     return savedCache ? JSON.parse(savedCache) : {};
+  });
+
+  const [flatCache, setFlatCache] = useState(() => {
+    const savedFlatCache = localStorage.getItem("flat_io_cache");
+    return savedFlatCache ? JSON.parse(savedFlatCache) : {};
   });
 
   const [savedVideos, setSavedVideos] = useState(() => {
@@ -53,45 +59,61 @@ export default function BrowsePage() {
     }
   }, [queryFromUrl, activeInstrument]);
 
-  const handleSearch = async (query, setter = setSearchResults) => {
+  // Unified execution for video and sheet music queries
+  const handleSearch = async (query) => {
+    // ---- 1. Fetch YouTube Videos ----
     if (searchCache[query]) {
-      console.log(`Loading "${query}" from cache. No credits used!`);
-      setter(searchCache[query]);
-      return;
+      setSearchResults(searchCache[query]);
+    } else {
+      try {
+        const res = await fetch(`/api/lessons/youtube-search?query=${query}`);
+        if (!res.ok) throw new Error(`YouTube API Error: ${res.status}`);
+        const data = await res.json();
+        if (data.items && data.items.length > 0) {
+          const newCache = { ...searchCache, [query]: data.items };
+          setSearchCache(newCache);
+          localStorage.setItem("youtube_cache", JSON.stringify(newCache));
+          setSearchResults(data.items);
+        } else {
+          setSearchResults(MOCK_VIDEOS);
+        }
+      } catch (err) {
+        console.error("YouTube Error. Using mock data.", err);
+        setSearchResults(MOCK_VIDEOS);
+      }
     }
 
-    try {
-      const res = await fetch(`/api/lessons/youtube-search?query=${query}`);
-      if (!res.ok) throw new Error(`API Error: ${res.status}`);
+    // ---- 2. Fetch Flat.io Sheet Music Notation ----
+    if (flatCache[query]) {
+      setFlatResults(flatCache[query]);
+    } else {
+      try {
+        const res = await fetch(`/api/lessons/flat-search?query=${query}`);
+        if (!res.ok) throw new Error(`Flat.io API Error: ${res.status}`);
+        const data = await res.json();
 
-      const data = await res.json();
+        // Flat.io returns results under an array directly or inside data
+        const sheets = Array.isArray(data) ? data : data.results || [];
 
-      if (data.items && data.items.length > 0) {
-        const newCache = { ...searchCache, [query]: data.items };
-        setSearchCache(newCache);
-        localStorage.setItem("youtube_cache", JSON.stringify(newCache));
-
-        setter(data.items);
-      } else {
-        setter(MOCK_VIDEOS);
+        const newFlatCache = { ...flatCache, [query]: sheets };
+        setFlatCache(newFlatCache);
+        localStorage.setItem("flat_io_cache", JSON.stringify(newFlatCache));
+        setFlatResults(sheets);
+      } catch (err) {
+        console.error("Flat.io layout fetch failed.", err);
+        setFlatResults([]);
       }
-    } catch (err) {
-      console.error("Quota exceeded. Using mock data.", err);
-      setter(MOCK_VIDEOS);
     }
   };
 
   return (
     <div className="browse-container">
-      {/* MAIN CONTENT AREA */}
       <main className="browse-content">
-        {/* NEW HEADER SECTION */}
         <header className="browse-header">
           <h1>Browse Video Knowledge</h1>
           <p>Aggregated tutorials and theory from across the web.</p>
         </header>
 
-        {/* WRAP NAV AND SORT IN A FLEX CONTAINER */}
         <div className="filter-bar">
           <nav className="category-pills">
             <button
@@ -104,7 +126,6 @@ export default function BrowsePage() {
             >
               🎼 Theory
             </button>
-
             <button
               className={activeInstrument === "Piano" ? "pill active" : "pill"}
               onClick={() => {
@@ -115,7 +136,6 @@ export default function BrowsePage() {
             >
               🎹 Piano
             </button>
-
             <button
               className={activeInstrument === "Guitar" ? "pill active" : "pill"}
               onClick={() => {
@@ -126,7 +146,6 @@ export default function BrowsePage() {
             >
               🎸 Guitar
             </button>
-
             <button
               className={activeInstrument === "Drums" ? "pill active" : "pill"}
               onClick={() => {
@@ -137,7 +156,6 @@ export default function BrowsePage() {
             >
               🥁 Drums
             </button>
-
             <button
               className={activeInstrument === "Vocals" ? "pill active" : "pill"}
               onClick={() => {
@@ -148,7 +166,6 @@ export default function BrowsePage() {
             >
               🎤 Vocals
             </button>
-
             <button
               className={
                 activeInstrument === "Production" ? "pill active" : "pill"
@@ -161,7 +178,6 @@ export default function BrowsePage() {
             >
               🎚️ Production
             </button>
-
             <button
               className={currentTab === "saved" ? "pill active" : "pill"}
               onClick={() => {
@@ -174,7 +190,6 @@ export default function BrowsePage() {
           </nav>
         </div>
 
-        {/* VIDEO GRID SECTION */}
         <div className="results-container">
           {currentTab === "saved" ? (
             <section className="video-section">
@@ -196,26 +211,44 @@ export default function BrowsePage() {
               </div>
             </section>
           ) : (
-            <section className="video-section">
-              <h2>{activeInstrument || "Explore"} Tutorials</h2>
-              <div className="video-grid">
-                {searchResults.length > 0 ? (
-                  searchResults.map((video) => (
-                    <VideoCard
-                      key={video.id.videoId}
-                      video={video}
-                      onSelect={setSelectedVideoId}
-                      onSave={toggleSaveVideo}
-                      isSaved={savedVideos.some(
-                        (v) => v.id.videoId === video.id.videoId,
-                      )}
-                    />
-                  ))
-                ) : (
-                  <p>Select a category to start learning.</p>
-                )}
-              </div>
-            </section>
+            <>
+              {/* SECTION 2: VIDEO TUTORIALS */}
+              <section className="video-section">
+                <h2>{activeInstrument || "Explore"} Video Tutorials</h2>
+                <div className="video-grid">
+                  {searchResults.length > 0 ? (
+                    searchResults.map((video) => (
+                      <VideoCard
+                        key={video.id.videoId}
+                        video={video}
+                        onSelect={setSelectedVideoId}
+                        onSave={toggleSaveVideo}
+                        isSaved={savedVideos.some(
+                          (v) => v.id.videoId === video.id.videoId,
+                        )}
+                      />
+                    ))
+                  ) : (
+                    <p>Select a category to start learning.</p>
+                  )}
+                </div>
+              </section>
+
+              {/* SECTION 1: INTERACTIVE NOTATION SHEETS */}
+              {flatResults.length > 0 && (
+                <section
+                  className="video-section"
+                  style={{ marginBottom: "40px" }}
+                >
+                  <h2>Interactive Sheet Music</h2>
+                  <div className="video-grid">
+                    {flatResults.slice(0, 4).map((sheet) => (
+                      <SheetMusicCard key={sheet.id} sheet={sheet} />
+                    ))}
+                  </div>
+                </section>
+              )}
+            </>
           )}
         </div>
 
@@ -286,6 +319,37 @@ function VideoCard({ video, onSelect, onSave, isSaved }) {
       >
         {isSaved ? "★" : "☆"}
       </button>
+    </div>
+  );
+}
+
+function SheetMusicCard({ sheet }) {
+  // Generates the clean embedding URL for the selected public sheet music document
+  const scoreUrl = `https://flat.io/score/${sheet.id}`;
+
+  return (
+    <div
+      className="video-card sheet-card"
+      onClick={() => window.open(scoreUrl, "_blank")}
+      style={{ cursor: "pointer", borderLeft: "4px solid #0052cc" }}
+    >
+      <div className="video-info" style={{ padding: "20px 15px" }}>
+        <span
+          style={{
+            fontSize: "12px",
+            textTransform: "uppercase",
+            color: "#6b778c",
+            fontWeight: "bold",
+          }}
+        >
+          🎼 Flat.io Score
+        </span>
+        <h4 style={{ marginTop: "5px", marginBottom: "5px" }}>{sheet.title}</h4>
+        <p>By {sheet.author || "Community Contributor"}</p>
+        <p style={{ fontSize: "12px", color: "#0052cc", marginTop: "10px" }}>
+          Click to open music notation →
+        </p>
+      </div>
     </div>
   );
 }
