@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import YouTube from "react-youtube";
 import { useAuth } from "../05-Auth/AuthContext";
 import "./LessonPage.css";
@@ -9,6 +9,23 @@ export default function LessonsPage() {
   const location = useLocation();
   const [activeVideo, setActiveVideo] = useState(null);
   const [activeScoreId, setActiveScoreId] = useState(null);
+  const [flatUserData, setFlatUserData] = useState(null);
+
+  useEffect(() => {
+    if (token) {
+      // Only fetch if the user is logged into your platform
+      fetch("/api/lessons/flat-me")
+        .then((res) => {
+          if (!res.ok) throw new Error("Could not verify Flat.io account");
+          return res.json();
+        })
+        .then((data) => {
+          setFlatUserData(data);
+          console.log("Flat.io User connected:", data);
+        })
+        .catch((err) => console.error(err));
+    }
+  }, [token]);
 
   // Initialize progress from localStorage or your mockData
   const [progressData, setProgressData] = useState(() => {
