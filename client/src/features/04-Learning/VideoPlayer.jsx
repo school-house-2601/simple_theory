@@ -1,28 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import "./VideoPlayer.css";
 import { MOCK_VIDEOS } from "../../mockData";
 
 export default function BrowsePage() {
   const [searchResults, setSearchResults] = useState([]);
-  const [flatResults, setFlatResults] = useState([]); // New state for sheet music
+  const [flatResults, setFlatResults] = useState([]);
   const [selectedVideoId, setSelectedVideoId] = useState(null);
   const [activeInstrument, setActiveInstrument] = useState(null);
+  const [activeScoreId, setActiveScoreId] = useState(null);
   const [currentTab, setCurrentTab] = useState("browse");
   const [searchParams] = useSearchParams();
   const queryFromUrl = searchParams.get("search");
 
-  // 1. Initialize caches from localStorage so they survive refreshes
   const [searchCache, setSearchCache] = useState(() => {
     const savedCache = localStorage.getItem("youtube_cache");
     return savedCache ? JSON.parse(savedCache) : {};
   });
-
   const [flatCache, setFlatCache] = useState(() => {
     const savedFlatCache = localStorage.getItem("flat_io_cache");
     return savedFlatCache ? JSON.parse(savedFlatCache) : {};
   });
-
   const [savedVideos, setSavedVideos] = useState(() => {
     const saved = localStorage.getItem("savedLessons");
     return saved ? JSON.parse(saved) : [];
@@ -59,9 +57,7 @@ export default function BrowsePage() {
     }
   }, [queryFromUrl, activeInstrument]);
 
-  // Unified execution for video and sheet music queries
   const handleSearch = async (query) => {
-    // ---- 1. Fetch YouTube Videos ----
     if (searchCache[query]) {
       setSearchResults(searchCache[query]);
     } else {
@@ -83,18 +79,15 @@ export default function BrowsePage() {
       }
     }
 
-    // ---- 2. Fetch Flat.io Sheet Music Notation ----
     if (flatCache[query]) {
+      console.log(flatCache);
       setFlatResults(flatCache[query]);
     } else {
       try {
         const res = await fetch(`/api/lessons/flat-search?query=${query}`);
         if (!res.ok) throw new Error(`Flat.io API Error: ${res.status}`);
         const data = await res.json();
-
-        // Flat.io returns results under an array directly or inside data
         const sheets = Array.isArray(data) ? data : data.results || [];
-
         const newFlatCache = { ...flatCache, [query]: sheets };
         setFlatCache(newFlatCache);
         localStorage.setItem("flat_io_cache", JSON.stringify(newFlatCache));
@@ -113,7 +106,6 @@ export default function BrowsePage() {
           <h1>Browse Video Knowledge</h1>
           <p>Aggregated tutorials and theory from across the web.</p>
         </header>
-
         <div className="filter-bar">
           <nav className="category-pills">
             <button
@@ -124,7 +116,8 @@ export default function BrowsePage() {
                 handleSearch("Music Theory for Beginners");
               }}
             >
-              🎼 Theory
+              {" "}
+              🎼 Theory{" "}
             </button>
             <button
               className={activeInstrument === "Piano" ? "pill active" : "pill"}
@@ -134,7 +127,8 @@ export default function BrowsePage() {
                 handleSearch("Piano tutorials");
               }}
             >
-              🎹 Piano
+              {" "}
+              🎹 Piano{" "}
             </button>
             <button
               className={activeInstrument === "Guitar" ? "pill active" : "pill"}
@@ -144,7 +138,8 @@ export default function BrowsePage() {
                 handleSearch("Guitar lessons");
               }}
             >
-              🎸 Guitar
+              {" "}
+              🎸 Guitar{" "}
             </button>
             <button
               className={activeInstrument === "Drums" ? "pill active" : "pill"}
@@ -154,7 +149,8 @@ export default function BrowsePage() {
                 handleSearch("Drum basics");
               }}
             >
-              🥁 Drums
+              {" "}
+              🥁 Drums{" "}
             </button>
             <button
               className={activeInstrument === "Vocals" ? "pill active" : "pill"}
@@ -164,7 +160,8 @@ export default function BrowsePage() {
                 handleSearch("Vocal lessons");
               }}
             >
-              🎤 Vocals
+              {" "}
+              🎤 Vocals{" "}
             </button>
             <button
               className={
@@ -176,7 +173,8 @@ export default function BrowsePage() {
                 handleSearch("DAW production tutorials");
               }}
             >
-              🎚️ Production
+              {" "}
+              🎚️ Production{" "}
             </button>
             <button
               className={currentTab === "saved" ? "pill active" : "pill"}
@@ -185,7 +183,8 @@ export default function BrowsePage() {
                 setActiveInstrument(null);
               }}
             >
-              🔖 Saved ({savedVideos.length})
+              {" "}
+              🔖 Saved ({savedVideos.length}){" "}
             </button>
           </nav>
         </div>
@@ -212,7 +211,6 @@ export default function BrowsePage() {
             </section>
           ) : (
             <>
-              {/* SECTION 2: VIDEO TUTORIALS */}
               <section className="video-section">
                 <h2>{activeInstrument || "Explore"} Video Tutorials</h2>
                 <div className="video-grid">
@@ -234,7 +232,6 @@ export default function BrowsePage() {
                 </div>
               </section>
 
-              {/* SECTION 1: INTERACTIVE NOTATION SHEETS */}
               {flatResults.length > 0 && (
                 <section
                   className="video-section"
@@ -243,7 +240,11 @@ export default function BrowsePage() {
                   <h2>Interactive Sheet Music</h2>
                   <div className="video-grid">
                     {flatResults.slice(0, 4).map((sheet) => (
-                      <SheetMusicCard key={sheet.id} sheet={sheet} />
+                      <SheetMusicCard
+                        key={sheet.id}
+                        sheet={sheet}
+                        onSelectScore={setActiveScoreId}
+                      />
                     ))}
                   </div>
                 </section>
@@ -252,7 +253,7 @@ export default function BrowsePage() {
           )}
         </div>
 
-        {/* MODAL */}
+        {/* YOUTUBE MODAL */}
         {selectedVideoId && (
           <div
             className="video-modal-overlay"
@@ -266,13 +267,14 @@ export default function BrowsePage() {
                 className="close-modal"
                 onClick={() => setSelectedVideoId(null)}
               >
-                &times;
+                {" "}
+                &times;{" "}
               </button>
               <div className="video-responsive">
                 <iframe
                   width="100%"
                   height="100%"
-                  src={`https://youtube.com/embed/${selectedVideoId}?autoplay=1`}
+                  src={`https://youtube.com{selectedVideoId}?autoplay=1`}
                   title="YouTube video player"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -282,6 +284,14 @@ export default function BrowsePage() {
             </div>
           </div>
         )}
+
+        {/* FLAT.IO SHEET MUSIC MODAL */}
+        {activeScoreId && (
+          <ModalWrapper
+            activeScoreId={activeScoreId}
+            setActiveScoreId={setActiveScoreId}
+          />
+        )}
       </main>
     </div>
   );
@@ -289,13 +299,11 @@ export default function BrowsePage() {
 
 function VideoCard({ video, onSelect, onSave, isSaved }) {
   const videoId = video.id.videoId;
-
   const decodeHTML = (str) => {
     const txt = document.createElement("textarea");
     txt.innerHTML = str;
     return txt.value;
   };
-
   return (
     <div
       className="video-card"
@@ -317,20 +325,18 @@ function VideoCard({ video, onSelect, onSave, isSaved }) {
           onSave(video);
         }}
       >
-        {isSaved ? "★" : "☆"}
+        {" "}
+        {isSaved ? "★" : "☆"}{" "}
       </button>
     </div>
   );
 }
 
-function SheetMusicCard({ sheet }) {
-  // Generates the clean embedding URL for the selected public sheet music document
-  const scoreUrl = `https://flat.io/score/${sheet.id}`;
-
+function SheetMusicCard({ sheet, onSelectScore }) {
   return (
     <div
       className="video-card sheet-card"
-      onClick={() => window.open(scoreUrl, "_blank")}
+      onClick={() => onSelectScore(sheet.id)}
       style={{ cursor: "pointer", borderLeft: "4px solid #0052cc" }}
     >
       <div className="video-info" style={{ padding: "20px 15px" }}>
@@ -347,8 +353,46 @@ function SheetMusicCard({ sheet }) {
         <h4 style={{ marginTop: "5px", marginBottom: "5px" }}>{sheet.title}</h4>
         <p>By {sheet.author || "Community Contributor"}</p>
         <p style={{ fontSize: "12px", color: "#0052cc", marginTop: "10px" }}>
-          Click to open music notation →
+          Click to open music notation here →
         </p>
+      </div>
+    </div>
+  );
+}
+function ModalWrapper({ activeScoreId, setActiveScoreId }) {
+  const iframeRef = useRef(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (iframeRef.current) {
+        iframeRef.current.focus();
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [activeScoreId]);
+
+  return (
+    <div className="video-modal-overlay" onClick={() => setActiveScoreId(null)}>
+      <div
+        className="video-modal-content"
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: "900px", width: "90%" }}
+      >
+        <button className="close-modal" onClick={() => setActiveScoreId(null)}>
+          &times;
+        </button>
+        <div className="video-responsive" style={{ paddingTop: "65%" }}>
+          <iframe
+            ref={iframeRef}
+            width="100%"
+            height="100%"
+            src={`https://flat.io/embed/${activeScoreId}?layout=responsive`}
+            title="Flat.io sheet music player"
+            frameBorder="0"
+            allow="autoplay; midi"
+            allowFullScreen
+          ></iframe>
+        </div>
       </div>
     </div>
   );
