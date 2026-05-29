@@ -2,8 +2,11 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import "./VideoPlayer.css";
 import { MOCK_VIDEOS } from "../../mockData";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../05-Auth/AuthContext";
 
 export default function BrowsePage() {
+  const { user } = useAuth();
   const [searchResults, setSearchResults] = useState([]);
   const [selectedVideoId, setSelectedVideoId] = useState(null);
   const [activeInstrument, setActiveInstrument] = useState(null);
@@ -11,16 +14,28 @@ export default function BrowsePage() {
   const [searchParams] = useSearchParams();
   const queryFromUrl = searchParams.get("search");
   const USE_MOCK_DATA = true;
+  const navigate = useNavigate();
   // 1. Initialize cache from localStorage so it survives refreshes
   const [searchCache, setSearchCache] = useState(() => {
-    const savedCache = localStorage.getItem("youtube_cache");
-    return savedCache ? JSON.parse(savedCache) : {};
+    try {
+      const savedCache = localStorage.getItem("youtube_cache");
+      return savedCache ? JSON.parse(savedCache) : {};
+    } catch {
+      return {};
+    }
   });
 
   const [savedVideos, setSavedVideos] = useState(() => {
-    const saved = localStorage.getItem("savedLessons");
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem("savedLessons");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
+
+  const [watchTimer, setWatchTimer] = useState(null);
+  const [xpAwarded, setXpAwarded] = useState(new Set());
 
   const toggleSaveVideo = (video) => {
     let updatedSaved;
@@ -38,6 +53,52 @@ export default function BrowsePage() {
     localStorage.setItem("savedLessons", JSON.stringify(updatedSaved));
   };
 
+    const awardVideoXP = async (videoId) => {
+    if (!user) return;
+    try {
+      const res = await fetch("/api/progress/video-complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          videoId: videoId,
+          xpEarned: 5,
+          skillCategory: activeInstrument || "Theory"
+        })
+      });
+      const data = await res.json();
+      console.log("XP response:", data);
+    } catch (err) {
+      console.error("Failed to award XP", err);
+    } 
+  };
+
+  const handleVideoSelect = (videoId) => {
+    setSelectedVideoId(videoId);
+    if (xpAwarded.has(videoId)) return;
+    const timer = setTimeout(async () => {
+      await awardVideoXP(videoId);
+      setXpAwarded((prev) => new Set(prev).add(videoId))
+    }, 60000)
+    setWatchTimer(timer);
+  };
+
+  const handleCloseVideo = () => {
+    if (watchTimer) {
+      clearTimeout(watchTimer);
+      setWatchTimer(null);
+    }
+    setSelectedVideoId(null);
+  };
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "saved") {
+      setCurrentTab("saved");
+      setActiveInstrument(null);
+    }
+  }, [searchParams.get("tab"), searchParams.get("t")]);
+
   useEffect(() => {
     if (queryFromUrl) {
       setCurrentTab("other");
@@ -54,6 +115,7 @@ export default function BrowsePage() {
   }, [queryFromUrl, activeInstrument]);
 
   const handleSearch = async (query, setter = setSearchResults) => {
+    console.log("Searching for:", query);
     if (searchCache[query]) {
       console.log(`Loading "${query}" from cache. No credits used!`);
       setter(searchCache[query]);
@@ -99,6 +161,7 @@ export default function BrowsePage() {
               onClick={() => {
                 setActiveInstrument("Theory");
                 setCurrentTab("browse");
+                navigate("/browse", {replace: true});
                 handleSearch("Music Theory for Beginners");
               }}
             >
@@ -110,6 +173,7 @@ export default function BrowsePage() {
               onClick={() => {
                 setActiveInstrument("Piano");
                 setCurrentTab("browse");
+                navigate("/browse", {replace: true});
                 handleSearch("Piano tutorials");
               }}
             >
@@ -121,6 +185,7 @@ export default function BrowsePage() {
               onClick={() => {
                 setActiveInstrument("Guitar");
                 setCurrentTab("browse");
+                navigate("/browse", {replace: true});
                 handleSearch("Guitar lessons");
               }}
             >
@@ -132,6 +197,7 @@ export default function BrowsePage() {
               onClick={() => {
                 setActiveInstrument("Drums");
                 setCurrentTab("browse");
+                navigate("/browse", {replace: true});
                 handleSearch("Drum basics");
               }}
             >
@@ -143,6 +209,7 @@ export default function BrowsePage() {
               onClick={() => {
                 setActiveInstrument("Vocals");
                 setCurrentTab("browse");
+                navigate("/browse", {replace: true});
                 handleSearch("Vocal lessons");
               }}
             >
@@ -156,6 +223,7 @@ export default function BrowsePage() {
               onClick={() => {
                 setActiveInstrument("Production");
                 setCurrentTab("browse");
+                navigate("/browse", {replace: true});
                 handleSearch("DAW production tutorials");
               }}
             >
@@ -185,7 +253,7 @@ export default function BrowsePage() {
                     <VideoCard
                       key={video.id.videoId}
                       video={video}
-                      onSelect={setSelectedVideoId}
+                      onSelect={handleVideoSelect}
                       onSave={toggleSaveVideo}
                       isSaved={true}
                     />
@@ -204,7 +272,7 @@ export default function BrowsePage() {
                     <VideoCard
                       key={video.id.videoId}
                       video={video}
-                      onSelect={setSelectedVideoId}
+                      onSelect={handleVideoSelect}
                       onSave={toggleSaveVideo}
                       isSaved={savedVideos.some(
                         (v) => v.id.videoId === video.id.videoId,
@@ -223,7 +291,7 @@ export default function BrowsePage() {
         {selectedVideoId && (
           <div
             className="video-modal-overlay"
-            onClick={() => setSelectedVideoId(null)}
+            onClick={() => handleCloseVideo()}
           >
             <div
               className="video-modal-content"
@@ -231,7 +299,7 @@ export default function BrowsePage() {
             >
               <button
                 className="close-modal"
-                onClick={() => setSelectedVideoId(null)}
+                onClick={() => handleCloseVideo()}
               >
                 &times;
               </button>

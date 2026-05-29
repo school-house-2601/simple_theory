@@ -138,24 +138,6 @@
   }
 }
 
-.browse-sidebar button,
-.sidebar-nav button {
-  display: block;
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 5px;
-  text-align: left;
-  background: #2d333d;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.browse-sidebar button:hover {
-  background: #3e4451;
-}
-
 .active-tab {
   background: #4f46e5 !important;
   font-weight: bold;

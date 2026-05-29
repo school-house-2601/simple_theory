@@ -1,0 +1,110 @@
+.daily-goals-card {
+    background-color: #12122a;
+    border: 1px solid #1e1e3a;
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.daily-goals-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.daily-goals-header span {
+    font-size: 1.2rem;
+    margin-top: 2px;
+}
+
+.daily-goals-header h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0 0 2px 0;
+}
+
+.daily-goals-header p {
+    font-size: 0.75rem;
+    color: #a0a0c0;
+    margin: 0;
+}
+
+.goals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.goal-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.goal-item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.goal-label {
+    font-size: 0.8rem;
+    color: #d0d0f0;
+}
+
+.goal-value {
+    font-size: 0.8rem;
+    color: #a0a0c0;
+}
+
+.goal-bar-bg {
+    width: 100%;
+    height: 6px;
+    background-color: #1e1e3a;
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.goal-bar-fill {
+    height: 100%;
+    background-color: #6c63ff;
+    border-radius: 99px;
+    transition: width 0.4s ease;
+}
+
+.goal-bar-fill {
+    height: 100%;
+    background-color: #6c63ff;
+    border-radius: 99px;
+    transition: width 0.4s ease;
+}
+
+.goal-bar-fill.completed {
+    background-color: #4caf7d;
+}
+
+.weekly-challenges-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #3b3b6b;
+    background: transparent;
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.weekly-challenges-btn:hover {
+    border-color: #6c63ff;
+    background-color: #1a1a2e;
+}
+
+.goal-bonus {
+    font-size: 0.7rem;
+    color: #6c63ff;
+    text-align: right;
+}

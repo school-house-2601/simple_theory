@@ -1,0 +1,78 @@
+.skill-radar-card {
+    background-color: #12122a;
+    border: 1px solid #1e1e3a;
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.skill-radar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.skill-radar-header h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+}
+
+.skill-radar-header p {
+    font-size: 0.8rem;
+    color: #a0a0c0;
+    margin: 0;
+}
+
+.balanced-badge {
+    font-size: 0.75rem;
+    color: #a0a0c0;
+    background-color: #1a1a2e;
+    border: 1px solid #3b3b6b;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.skill-radar-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: center;
+}
+
+.skill-panels {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.skill-panel {
+    background-color: #0d0d1a;
+    border: 1px solid #1e1e3a;
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.panel-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.skill-panel b {
+    display: block;
+    font-size: 0.875rem;
+    margin-bottom: 4px;
+}
+
+.skill-panel p {
+    font-size: 0.8rem;
+    color: #a0a0c0;
+    margin: 0;
+    line-height: 1.5;
+}

@@ -6,6 +6,7 @@ import {
   updateSelectedPath,
   getBookmarkedContent,
   toggleBookmark,
+  updateLoginStreak,
 } from "#db/queries/userQueries";
 import requireBody from "#middleware/requireBody";
 import requireUser from "#middleware/requireUser";
@@ -62,6 +63,7 @@ router.post(
 
 router.get("/me", requireUser, async (req, res, next) => {
   try {
+    await updateLoginStreak(req.user.id);
     const user = await getUserById(req.user.id);
     res.send(user);
   } catch (error) {

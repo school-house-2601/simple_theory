@@ -23,11 +23,6 @@ router.get("/youtube-search", async (req, res, next) => {
   const { query } = req.query;
 
   // If you are in development mode, just return fake data and exit
-  if (process.env.NODE_ENV === "development") {
-    return res.json({
-      items: [{ id: { videoId: "mock" }, snippet: { title: "Mock Video" } }],
-    });
-  }
   if (searchCache[query]) {
     console.log(`Serving "${query}" from cache (Saving 100 credits!)`);
     return res.json(searchCache[query]);

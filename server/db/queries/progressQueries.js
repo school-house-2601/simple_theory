@@ -1,4 +1,5 @@
 import db from "#db/db";
+import { updateDailyGoals } from "./userQueries";
 
 export async function completeContent(userId, contentId) {
   const progressResult = await db.query(
@@ -50,8 +51,39 @@ export async function completeContent(userId, contentId) {
   return { user, leveledUp: false };
 }
 
+export async function completeVideoWatch(userId, videoId, xpEarned, skillCategory) {
+  console.log("completeVideoWatch called:", userId, videoId, xpEarned, skillCategory);
+
+  await db.query(
+    `INSERT INTO play_sessions (user_id, xp_earned, skill_category)
+    VALUES ($1, $2, $3)`,
+    [userId, xpEarned, skillCategory]
+  );
+
+  const { rows: [user] } = await db.query(
+    `UPDATE users
+    SET total_xp = total_xp + $1
+    WHERE id = $2
+    RETURNING *`,
+    [xpEarned, userId]
+  );
+
+  await updateDailyGoals(userId, xpEarned, skillCategory);
+
+  const newLevel = calculateLevel(user.total_xp);
+  if (newLevel !== user.current_level) {
+    await db.query(
+      `UPDATE users SET current_level = $1 WHERE id = $2`,
+      [newLevel, userId]
+    );
+    return { user, leveledUp: true, newLevel };
+  }
+
+  return { user, leveledUp: false };
+}
+
 function calculateLevel(xp) {
-  if (xp >= 1500) return "Professional";
-  if (xp >= 500) return "Intermediate";
+  if (xp >= 5000) return "Professional";
+  if (xp >= 3000) return "Intermediate";
   return "Novice";
 }
