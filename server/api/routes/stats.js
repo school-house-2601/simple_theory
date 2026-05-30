@@ -37,7 +37,7 @@ router.get("/recommendations/:userId", async (req, res) => {
         const { userId } = req.params;
 
         const { rows: [user] } = await db.query(
-            `SELECT selected_path, current_level FROM users WHERE id = $1`,
+            `SELECT selected_path, current_level, interests FROM users WHERE id = $1`,
             [userId]
         );
 
@@ -46,7 +46,7 @@ router.get("/recommendations/:userId", async (req, res) => {
             FROM play_sessions
             WHERE user_id = $1 AND skill_category IS NOT NULL
             GROUP BY skill_category
-            ORDER BY total_xp ASC`,
+            ORDER BY sessions DESC`,
             [userId]
         );
 
@@ -60,49 +60,55 @@ router.get("/recommendations/:userId", async (req, res) => {
             [userId]
         );
 
-        const weakestSkill = skills[0]?.skill_category || "Theory";
-        const favoriteSkill = mostWatched[0]?.skill_category || user.selected_path;
         const level = user.current_level;
+        const userInterests = user.interests || [];
+        const dominantSkill = skills.find((s) => Number(s.sessions) >= 5);
+        const interestSkills = skills.filter((s) =>
+            userInterests.includes(s.skill_category)
+        );
+        const weakestInterest = interestSkills.length > 0
+            ? interestSkills.reduce((a, b) =>
+                Number(a.total_xp) < Number(b.total_xp) ? a : b)
+            : null;
 
-        const pool = [
-            {
-                title: `${level} ${weakestSkill} Practice`,
-                description: `Your ${weakestSkill} needs work. This ${level.toLowerCase()} tutorial will help you catch up.`,
-                searchQuery: `${weakestSkill} tutorial for ${level.toLowerCase()} musicians`,
-                badge: "Needs Work",
-                duration: "30-45 mins",
-            },
-            {
-                title: `Advanced ${favoriteSkill} Techniques`,
-                description: `You love ${favoriteSkill}. Take it to the next level with advanced techniques.`,
-                searchQuery: `advanced ${favoriteSkill} techniques ${level.toLowerCase()}`,
-                badge: "Keep Growing",
-                duration: "20-40 mins",
-            },
-            {
-                title: `${user.selected_path} Music Theory`,
-                description: `Build your foundation with music theory for ${user.selected_path.toLowerCase()} musicians.`,
-                searchQuery: `music theory ${user.selected_path}`,
-                badge: "For You",
-                duration: "20-30 mins",
-            },
-            {
-                title: `${user.selected_path} Path: Next Steps`,
-                description: `Continue your ${user.selected_path} journey with curated tutorials.`,
-                searchQuery: `${user.selected_path} music lessons next level`,
-                badge: "Your Path",
-                duration: "30-50 mins",
-            }
-        ];
+        let focusSkill;
+        let badge;
+        let reason;
 
-        let recommendation;
-        if (skills.length === 0) {
-            recommendation = pool[3];
-        } else if (weakestSkill !== favoriteSkill) {
-            recommendation = pool[0];
+        if (dominantSkill) {
+            focusSkill = dominantSkill.skill_category;
+            badge = "Trending For You";
+            reason = `You've been watching a lot of ${focusSkill} videos lately`;
+        } else if (weakestInterest) {
+            focusSkill = weakestInterest.skill_category;
+            badge = "Build Your Skills";
+            reason = `Your ${focusSkill} needs some work based on your interests`;
+        } else if (userInterests.length > 0) {
+            focusSkill = userInterests[Math.floor(Math.random() * userInterests.length)];
+            badge = "Get Started";
+            reason = `Start your ${focusSkill} journey`;
         } else {
-            recommendation = pool[Math.floor(Math.random() * pool.length)];
+            focusSkill = user.selected_path;
+            badge = "Recommended";
+            reason = `Based on your ${user.selected_path} path`;
         }
+
+        const LEVEL_QUERIES = {
+            Novice: "beginner tutorial",
+            Intermediate: "intermediate tutorial",
+            Professional: "advanced professional tutorial",
+        };
+
+        const levelQuery = LEVEL_QUERIES[level] || "tutorial";
+
+        const recommendation = {
+            title: `${focusSkill} - ${level} Pick`,
+            description: `${reason}. Here's a ${level.toLowerCase()} ${focusSkill} tutorial picked just for you.`,
+            searchQuery: `${focusSkill} ${levelQuery}`,
+            badge,
+            duration: "30-45 mins",
+            focusSkill,
+        };
 
         res.json(recommendation);
     } catch (err) {
