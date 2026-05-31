@@ -70,7 +70,7 @@ passport.use(
           return done(null, result.rows[0]);
         } else {
           const newUser = await pool.query(
-            "INSERT INTO users (firstname, email, password) VALUES ($1, $2, $3) RETURNING *",
+            "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING *",
             [firstName, userEmail, "OAUTH_GOOGLE_ACCOUNT"],
           );
           return done(null, newUser.rows[0]);
