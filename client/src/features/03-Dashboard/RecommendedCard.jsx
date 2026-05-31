@@ -3,6 +3,24 @@ import { useAuth } from "../05-Auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "./RecommendedCard.css";
 
+const SKILL_GRADIENTS = {
+    Piano: "linear-gradient(135deg, #1a1a4e, #6c63ff)",
+    Guitar: "linear-gradient(135deg, #2d1b00, #ff6b35)",
+    Drums: "linear-gradient(135deg, #1a0030, #9c27b0)",
+    Vocals: "linear-gradient(135deg, #001a2e, #00bcd4)",
+    Production: "linear-gradient(135deg, #0a2e1a, #4caf50)",
+    Theory: "linear-gradient(135deg, #1a1a2e, #3f51b5)",
+};
+
+const SKILL_ICONS = {
+    Piano: "🎹",
+    Guitar: "🎸",
+    Drums: "🥁",
+    Vocals: "🎤",
+    Production: "🎚️",
+    Theory: "🎼",
+ };
+
 export default function RecommendedCard() {
     const { user } = useAuth();
     const [rec, setRec] = useState(null);
@@ -27,8 +45,12 @@ export default function RecommendedCard() {
 
     return (
         <div className="recommended-card">
-            <div className="recommended-thumbnail">
-                <div className="thumbnail-placeholder">🎵</div>
+            <div className="recommended-thumbnail"
+                style={{ background: SKILL_GRADIENTS[rec.focusSkill] || "linear-gradient(135deg, #1a1a2e, #6c63ff)"}}
+            >
+                <div className="thumbnail-placeholder">
+                    {SKILL_ICONS[rec.focusSkill] || "🎵"}
+                </div>
             </div>
             <div className="recommended-info">
                 <span className="rec-badge">{rec.badge}</span>

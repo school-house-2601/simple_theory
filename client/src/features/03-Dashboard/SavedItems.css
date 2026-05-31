@@ -72,3 +72,16 @@
     color: #6a6a9a;
     font-size: 1.2rem;
 }
+
+.saved-view-all {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background-color: #6c63ff;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}

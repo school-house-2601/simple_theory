@@ -25,3 +25,10 @@
     color: #a0a0c0;
     margin: 0;
 }
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .xp-chart-card {
+        padding: 16px;
+    }
+}

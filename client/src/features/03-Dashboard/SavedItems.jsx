@@ -27,9 +27,6 @@ export default function SavedItems() {
         <div className="saved-items-card">
             <div className="saved-items-header">
                 <h3>Saved for Later</h3>
-                <button className="saved-view-all" onClick={goToSaved}>
-                    View All
-                </button>
             </div>
             <div className="saved-list">
                 {saved.map((video) => (
@@ -56,6 +53,9 @@ export default function SavedItems() {
                 </div>
                 ))}
             </div>
+            <button className="saved-view-all" onClick={goToSaved}>
+                View All
+            </button>
         </div>
     )
 }

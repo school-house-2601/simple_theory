@@ -103,4 +103,17 @@ router.post("/bookmarks/:contentId", requireUser, async (req, res, next) => {
   }
 });
 
+router.patch("/interests", requireUser, async (req, res, next) => {
+  try {
+    const { interests } = req.body;
+    const { rows: [user] } = await db.query(
+      `UPDATE users SET interests = $1 WHERE id = $2 RETURNING interests`,
+      [interests, req.user.id]
+    );
+      res.json(user);
+  } catch (error) {
+      next(error);
+  }
+});
+
 export default router;

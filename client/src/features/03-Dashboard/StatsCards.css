@@ -46,3 +46,16 @@
     font-size: 0.75rem;
     color: #6a6a9a;
 }
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .stats-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-cards {
+        grid-template-columns: 1fr;
+    }
+}

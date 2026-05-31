@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../05-Auth/AuthContext";
+import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 import StatsCards from "./StatsCards";
 import "./StatsCards.css";
@@ -19,6 +20,7 @@ import "./SavedItems.css";
 export default function DashboardPage() {
     const { user } = useAuth();
     const [stats, setStats] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (!user) return;
@@ -36,8 +38,9 @@ export default function DashboardPage() {
                         <p>Keep up the great work! You're in the top 5% of learners this week.</p>
                     </div>
                     <div className="header-actions">
-                        <button className="btn-outline">📅 Weekly Report</button>
-                        <button className="btn-primary">Continue Learning →</button>
+                        <button className="btn-primary" onClick={() => navigate("/lessons")}>
+                            Continue Learning →
+                        </button>
                     </div>
                 </div>
                 <StatsCards stats={stats} />

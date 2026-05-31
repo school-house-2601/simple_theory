@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { LayoutDashboard, BookOpen, Bookmark, Trophy, Music, Settings, LogOut } from "lucide-react";
 import { useAuth } from "../../features/05-Auth/AuthContext";
@@ -15,23 +15,44 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
     const [expanded, setExpanded] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const { logout } = useAuth();
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
+
     const isSavedActive = location.pathname === "/browse" &&
         new URLSearchParams(location.search).get("tab") === "saved";
-    const { logout } = useAuth();
+    
+    const handleTabInteraction = () => setExpanded(true);
+    const handleSidebarClose = () => {
+        if (isMobile) setExpanded(false);
+    };
 
     return (
         <>
             <div
                 className={`sidebar-tab ${expanded ? "hidden" : ""}`}
-                onMouseEnter={() => setExpanded(true)}
+                onMouseEnter={!isMobile ? handleTabInteraction : undefined}
+                onClick={isMobile ? handleTabInteraction : undefined}
             >
                 <span className="sidebar-tab-arrow">›</span>
             </div>
+            {isMobile && expanded && (
+                <div
+                    className="sidebar-overlay"
+                    onClick={() => setExpanded(false)}
+                />
+            )}
             <aside
                 className={`sidebar ${expanded ? "expanded" : ""}`}
-                onMouseLeave={() => setExpanded(false)}
+                onMouseLeave={!isMobile ? () => setExpanded(false) : undefined}
             >
                 <nav className="sidebar-nav">
                     {NAV_ITEMS.map((item) => (
