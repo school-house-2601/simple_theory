@@ -10,6 +10,88 @@ const router = Router();
 const searchCache = {};
 const flatSearchCache = {};
 
+// Curated collections broken down by instrument context
+const SCORES_BY_INSTRUMENT = {
+  piano: [
+    {
+      id: "5ea6694a5fbac32d7d710c4a-mozart-sonata-16-in-c-2nd-movement",
+      title: "Mozart - Piano Sonata No. 16",
+      author: "Wolfgang Amadeus Mozart",
+    },
+    {
+      id: "69b22f36b871661374763b98-for-beginners-lesson-1-the-very-basics",
+      title: "Beginner Piano Scales",
+      author: "Music Theory Basics",
+    },
+    {
+      id: "5e952c715607e31952c960f9-ode-to-joy-beethoven",
+      title: "Beethoven - Ode to Joy",
+      author: "Ludwig van Beethoven",
+    },
+    {
+      id: "5a6a914c740a26430cac8a7e-legends-never-die-league-of-legends",
+      title: "Legends Never Die",
+      author: "League of Legends",
+    },
+  ],
+  guitar: [
+    {
+      id: "63163f44d7e7de001372c925-sweet-child-o-mine",
+      title: "Sweet Child O' Mine",
+      author: "Guns N' Roses",
+    },
+    {
+      id: "672aa9d648cbe5fe773d9eb1-free-bird",
+      title: "Free Bird",
+      author: "Lynyrd Skynyrd",
+    },
+    {
+      id: "685adc5c37c9c175c0223bb4-seven-nation-army-simple-guitar",
+      title: "Seven Nation Army",
+      author: "The White Stripes",
+    },
+    {
+      id: "616427d75423630012fe3dba-metallica-my-friend-of-misery-instrumental-version-new-leads",
+      title: "My Friend of Misery",
+      author: "Metallica",
+    },
+  ],
+  drums: [
+    {
+      id: "5bcea37ddaede8225b26229d-bring-me-the-horizon-drown-drums",
+      title: "Drown",
+      author: "Bring Me the Horizon",
+    },
+    {
+      id: "600d7e21b02781639f6fdba7-back-in-black-ac-dc-drum",
+      title: "Back in Black",
+      author: "AC/DC",
+    },
+    {
+      id: "61faec8376e7e60014f3af76-thunder-imagine-dragons-string-orchestra-with-drums",
+      title: "Thunder",
+      author: "Imagine Dragons",
+    },
+    {
+      id: "643da9839b46a6269fb35eca-mystery-turnstile",
+      title: "Mystery",
+      author: "Turnstile",
+    },
+  ],
+  theory: [
+    {
+      id: "5e952c715607e31952c960f9-ode-to-joy-beethoven",
+      title: "Beethoven - Ode to Joy",
+      author: "Ludwig van Beethoven",
+    },
+    {
+      id: "69b22f36b871661374763b98-for-beginners-lesson-1-the-very-basics",
+      title: "Beginner Piano Scales",
+      author: "Music Theory Basics",
+    },
+  ],
+};
+
 router.get("/", async (req, res) => {
   try {
     const lessons = await getAllContent();
@@ -22,8 +104,6 @@ router.get("/", async (req, res) => {
 
 router.get("/youtube-search", async (req, res, next) => {
   const { query } = req.query;
-
-  // If you are in development mode, just return fake data and exit
   if (process.env.NODE_ENV === "development") {
     return res.json({
       items: [{ id: { videoId: "mock" }, snippet: { title: "Mock Video" } }],
@@ -33,22 +113,17 @@ router.get("/youtube-search", async (req, res, next) => {
     console.log(`Serving "${query}" from cache (Saving 100 credits!)`);
     return res.json(searchCache[query]);
   }
-
   const API_KEY = process.env.YOUTUBE_API_KEY;
   const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&key=${API_KEY}`;
-
   try {
     const response = await fetch(url);
-
     if (!response.ok) {
       const errorText = await response.text();
       console.error("YouTube API Error:", errorText);
       return res.status(500).send("YouTube API failed");
     }
-
     const data = await response.json();
     searchCache[query] = data;
-
     res.json(data);
   } catch (error) {
     console.error("Fetch failed:", error);
@@ -57,102 +132,58 @@ router.get("/youtube-search", async (req, res, next) => {
 });
 
 // ==========================================
-// NEW: Flat.io Notation Search Endpoint
-// ==========================================
-// router.get("/flat-search", async (req, res) => {
-//   const { query } = req.query;
-
-//   if (!query) {
-//     return res.status(400).json({ error: "Query parameter is required" });
-//   }
-
-//   // Serve from cache if it exists
-//   if (flatSearchCache[query]) {
-//     console.log(`Serving Flat.io "${query}" from cache`);
-//     return res.json(flatSearchCache[query]);
-//   }
-
-//   const token = process.env.FLAT_IO_SEARCH_API_KEY;
-//   const url = `https://api.flat.io/v2/scores/search?q=${encodeURIComponent(query)}&limit=10`;
-
-//   try {
-//     const response = await fetch(url, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
-
-//     if (!response.ok) {
-//       const errorText = await response.text();
-//       console.error("Flat.io API Error:", errorText);
-//       return res.status(response.status).send("Flat.io API failed");
-//     }
-
-//     const data = await response.json();
-
-//     // Flat.io public search wraps the list inside a .results array
-//     const scoreItems = data.results || data || [];
-
-//     flatSearchCache[query] = scoreItems;
-//     res.json(scoreItems);
-//   } catch (error) {
-//     console.error("Flat.io Fetch failed:", error);
-//     res.status(500).send("Internal Server Error");
-//   }
-// });
-
-// ==========================================
-// NEW: Flat.io Notation Search Endpoint
+// FIXED: Contextual Instrument Notation Filter
 // ==========================================
 router.get("/flat-search", async (req, res) => {
+  console.log("here");
   const { query } = req.query;
-
   if (!query) {
     return res.status(400).json({ error: "Query parameter is required" });
   }
 
+  // Check the runtime memory cache first
   if (flatSearchCache[query]) {
     console.log(`Serving Flat.io "${query}" from cache`);
     return res.json(flatSearchCache[query]);
   }
 
-  // A curated list of real, public community sheet music IDs on Flat.io
-  const publicScoresCollection = [
-    {
-      id: "5bf61aea0309282b0a91fb0e-the-house-of-the-rising-sun",
-      title: "House of the Rising Sun",
-      author: "Traditional",
-    },
-    {
-      id: "5e952c715607e31952c960f9-ode-to-joy-beethoven",
-      title: "Beethoven - Ode to Joy",
-      author: "Ludwig van Beethoven",
-    },
-    {
-      id: "5ea6694a5fbac32d7d710c4a-mozart-sonata-16-in-c-2nd-movement",
-      title: "Mozart - Piano Sonata No. 16",
-      author: "Wolfgang Amadeus Mozart",
-    },
-    {
-      id: "69b22f36b871661374763b98-for-beginners-lesson-1-the-very-basics",
-      title: "Beginner Piano Scales",
-      author: "Music Theory Basics",
-    },
-  ];
-
   try {
-    // Filter the collection to see if any titles match your search pill/query
-    const filteredScores = publicScoresCollection.filter(
-      (score) =>
-        score.title.toLowerCase().includes(query.toLowerCase()) ||
-        query.toLowerCase().includes("theory") ||
-        query.toLowerCase().includes("tutorial"),
-    );
+    const lowerQuery = query.toLowerCase();
+    let instrumentKey = null;
 
-    // If no specific match, default to showing the general list so the row isn't empty
-    const finalResults =
-      filteredScores.length > 0 ? filteredScores : publicScoresCollection;
+    // 1. Map queries explicitly to your SCORES_BY_INSTRUMENT keys
+    if (lowerQuery.includes("piano")) instrumentKey = "piano";
+    else if (lowerQuery.includes("guitar")) instrumentKey = "guitar";
+    else if (lowerQuery.includes("drum")) instrumentKey = "drums";
+    else if (lowerQuery.includes("theory")) instrumentKey = "theory";
 
+    // 2. Fetch only that instrument's unique collection bucket
+    const targetCollection = SCORES_BY_INSTRUMENT[instrumentKey] || [];
+    console.log("targetCollection", targetCollection);
+    // 3. Remove the global || "theory" override. Only filter by title if the query is a specific search term.
+    // If it's a generic pill query (like "Guitar lessons"), we just return the full guitar collection.
+    const isGenericPillQuery =
+      lowerQuery.includes("tutorial") ||
+      lowerQuery.includes("lessons") ||
+      lowerQuery.includes("beginners") ||
+      lowerQuery.includes("basics");
+
+    let finalResults = targetCollection;
+    console.log("finalResults", finalResults);
+    console.log(isGenericPillQuery);
+    if (!isGenericPillQuery) {
+      const filteredScores = targetCollection.filter((score) => {
+        console.log(score);
+        return score.title.toLowerCase().includes(lowerQuery);
+      });
+      // Fall back to the main instrument bucket if a targeted search returns empty
+      if (filteredScores.length > 0) {
+        finalResults = filteredScores;
+        console.log("finalResults2", finalResults);
+      }
+    }
+
+    // Save clean results to backend runtime cache
     flatSearchCache[query] = finalResults;
     res.json(finalResults);
   } catch (error) {
@@ -184,11 +215,9 @@ router.get("/type/:type", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const lesson = await getContentById(req.params.id);
-
     if (!lesson) {
       return res.status(404).json({ error: "Lesson not found" });
     }
-
     res.json(lesson);
   } catch (err) {
     console.error(err);
