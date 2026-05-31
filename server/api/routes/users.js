@@ -6,6 +6,7 @@ import {
   updateSelectedPath,
   getBookmarkedContent,
   toggleBookmark,
+  updateLoginStreak,
 } from "#db/queries/userQueries";
 import requireBody from "#middleware/requireBody";
 import requireUser from "#middleware/requireUser";
@@ -62,6 +63,7 @@ router.post(
 
 router.get("/me", requireUser, async (req, res, next) => {
   try {
+    await updateLoginStreak(req.user.id);
     const user = await getUserById(req.user.id);
     res.send(user);
   } catch (error) {
@@ -98,6 +100,19 @@ router.post("/bookmarks/:contentId", requireUser, async (req, res, next) => {
     res.send(result);
   } catch (error) {
     next(error);
+  }
+});
+
+router.patch("/interests", requireUser, async (req, res, next) => {
+  try {
+    const { interests } = req.body;
+    const { rows: [user] } = await db.query(
+      `UPDATE users SET interests = $1 WHERE id = $2 RETURNING interests`,
+      [interests, req.user.id]
+    );
+      res.json(user);
+  } catch (error) {
+      next(error);
   }
 });
 

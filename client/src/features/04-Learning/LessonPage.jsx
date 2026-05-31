@@ -5,7 +5,7 @@ import { useAuth } from "../05-Auth/AuthContext";
 import "./LessonPage.css";
 
 export default function LessonsPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const location = useLocation();
   const [activeVideo, setActiveVideo] = useState(null);
   const [activeScoreId, setActiveScoreId] = useState(null);
@@ -26,6 +26,26 @@ export default function LessonsPage() {
         .catch((err) => console.error(err));
     }
   }, [token]);
+
+  const awardLessonXP = async (lessonId, xpAmount) => {
+    if (!user) return;
+    try {
+      const res = await fetch("/api/progress/video-complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          videoId: lessonId,
+          xpEarned: xpAmount,
+          skillCategory: currentPath
+        })
+      });
+      const data = await res.json();
+      console.log("Lesson XP awarded", data);
+    } catch (err) {
+      console.error("Failed to award lesson XP", err);
+    }
+  };
 
   // Initialize progress from localStorage or your mockData
   const [progressData, setProgressData] = useState(() => {
@@ -53,6 +73,12 @@ export default function LessonsPage() {
             if (percent > currentVal) {
               const updated = { ...prev, [lessonId]: percent };
               localStorage.setItem("lessonProgress", JSON.stringify(updated));
+
+              if (percent >= 25 && currentVal < 25) awardLessonXP(lessonId, 10);
+              if (percent >= 50 && currentVal < 50) awardLessonXP(lessonId, 15);
+              if (percent >= 75 && currentVal < 75) awardLessonXP(lessonId, 20);
+              if (percent >= 100 && currentVal < 100) awardLessonXP(lessonId, 35);
+
               return updated;
             }
             return prev;

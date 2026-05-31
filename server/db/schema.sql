@@ -69,5 +69,19 @@ user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
 content_id INTEGER REFERENCES content(id) ON DELETE CASCADE,
 accuracy_score NUMERIC(5,2),
 xp_earned INTEGER DEFAULT 0,
+skill_category VARCHAR(50),
 played_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6. Goals: gives goals to the user
+CREATE TABLE daily_goals (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    goal_type VARCHAR(50) NOT NULL,
+    goal_label VARCHAR(255) NOT NULL,
+    target INTEGER  NOT NULL,
+    current INTEGER DEFAULT 0,
+    bonus_xp INTEGER DEFAULT 50,
+    completed BOOLEAN DEFAULT FALSE,
+    date DATE DEFAULT CURRENT_DATE
 );

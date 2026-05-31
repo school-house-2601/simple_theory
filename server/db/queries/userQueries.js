@@ -146,3 +146,183 @@ export async function getUserStats(userId) {
   );
   return stats;
 }
+
+export async function getUserBookmarks(userId) {
+  const { rows } = await db.query(
+    `SELECT c.id, c.title, c.type, c.external_url, c.thumbnail_url
+    FROM bookmarks b
+    JOIN content c ON c.id = b.content_id
+    WHERE b.user_id = $1
+    ORDER BY b.saved_at DESC`,
+    [userId]
+  );
+  return rows;
+}
+
+export async function getUserProgress(userId) {
+  const { rows } = await db.query(
+    `SELECT
+      up.id,
+      c.title,
+      c.type,
+      c.difficulty,
+      c.xp_reward,
+      up.completed_at
+    FROM user_progress up
+    JOIN content c ON c.id = up.content_id
+    WHERE up.user_id = $1
+    ORDER BY up.completed_at DESC
+    LIMIT 10`,
+    [userId]
+  );
+  return rows;
+}
+
+export async function getUserXPHistory(userId) {
+  const { rows } = await db.query(
+    `SELECT
+      TO_CHAR(played_at, 'Dy') AS day,
+      SUM(xp_earned) AS xp
+    FROM play_sessions
+    WHERE user_id = $1
+    AND played_at >= NOW() - INTERVAL '7 days'
+    GROUP BY TO_CHAR(played_at, 'Dy'), DATE(played_at)
+    ORDER BY DATE(played_at) ASC`,
+    [userId]
+  );
+  return rows;
+}
+
+export async function updateLoginStreak(userId) {
+  const { rows: [user] } = await db.query(
+    `UPDATE users
+    SET current_streak = CASE
+      WHEN last_login::date = CURRENT_DATE THEN current_streak
+      WHEN last_login::date = CURRENT_DATE - INTERVAL '1 day' THEN current_streak + 1
+      ELSE 1
+    END,
+    last_login = NOW()
+    WHERE id = $1
+    RETURNING current_streak`,
+    [userId]
+  );
+  return user;
+}
+
+export async function getUserSkillDistribution(userId) {
+  const { rows } = await db.query(
+    `SELECT
+      skill_category,
+      COUNT(*) as sessions,
+      SUM(xp_earned) as total_xp
+    FROM play_sessions
+    WHERE user_id = $1
+    AND skill_category IS NOT NULL
+    GROUP BY skill_category`,
+    [userId]
+  );
+  return rows;
+}
+
+export async function getDailyGoals(userId) {
+  const { rows: existing } = await db.query(
+    `SELECT * FROM daily_goals
+    WHERE user_id = $1 AND date = CURRENT_DATE`,
+    [userId]
+  );
+
+  if (existing.length > 0) return existing;
+
+  const { rows: [user] } = await db.query(
+    `SELECT * FROM users WHERE id = $1`,
+    [userId]
+  );
+
+  const { rows: skills } = await db.query(
+    `SELECT skill_category, SUM(xp_earned) as total_xp
+    FROM play_sessions
+    WHERE user_id = $1
+    GROUP BY skill_category
+    ORDER BY total_xp ASC
+    LIMIT 1`,
+    [userId]
+  );
+
+  const weakestSkill = skills[0]?.skill_category || "Theory";
+
+  const goals = [
+    {
+      goal_type: "watch_videos",
+      goal_label: "Watch 3 videos today",
+      target: 3,
+      bonus_xp: 50,
+    },
+    {
+      goal_type: "weak_skill",
+      goal_label: `Watch a ${weakestSkill} video`,
+      target: 1,
+      bonus_xp: 75,
+    },
+    {
+      goal_type: "xp_goal",
+      goal_label: `Earn 30 XP today`,
+      target: 30,
+      bonus_xp: 100,
+    },
+  ];
+
+  const inserted = await Promise.all(
+      goals.map((goal) =>
+      db.query(
+        `INSERT INTO daily_goals
+        (user_id, goal_type, goal_label, target, bonus_xp)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *`,
+        [userId, goal.goal_type, goal.goal_label, goal.target, goal.bonus_xp]
+      ).then((r) => r.rows[0])
+    )
+  );
+
+  return inserted;
+}
+
+export async function updateDailyGoals(userId, xpEarned, skillCategory) {
+  console.log("updateDailyGoals called:", userId, xpEarned, skillCategory);
+
+  const { rows: goals } = await db.query(
+    `SELECT * FROM daily_goals
+    WHERE user_id = $1 AND date = CURRENT_DATE AND completed = FALSE`,
+    [userId]
+  );
+
+  console.log("Goals found:", goals);
+
+  for (const goal of goals) {
+    let increment = 0;
+
+    if (goal.goal_type === "watch_videos") increment = 1;
+    if (goal.goal_type === "weak_skill" && goal.goal_label.includes(skillCategory)) increment = 1;
+    if (goal.goal_type === "xp_goal") increment = xpEarned;
+
+    if (increment === 0) continue;
+
+    const newCurrent = Math.min(goal.current + increment, goal.target);
+    const completed = newCurrent >= goal.target;
+
+    await db.query(
+      `UPDATE daily_goals
+      SET current = $1, completed = $2
+      WHERE id = $3`,
+      [newCurrent, completed, goal.id]
+    );
+
+    if (completed) {
+      await db.query(
+        `UPDATE users SET total_xp = total_xp + $1 WHERE id = $2`,
+        [goal.bonus_xp, userId]
+      );
+    }
+  }
+
+  return getDailyGoals(userId);
+}
