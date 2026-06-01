@@ -85,7 +85,7 @@ passport.use(
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
-// 7. Core Authentication Redirect Paths
+// 7. Core Authentication Redirect & Logout Paths
 app.get(
   "/auth/google",
   passport.authenticate("google", {
@@ -103,6 +103,20 @@ app.get(
     res.redirect("http://localhost:5173/selection");
   },
 );
+
+// ADDED LOGOUT HANDLER: Destroys the cookie and session context storage
+app.get("/auth/logout", (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).json({ error: "Logout failed" });
+    }
+
+    req.session.destroy(() => {
+      res.clearCookie("connect.sid", { path: "/" });
+      res.json({ success: true, message: "Logged out completely!" });
+    });
+  });
+});
 
 // 8. Dynamic middleware wrapper to prevent manual JWT bypass breaks
 app.use((req, res, next) => {

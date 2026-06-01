@@ -135,55 +135,40 @@ router.get("/youtube-search", async (req, res, next) => {
 // FIXED: Contextual Instrument Notation Filter
 // ==========================================
 router.get("/flat-search", async (req, res) => {
-  console.log("here");
   const { query } = req.query;
   if (!query) {
     return res.status(400).json({ error: "Query parameter is required" });
   }
-
-  // Check the runtime memory cache first
   if (flatSearchCache[query]) {
     console.log(`Serving Flat.io "${query}" from cache`);
     return res.json(flatSearchCache[query]);
   }
-
   try {
     const lowerQuery = query.toLowerCase();
     let instrumentKey = null;
 
-    // 1. Map queries explicitly to your SCORES_BY_INSTRUMENT keys
     if (lowerQuery.includes("piano")) instrumentKey = "piano";
     else if (lowerQuery.includes("guitar")) instrumentKey = "guitar";
-    else if (lowerQuery.includes("drum")) instrumentKey = "drums";
+    else if (lowerQuery.includes("drum"))
+      instrumentKey = "drums"; // FIX 1: "drum" captures singular/pills
     else if (lowerQuery.includes("theory")) instrumentKey = "theory";
 
-    // 2. Fetch only that instrument's unique collection bucket
     const targetCollection = SCORES_BY_INSTRUMENT[instrumentKey] || [];
-    console.log("targetCollection", targetCollection);
-    // 3. Remove the global || "theory" override. Only filter by title if the query is a specific search term.
-    // If it's a generic pill query (like "Guitar lessons"), we just return the full guitar collection.
     const isGenericPillQuery =
       lowerQuery.includes("tutorial") ||
       lowerQuery.includes("lessons") ||
       lowerQuery.includes("beginners") ||
       lowerQuery.includes("basics");
-
     let finalResults = targetCollection;
-    console.log("finalResults", finalResults);
-    console.log(isGenericPillQuery);
+
     if (!isGenericPillQuery) {
       const filteredScores = targetCollection.filter((score) => {
-        console.log(score);
         return score.title.toLowerCase().includes(lowerQuery);
       });
-      // Fall back to the main instrument bucket if a targeted search returns empty
       if (filteredScores.length > 0) {
         finalResults = filteredScores;
-        console.log("finalResults2", finalResults);
       }
     }
-
-    // Save clean results to backend runtime cache
     flatSearchCache[query] = finalResults;
     res.json(finalResults);
   } catch (error) {
@@ -212,6 +197,16 @@ router.get("/type/:type", async (req, res) => {
   }
 });
 
+// ==========================================
+// FIX 2: Explicit flat-me route interceptor
+// ==========================================
+router.get("/flat-me", async (req, res) => {
+  res.json({ success: true, message: "Flat-me intercepted cleanly" });
+});
+
+// ==========================================
+// CRITICAL WILDCARD PLACE: Keep at absolute bottom
+// ==========================================
 router.get("/:id", async (req, res) => {
   try {
     const lesson = await getContentById(req.params.id);

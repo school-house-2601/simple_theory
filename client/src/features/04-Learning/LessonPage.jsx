@@ -37,8 +37,8 @@ export default function LessonsPage() {
           userId: user.id,
           videoId: lessonId,
           xpEarned: xpAmount,
-          skillCategory: currentPath
-        })
+          skillCategory: currentPath,
+        }),
       });
       const data = await res.json();
       console.log("Lesson XP awarded", data);
@@ -77,7 +77,8 @@ export default function LessonsPage() {
               if (percent >= 25 && currentVal < 25) awardLessonXP(lessonId, 10);
               if (percent >= 50 && currentVal < 50) awardLessonXP(lessonId, 15);
               if (percent >= 75 && currentVal < 75) awardLessonXP(lessonId, 20);
-              if (percent >= 100 && currentVal < 100) awardLessonXP(lessonId, 35);
+              if (percent >= 100 && currentVal < 100)
+                awardLessonXP(lessonId, 35);
 
               return updated;
             }
@@ -343,10 +344,18 @@ export default function LessonsPage() {
                   )}
                 </div>
 
-                {/* UPDATED BUTTON LOGIC */}
+                {/* UPDATED BUTTON LOGIC WITH SECURITY CHECK */}
                 <button
                   className="practice-btn resource-action-btn"
                   onClick={() => {
+                    // FIX: If there is no active token session, completely block the modal and return early
+                    if (!token) {
+                      console.log(
+                        "Access denied: Please log in to view sheet music tabs.",
+                      );
+                      return;
+                    }
+
                     if (currentPath === "Novice") {
                       // Instead of opening a new tab, open our new Practice Modal
                       setActiveScoreId(item.link);

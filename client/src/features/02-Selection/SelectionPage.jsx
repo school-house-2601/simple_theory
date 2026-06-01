@@ -65,20 +65,21 @@ export default function SelectionPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.loggedIn) {
-          console.log("Successfully Authenticated via Google:", data.user);
+          console.log("User is currently logged in:", data.user);
 
-          // 2. REPLACE the old placeholder logic with your new handler:
-          if (loginWithGoogle && !token) {
+          // FIX: If the frontend state is missing the token, restore it immediately!
+          if (!token && loginWithGoogle) {
+            // Re-generate a stable state tracking key based on their database user id
             const generatedToken =
               data.user.token || `google-oauth-${data.user.id}`;
             loginWithGoogle(data.user, generatedToken);
           }
         } else {
-          console.log("Not logged in, stay on public page");
+          console.log("Guest session active.");
         }
       })
       .catch((err) => console.error("Session check failed:", err));
-  }, [token, loginWithGoogle]);
+  }, [token, loginWithGoogle]); // Added dependencies back so state shifts trigger navbar updates instantly
 
   const handleSelect = (level) => {
     setSelected(level);
