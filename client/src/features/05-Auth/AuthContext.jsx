@@ -78,7 +78,7 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       // Points directly to your new backend route with standard cross-origin permissions
-      await fetch("http://localhost:3000/auth/logout", {
+      await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
         credentials: "include",
       });
     } catch (err) {

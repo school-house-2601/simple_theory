@@ -61,7 +61,9 @@ export default function SelectionPage() {
   const { token, loginWithGoogle } = useAuth();
 
   useEffect(() => {
-    fetch("http://localhost:3000/auth/user-status", { credentials: "include" })
+    fetch(`${import.meta.env.VITE_API_URL}/auth/user-status`, {
+      credentials: "include",
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data.loggedIn) {
