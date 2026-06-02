@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../05-Auth/AuthContext";
 import PathCard from "./PathCard";
-import "./selection.css";
+import "./Selection.css";
 
 const PATHS = [
   {
