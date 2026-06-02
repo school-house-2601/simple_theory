@@ -12,6 +12,7 @@ import requireBody from "#middleware/requireBody";
 import requireUser from "#middleware/requireUser";
 import { createToken } from "#utils/jwt";
 import bcrypt from "bcrypt";
+import db from "#db/db";
 
 const router = express.Router();
 const SALT_ROUNDS = 10;
@@ -106,13 +107,15 @@ router.post("/bookmarks/:contentId", requireUser, async (req, res, next) => {
 router.patch("/interests", requireUser, async (req, res, next) => {
   try {
     const { interests } = req.body;
-    const { rows: [user] } = await db.query(
+    const {
+      rows: [user],
+    } = await db.query(
       `UPDATE users SET interests = $1 WHERE id = $2 RETURNING interests`,
-      [interests, req.user.id]
+      [interests, req.user.id],
     );
-      res.json(user);
+    res.json(user);
   } catch (error) {
-      next(error);
+    next(error);
   }
 });
 

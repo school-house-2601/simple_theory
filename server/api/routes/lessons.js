@@ -5,10 +5,13 @@ import {
   getContentByDifficulty,
   getContentByType,
 } from "#db/queries/contentQueries";
+import { Redis } from "@upstash/redis";
 
 const router = Router();
-const searchCache = {};
-const flatSearchCache = {};
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 // Curated collections broken down by instrument context
 const SCORES_BY_INSTRUMENT = {
@@ -104,26 +107,32 @@ router.get("/", async (req, res) => {
 
 router.get("/youtube-search", async (req, res, next) => {
   const { query } = req.query;
+
   if (process.env.NODE_ENV === "development") {
     return res.json({
       items: [{ id: { videoId: "mock" }, snippet: { title: "Mock Video" } }],
     });
   }
-  if (searchCache[query]) {
-    console.log(`Serving "${query}" from cache (Saving 100 credits!)`);
-    return res.json(searchCache[query]);
-  }
-  const API_KEY = process.env.YOUTUBE_API_KEY;
-  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&key=${API_KEY}`;
+
   try {
+    const cached = await redis.get(`yt:${query}`);
+    if (cached) {
+      console.log(`Serving "${query}" from cache (Saving 100 credits!)`);
+      return res.json(cached);
+    }
+
+    const API_KEY = process.env.YOUTUBE_API_KEY;
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&key=${API_KEY}`;
+
     const response = await fetch(url);
     if (!response.ok) {
       const errorText = await response.text();
       console.error("YouTube API Error:", errorText);
       return res.status(500).send("YouTube API failed");
     }
+
     const data = await response.json();
-    searchCache[query] = data;
+    await redis.set(`yt:${query}`, data, { ex: 86400 }); // 24hr TTL
     res.json(data);
   } catch (error) {
     console.error("Fetch failed:", error);
@@ -132,25 +141,27 @@ router.get("/youtube-search", async (req, res, next) => {
 });
 
 // ==========================================
-// FIXED: Contextual Instrument Notation Filter
+// Contextual Instrument Notation Filter
 // ==========================================
 router.get("/flat-search", async (req, res) => {
   const { query } = req.query;
   if (!query) {
     return res.status(400).json({ error: "Query parameter is required" });
   }
-  if (flatSearchCache[query]) {
-    console.log(`Serving Flat.io "${query}" from cache`);
-    return res.json(flatSearchCache[query]);
-  }
+
   try {
+    const cached = await redis.get(`flat:${query}`);
+    if (cached) {
+      console.log(`Serving Flat.io "${query}" from cache`);
+      return res.json(cached);
+    }
+
     const lowerQuery = query.toLowerCase();
     let instrumentKey = null;
 
     if (lowerQuery.includes("piano")) instrumentKey = "piano";
     else if (lowerQuery.includes("guitar")) instrumentKey = "guitar";
-    else if (lowerQuery.includes("drum"))
-      instrumentKey = "drums"; // FIX 1: "drum" captures singular/pills
+    else if (lowerQuery.includes("drum")) instrumentKey = "drums";
     else if (lowerQuery.includes("theory")) instrumentKey = "theory";
 
     const targetCollection = SCORES_BY_INSTRUMENT[instrumentKey] || [];
@@ -159,17 +170,19 @@ router.get("/flat-search", async (req, res) => {
       lowerQuery.includes("lessons") ||
       lowerQuery.includes("beginners") ||
       lowerQuery.includes("basics");
+
     let finalResults = targetCollection;
 
     if (!isGenericPillQuery) {
-      const filteredScores = targetCollection.filter((score) => {
-        return score.title.toLowerCase().includes(lowerQuery);
-      });
+      const filteredScores = targetCollection.filter((score) =>
+        score.title.toLowerCase().includes(lowerQuery),
+      );
       if (filteredScores.length > 0) {
         finalResults = filteredScores;
       }
     }
-    flatSearchCache[query] = finalResults;
+
+    await redis.set(`flat:${query}`, finalResults, { ex: 86400 }); // 24hr TTL
     res.json(finalResults);
   } catch (error) {
     console.error("Flat.io List failed:", error);
@@ -198,7 +211,7 @@ router.get("/type/:type", async (req, res) => {
 });
 
 // ==========================================
-// FIX 2: Explicit flat-me route interceptor
+// Explicit flat-me route interceptor
 // ==========================================
 router.get("/flat-me", async (req, res) => {
   res.json({ success: true, message: "Flat-me intercepted cleanly" });

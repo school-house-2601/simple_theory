@@ -14,7 +14,7 @@ const app = express();
 // 1. MUST BE FIRST: Configure CORS with strict credential permissions
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
     credentials: true,
   }),
 );
@@ -26,9 +26,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     },
   }),
 );
@@ -56,7 +56,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
+      callbackURL: process.env.GOOGLE_CALLBACK_URL || "/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -97,10 +97,12 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "http://localhost:5173/login",
+    failureRedirect: `${process.env.FRONTEND_URL || "http://localhost:5173"}/login`,
   }),
   (req, res) => {
-    res.redirect("http://localhost:5173/selection");
+    res.redirect(
+      `${process.env.FRONTEND_URL || "http://localhost:5173"}/selection`,
+    );
   },
 );
 
