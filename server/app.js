@@ -7,6 +7,8 @@ import pool from "./db/db.js";
 import lessonsRouter from "#api/routes/lessons";
 import statsRouter from "#api/routes/stats";
 import usersRouter from "#api/routes/users";
+import xpRouter from "#api/routes/xp";
+import progressRouter from "#api/routes/progress";
 import getUserFromToken from "#middleware/getUserFromToken";
 import { createToken } from "#utils/jwt";
 
@@ -145,6 +147,8 @@ app.use((req, res, next) => {
 app.use("/lessons", lessonsRouter);
 app.use("/stats", statsRouter);
 app.use("/users", usersRouter);
+app.use("/xp", xpRouter);
+app.use("/progress", progressRouter);
 
 // 10. Central Error handling structures
 app.use((err, req, res, next) => {
