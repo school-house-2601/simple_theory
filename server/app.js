@@ -7,14 +7,28 @@ import pool from "./db/db.js";
 import lessonsRouter from "#api/routes/lessons";
 import statsRouter from "#api/routes/stats";
 import usersRouter from "#api/routes/users";
+import xpRouter from "#api/routes/xp";
+import progressRouter from "#api/routes/progress";
 import getUserFromToken from "#middleware/getUserFromToken";
+import { createToken } from "#utils/jwt";
 
 const app = express();
 
 // 1. MUST BE FIRST: Configure CORS with strict credential permissions
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+      const allowed = [process.env.CORS_ORIGIN, "http://localhost:5173"];
+      if (
+        !origin ||
+        allowed.includes(origin) ||
+        origin.endsWith("-sarah-hopp-s-projects.vercel.app")
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
@@ -26,9 +40,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     },
   }),
 );
@@ -56,7 +70,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
+      callbackURL: process.env.GOOGLE_CALLBACK_URL || "/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -97,10 +111,13 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "http://localhost:5173/login",
+    failureRedirect: `${process.env.FRONTEND_URL || "http://localhost:5173"}/login`,
   }),
-  (req, res) => {
-    res.redirect("http://localhost:5173/selection");
+  async (req, res) => {
+    const token = createToken({ id: req.user.id });
+    res.redirect(
+      `${process.env.FRONTEND_URL || "http://localhost:5173"}/selection?token=${token}`,
+    );
   },
 );
 
@@ -130,6 +147,8 @@ app.use((req, res, next) => {
 app.use("/lessons", lessonsRouter);
 app.use("/stats", statsRouter);
 app.use("/users", usersRouter);
+app.use("/xp", xpRouter);
+app.use("/progress", progressRouter);
 
 // 10. Central Error handling structures
 app.use((err, req, res, next) => {

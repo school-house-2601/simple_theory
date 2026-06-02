@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../05-Auth/AuthContext";
 import PathCard from "./PathCard";
-import "./selection.css";
+import "./Selection.css";
 
 const PATHS = [
   {
@@ -61,7 +61,9 @@ export default function SelectionPage() {
   const { token, loginWithGoogle } = useAuth();
 
   useEffect(() => {
-    fetch("http://localhost:3000/auth/user-status", { credentials: "include" })
+    fetch(`${import.meta.env.VITE_API_URL}/auth/user-status`, {
+      credentials: "include",
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data.loggedIn) {
@@ -80,6 +82,15 @@ export default function SelectionPage() {
       })
       .catch((err) => console.error("Session check failed:", err));
   }, [token, loginWithGoogle]); // Added dependencies back so state shifts trigger navbar updates instantly
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get("token");
+    if (urlToken) {
+      loginWithGoogle(null, urlToken);
+      window.history.replaceState({}, "", "/selection");
+    }
+  }, []);
 
   const handleSelect = (level) => {
     setSelected(level);

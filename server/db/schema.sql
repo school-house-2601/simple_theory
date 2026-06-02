@@ -1,11 +1,12 @@
-DROP TABLE IF EXISTS user_progress;
-DROP TABLE IF EXISTS play_sessions;
-DROP TABLE IF EXISTS bookmarks;
-DROP TABLE IF EXISTS content;
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS daily_goals CASCADE;
+DROP TABLE IF EXISTS user_progress CASCADE;
+DROP TABLE IF EXISTS play_sessions CASCADE;
+DROP TABLE IF EXISTS bookmarks CASCADE;
+DROP TABLE IF EXISTS content CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 
-DROP TYPE IF EXISTS user_level;
-DROP TYPE IF EXISTS content_type;
+DROP TYPE IF EXISTS user_level CASCADE;
+DROP TYPE IF EXISTS content_type CASCADE;
 
 
 CREATE TYPE user_level AS ENUM ('Novice', 'Intermediate', 'Professional');
@@ -35,8 +36,8 @@ id SERIAL PRIMARY KEY,
 title VARCHAR(255) NOT NULL,
 type content_type NOT NULL,
 difficulty user_level NOT NULL,
-instrument VARCHAR(50), -- e.g., 'Guitar', 'Piano'
-external_url TEXT, -- YouTube link or API reference
+instrument VARCHAR(50),
+external_url TEXT,
 thumbnail_url TEXT,
 description TEXT,
 xp_reward INTEGER DEFAULT 100
@@ -49,7 +50,7 @@ id SERIAL PRIMARY KEY,
 user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
 content_id INTEGER REFERENCES content(id) ON DELETE CASCADE,
 completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-UNIQUE(user_id, content_id) -- Prevents double-claiming XP for the same lesson
+UNIQUE(user_id, content_id)
 );
 
 
@@ -79,7 +80,7 @@ CREATE TABLE daily_goals (
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     goal_type VARCHAR(50) NOT NULL,
     goal_label VARCHAR(255) NOT NULL,
-    target INTEGER  NOT NULL,
+    target INTEGER NOT NULL,
     current INTEGER DEFAULT 0,
     bonus_xp INTEGER DEFAULT 50,
     completed BOOLEAN DEFAULT FALSE,

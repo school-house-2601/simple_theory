@@ -58,24 +58,27 @@ export default function BrowsePage() {
     localStorage.setItem("savedLessons", JSON.stringify(updatedSaved));
   };
 
-    const awardVideoXP = async (videoId) => {
+  const awardVideoXP = async (videoId) => {
     if (!user) return;
     try {
-      const res = await fetch("/api/progress/video-complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user.id,
-          videoId: videoId,
-          xpEarned: 5,
-          skillCategory: activeInstrument || "Theory"
-        })
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/progress/video-complete`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: user.id,
+            videoId: videoId,
+            xpEarned: 5,
+            skillCategory: activeInstrument || "Theory",
+          }),
+        },
+      );
       const data = await res.json();
       console.log("XP response:", data);
     } catch (err) {
       console.error("Failed to award XP", err);
-    } 
+    }
   };
 
   const handleVideoSelect = (videoId) => {
@@ -83,8 +86,8 @@ export default function BrowsePage() {
     if (xpAwarded.has(videoId)) return;
     const timer = setTimeout(async () => {
       await awardVideoXP(videoId);
-      setXpAwarded((prev) => new Set(prev).add(videoId))
-    }, 60000)
+      setXpAwarded((prev) => new Set(prev).add(videoId));
+    }, 60000);
     setWatchTimer(timer);
   };
 
@@ -124,7 +127,9 @@ export default function BrowsePage() {
       setSearchResults(searchCache[query]);
     } else {
       try {
-        const res = await fetch(`/api/lessons/youtube-search?query=${query}`);
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/lessons/youtube-search?query=${query}`,
+        );
         if (!res.ok) throw new Error(`YouTube API Error: ${res.status}`);
         const data = await res.json();
         if (data.items && data.items.length > 0) {
@@ -146,7 +151,9 @@ export default function BrowsePage() {
       setFlatResults(flatCache[query]);
     } else {
       try {
-        const res = await fetch(`/api/lessons/flat-search?query=${query}`);
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/lessons/flat-search?query=${query}`,
+        );
         if (!res.ok) throw new Error(`Flat.io API Error: ${res.status}`);
         const data = await res.json();
         const sheets = Array.isArray(data) ? data : data.results || [];
@@ -175,7 +182,7 @@ export default function BrowsePage() {
               onClick={() => {
                 setActiveInstrument("Theory");
                 setCurrentTab("browse");
-                navigate("/browse", {replace: true});
+                navigate("/browse", { replace: true });
                 handleSearch("Music Theory for Beginners");
               }}
             >
@@ -187,7 +194,7 @@ export default function BrowsePage() {
               onClick={() => {
                 setActiveInstrument("Piano");
                 setCurrentTab("browse");
-                navigate("/browse", {replace: true});
+                navigate("/browse", { replace: true });
                 handleSearch("Piano tutorials");
               }}
             >
@@ -199,7 +206,7 @@ export default function BrowsePage() {
               onClick={() => {
                 setActiveInstrument("Guitar");
                 setCurrentTab("browse");
-                navigate("/browse", {replace: true});
+                navigate("/browse", { replace: true });
                 handleSearch("Guitar lessons");
               }}
             >
@@ -211,7 +218,7 @@ export default function BrowsePage() {
               onClick={() => {
                 setActiveInstrument("Drums");
                 setCurrentTab("browse");
-                navigate("/browse", {replace: true});
+                navigate("/browse", { replace: true });
                 handleSearch("Drum basics");
               }}
             >
@@ -223,7 +230,7 @@ export default function BrowsePage() {
               onClick={() => {
                 setActiveInstrument("Vocals");
                 setCurrentTab("browse");
-                navigate("/browse", {replace: true});
+                navigate("/browse", { replace: true });
                 handleSearch("Vocal lessons");
               }}
             >
@@ -237,7 +244,7 @@ export default function BrowsePage() {
               onClick={() => {
                 setActiveInstrument("Production");
                 setCurrentTab("browse");
-                navigate("/browse", {replace: true});
+                navigate("/browse", { replace: true });
                 handleSearch("DAW production tutorials");
               }}
             >
@@ -342,7 +349,7 @@ export default function BrowsePage() {
                 <iframe
                   width="100%"
                   height="100%"
-                  src={`https://youtube.com{selectedVideoId}?autoplay=1`}
+                  src={`https://www.youtube.com/embed/${selectedVideoId}?autoplay=1`}
                   title="YouTube video player"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
