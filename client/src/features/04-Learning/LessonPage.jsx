@@ -14,7 +14,7 @@ export default function LessonsPage() {
   useEffect(() => {
     if (token) {
       // Only fetch if the user is logged into your platform
-      fetch("/api/lessons/flat-me")
+      fetch(`${import.meta.env.VITE_API_URL}/lessons/flat-me`)
         .then((res) => {
           if (!res.ok) throw new Error("Could not verify Flat.io account");
           return res.json();
@@ -30,16 +30,19 @@ export default function LessonsPage() {
   const awardLessonXP = async (lessonId, xpAmount) => {
     if (!user) return;
     try {
-      const res = await fetch("/api/progress/video-complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user.id,
-          videoId: lessonId,
-          xpEarned: xpAmount,
-          skillCategory: currentPath,
-        }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/progress/video-complete`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: user.id,
+            videoId: lessonId,
+            xpEarned: xpAmount,
+            skillCategory: currentPath,
+          }),
+        },
+      );
       const data = await res.json();
       console.log("Lesson XP awarded", data);
     } catch (err) {
