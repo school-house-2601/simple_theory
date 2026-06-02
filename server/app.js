@@ -14,7 +14,18 @@ const app = express();
 // 1. MUST BE FIRST: Configure CORS with strict credential permissions
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    origin: function (origin, callback) {
+      const allowed = [process.env.CORS_ORIGIN, "http://localhost:5173"];
+      if (
+        !origin ||
+        allowed.includes(origin) ||
+        origin.endsWith("-sarah-hopp-s-projects.vercel.app")
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
