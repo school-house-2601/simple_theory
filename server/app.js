@@ -8,6 +8,7 @@ import lessonsRouter from "#api/routes/lessons";
 import statsRouter from "#api/routes/stats";
 import usersRouter from "#api/routes/users";
 import getUserFromToken from "#middleware/getUserFromToken";
+import { createToken } from "#utils/jwt";
 
 const app = express();
 
@@ -110,9 +111,10 @@ app.get(
   passport.authenticate("google", {
     failureRedirect: `${process.env.FRONTEND_URL || "http://localhost:5173"}/login`,
   }),
-  (req, res) => {
+  async (req, res) => {
+    const token = createToken({ id: req.user.id });
     res.redirect(
-      `${process.env.FRONTEND_URL || "http://localhost:5173"}/selection`,
+      `${process.env.FRONTEND_URL || "http://localhost:5173"}/selection?token=${token}`,
     );
   },
 );

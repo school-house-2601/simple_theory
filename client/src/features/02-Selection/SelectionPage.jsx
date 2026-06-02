@@ -83,6 +83,15 @@ export default function SelectionPage() {
       .catch((err) => console.error("Session check failed:", err));
   }, [token, loginWithGoogle]); // Added dependencies back so state shifts trigger navbar updates instantly
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get("token");
+    if (urlToken) {
+      loginWithGoogle(null, urlToken);
+      window.history.replaceState({}, "", "/selection");
+    }
+  }, []);
+
   const handleSelect = (level) => {
     setSelected(level);
     if (
