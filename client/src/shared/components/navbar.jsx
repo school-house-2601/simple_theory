@@ -1,19 +1,49 @@
 import { useAuth } from "../../features/05-Auth/AuthContext";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./navbar.css";
 
 export default function Navbar() {
-  const { token, logout } = useAuth();
+  const { token, user, logout } = useAuth();
   const [navSearch, setNavSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
   const handleNavSearch = (e) => {
     if (e.key === "Enter") {
-      // Navigates to browse page with the query in the URL
       navigate(`/browse?search=${encodeURIComponent(navSearch)}`);
     }
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Generate initials or avatar from user data
+  const getAvatar = () => {
+    if (!user) return "?";
+    if (user.firstname) return user.firstname[0].toUpperCase();
+    if (user.username) return user.username[0].toUpperCase();
+    if (user.email) return user.email[0].toUpperCase();
+    return "?";
+  };
+
+  const getDisplayName = () => {
+    if (!user) return "Account";
+    if (user.firstname && user.lastname)
+      return `${user.firstname} ${user.lastname}`;
+    if (user.firstname) return user.firstname;
+    if (user.username) return user.username;
+    return user.email || "Account";
   };
 
   return (
@@ -24,7 +54,6 @@ export default function Navbar() {
           <span className="logo-icon">♫</span>
           <span className="logo-text">SimpleTheory</span>
         </Link>
-        {/* These links only show on Desktop via CSS */}
         <div className="desktop-only-links">
           <NavLink to="/selection">Courses</NavLink>
           <NavLink to="/browse">Browse Videos</NavLink>
@@ -46,15 +75,56 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* 3. RIGHT SIDE: Auth/Dashboard (Desktop Only) */}
+      {/* 3. RIGHT SIDE: Auth/Avatar (Desktop Only) */}
       <div className="nav-right desktop-only-auth">
         {token ? (
-          <>
-            <NavLink to="/dashboard">Dashboard</NavLink>
-            <button onClick={logout} className="logout-link">
-              Log out
+          <div className="avatar-wrapper" ref={dropdownRef}>
+            <button
+              className="avatar-btn"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              aria-label="Open user menu"
+            >
+              <div className="avatar-circle">{getAvatar()}</div>
             </button>
-          </>
+
+            {dropdownOpen && (
+              <div className="avatar-dropdown">
+                <div className="dropdown-header">
+                  <span className="dropdown-name">{getDisplayName()}</span>
+                  <span className="dropdown-email">{user?.email}</span>
+                </div>
+                <div className="dropdown-divider" />
+                <button
+                  className="dropdown-item"
+                  onClick={() => {
+                    navigate("/dashboard");
+                    setDropdownOpen(false);
+                  }}
+                >
+                  📊 Dashboard
+                </button>
+                <button
+                  className="dropdown-item"
+                  onClick={() => {
+                    navigate("/dashboard");
+                    setDropdownOpen(false);
+                  }}
+                >
+                  👤 Your Profile
+                </button>
+                <div className="dropdown-divider" />
+                <button
+                  className="dropdown-item dropdown-logout"
+                  onClick={() => {
+                    logout();
+                    setDropdownOpen(false);
+                  }}
+                >
+                  Sign Out
+                </button>
+              </div>
+            )}
+          </div>
         ) : (
           <>
             <Link to="/login" className="login-link">
