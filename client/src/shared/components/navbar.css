@@ -211,3 +211,126 @@
 .nav-right .logout-link {
   color: black !important;
 }
+
+/* ================================
+   AVATAR DROPDOWN — add to navbar.css
+   ================================ */
+
+.avatar-wrapper {
+  position: relative;
+}
+
+.avatar-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.avatar-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6c63ff, #a78bfa);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+  transition:
+    border-color 0.2s ease,
+    transform 0.15s ease;
+  letter-spacing: 0.5px;
+}
+
+.avatar-btn:hover .avatar-circle {
+  border-color: #6c63ff;
+  transform: scale(1.05);
+}
+
+.avatar-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: #1a1a2e;
+  border: 1px solid #2e2e4e;
+  border-radius: 10px;
+  min-width: 200px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  overflow: hidden;
+  animation: dropdownFade 0.15s ease;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-header {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dropdown-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e0e0f0;
+}
+
+.dropdown-email {
+  font-size: 11px;
+  color: #7070a0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #2e2e4e;
+  margin: 0;
+}
+
+.dropdown-item {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 13px;
+  color: #c0c0e0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background: #252545;
+  color: #ffffff;
+}
+
+.dropdown-logout {
+  color: #ff6b6b;
+}
+
+.dropdown-logout:hover {
+  background: #2e1a1a;
+  color: #ff8888;
+}
