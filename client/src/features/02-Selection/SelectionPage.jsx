@@ -109,7 +109,7 @@ export default function SelectionPage() {
 
   return (
     <main className="selection-page">
-      <span className="step-label">Step 1 of 3</span>
+      {/* <span className="step-label">Step 1 of 3</span> */}
       <h1>Choose your learning path</h1>
       <p className="subtitle">
         Every master was once a beginner. Select the track that best fits your
