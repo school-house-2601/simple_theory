@@ -57,7 +57,7 @@ export default function Navbar() {
         <div className="desktop-only-links">
           <NavLink to="/selection">Courses</NavLink>
           <NavLink to="/browse">Browse Videos</NavLink>
-          <NavLink to="/challenges">Challenges</NavLink>
+          <NavLink to="/practice">Practice</NavLink>
         </div>
       </div>
 
@@ -150,8 +150,8 @@ export default function Navbar() {
         <NavLink to="/browse" onClick={() => setIsOpen(false)}>
           Browse Videos
         </NavLink>
-        <NavLink to="/challenges" onClick={() => setIsOpen(false)}>
-          Challenges
+        <NavLink to="/practice" onClick={() => setIsOpen(false)}>
+          Practice
         </NavLink>
         {token ? (
           <>
