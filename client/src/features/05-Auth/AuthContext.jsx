@@ -11,7 +11,10 @@ const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
   const fetchUser = useCallback(async () => {
     if (!token) return;
@@ -70,23 +73,22 @@ export function AuthProvider({ children }) {
 
   const loginWithGoogle = (userData, userToken) => {
     localStorage.setItem("token", userToken);
+    localStorage.setItem("user", JSON.stringify(userData));
     setToken(userToken);
     setUser(userData);
   };
 
-  // FIXED LOGOUT: Now clears the backend Express session cookie too
   const logout = async () => {
     try {
-      // Points directly to your new backend route with standard cross-origin permissions
       await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
         credentials: "include",
       });
     } catch (err) {
       console.error("Failed to clear backend auth session cookie:", err);
     } finally {
-      // Wipes state variables and removes the token from localStorage no matter what
       setToken(null);
       setUser(null);
+      localStorage.removeItem("user");
     }
   };
 

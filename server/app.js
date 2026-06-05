@@ -102,6 +102,13 @@ passport.deserializeUser((obj, done) => done(null, obj));
 // 7. Core Authentication Redirect & Logout Paths
 app.get(
   "/auth/google",
+  (req, res, next) => {
+    // Save where to redirect after login
+    if (req.query.redirect) {
+      req.session.redirectTo = req.query.redirect;
+    }
+    next();
+  },
   passport.authenticate("google", {
     scope: ["profile", "email"],
     prompt: "select_account",
@@ -115,8 +122,10 @@ app.get(
   }),
   async (req, res) => {
     const token = createToken({ id: req.user.id });
+    const redirectTo = req.session.redirectTo || "/selection";
+    delete req.session.redirectTo;
     res.redirect(
-      `${process.env.FRONTEND_URL || "http://localhost:5173"}/selection?token=${token}`,
+      `${process.env.FRONTEND_URL || "http://localhost:5173"}${redirectTo}?token=${token}`,
     );
   },
 );

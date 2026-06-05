@@ -29,7 +29,7 @@ export default function Login() {
 
         <div className="social-buttons">
           <a
-            href={`${import.meta.env.VITE_API_URL}/auth/google`}
+            href={`${import.meta.env.VITE_API_URL}/auth/google?redirect=${encodeURIComponent(window.location.pathname)}`}
             className="google-sign-in-btn"
           >
             <svg

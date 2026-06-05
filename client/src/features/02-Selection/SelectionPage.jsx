@@ -83,12 +83,28 @@ export default function SelectionPage() {
       .catch((err) => console.error("Session check failed:", err));
   }, [token, loginWithGoogle]); // Added dependencies back so state shifts trigger navbar updates instantly
 
+  // Second useEffect - fetch the user data instead of passing null
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get("token");
     if (urlToken) {
-      loginWithGoogle(null, urlToken);
-      window.history.replaceState({}, "", "/selection");
+      // Fetch the actual user data before calling loginWithGoogle
+      fetch(`${import.meta.env.VITE_API_URL}/auth/user-status`, {
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.loggedIn) {
+            loginWithGoogle(data.user, urlToken);
+          } else {
+            loginWithGoogle(null, urlToken);
+          }
+          window.history.replaceState({}, "", "/selection");
+        })
+        .catch(() => {
+          loginWithGoogle(null, urlToken);
+          window.history.replaceState({}, "", "/selection");
+        });
     }
   }, []);
 

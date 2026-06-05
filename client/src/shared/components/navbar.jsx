@@ -106,7 +106,7 @@ export default function Navbar() {
                 <button
                   className="dropdown-item"
                   onClick={() => {
-                    navigate("/dashboard");
+                    navigate("/profile");
                     setDropdownOpen(false);
                   }}
                 >

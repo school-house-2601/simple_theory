@@ -108,11 +108,13 @@ router.get("/", async (req, res) => {
 router.get("/youtube-search", async (req, res, next) => {
   const { query } = req.query;
 
-  if (process.env.NODE_ENV === "development") {
-    return res.json({
-      items: [{ id: { videoId: "mock" }, snippet: { title: "Mock Video" } }],
-    });
-  }
+  /// UNCOMMENT OUT THIS LINE IF YOUR CACHING SYSTEM BREAKS AND YOU NEED MOCK VIDEOS ///
+
+  // if (process.env.NODE_ENV === "development") {
+  //   return res.json({
+  //     items: [{ id: { videoId: "mock" }, snippet: { title: "Mock Video" } }],
+  //   });
+  // }
 
   try {
     const cached = await redis.get(`yt:${query}`);
@@ -122,7 +124,7 @@ router.get("/youtube-search", async (req, res, next) => {
     }
 
     const API_KEY = process.env.YOUTUBE_API_KEY;
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&key=${API_KEY}`;
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=24&key=${API_KEY}`;
 
     const response = await fetch(url);
     if (!response.ok) {
