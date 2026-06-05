@@ -8,6 +8,15 @@ import { useNavigate } from "react-router-dom";
 import "../../index.css";
 
 const NO_SIDEBAR_ROUTES = ["/", "/login", "/register", "/selection"];
+const PUBLIC_ROUTES = [
+  "/",
+  "/login",
+  "/register",
+  "/selection",
+  "/browse",
+  "/howitworks",
+  "/lessons",
+];
 
 export default function Layout() {
   const { user } = useAuth();
@@ -17,10 +26,10 @@ export default function Layout() {
   const showSidebar = user && !NO_SIDEBAR_ROUTES.includes(location.pathname);
 
   useEffect(() => {
-    if (!user) {
-      navigate("/")
+    if (!user && !PUBLIC_ROUTES.includes(location.pathname)) {
+      navigate("/login");
     }
-  }, [user]);
+  }, [user, location.pathname]);
 
   return (
     <div className="app-layout">
