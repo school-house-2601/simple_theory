@@ -10,6 +10,8 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  // Add this near the top of the Navbar component
+  const profilePhoto = localStorage.getItem("profile_photo");
 
   const handleNavSearch = (e) => {
     if (e.key === "Enter") {
@@ -84,7 +86,22 @@ export default function Navbar() {
               onClick={() => setDropdownOpen(!dropdownOpen)}
               aria-label="Open user menu"
             >
-              <div className="avatar-circle">{getAvatar()}</div>
+              <div className="avatar-circle">
+                {profilePhoto ? (
+                  <img
+                    src={profilePhoto}
+                    alt="avatar"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block",
+                    }}
+                  />
+                ) : (
+                  getAvatar()
+                )}
+              </div>
             </button>
 
             {dropdownOpen && (

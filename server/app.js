@@ -76,16 +76,23 @@ passport.use(
       try {
         const userEmail = profile.emails[0].value;
         const firstName = profile.name.givenName || "Google User";
+        const photoUrl = profile.photos?.[0]?.value || null; // 👈 grab the photo
+
         const result = await pool.query(
           "SELECT * FROM users WHERE email = $1",
           [userEmail],
         );
         if (result.rows.length > 0) {
-          return done(null, result.rows[0]);
+          // Update photo every login in case it changes
+          const updated = await pool.query(
+            "UPDATE users SET profile_photo = $1 WHERE email = $2 RETURNING *",
+            [photoUrl, userEmail],
+          );
+          return done(null, updated.rows[0]);
         } else {
           const newUser = await pool.query(
-            "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING *",
-            [firstName, userEmail, "OAUTH_GOOGLE_ACCOUNT"],
+            "INSERT INTO users (username, email, password_hash, profile_photo) VALUES ($1, $2, $3, $4) RETURNING *",
+            [firstName, userEmail, "OAUTH_GOOGLE_ACCOUNT", photoUrl],
           );
           return done(null, newUser.rows[0]);
         }

@@ -60,49 +60,44 @@ export default function SelectionPage() {
   const navigate = useNavigate();
   const { token, loginWithGoogle } = useAuth();
 
-  useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/auth/user-status`, {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.loggedIn) {
-          console.log("User is currently logged in:", data.user);
-
-          // FIX: If the frontend state is missing the token, restore it immediately!
-          if (!token && loginWithGoogle) {
-            // Re-generate a stable state tracking key based on their database user id
-            const generatedToken =
-              data.user.token || `google-oauth-${data.user.id}`;
-            loginWithGoogle(data.user, generatedToken);
-          }
-        } else {
-          console.log("Guest session active.");
-        }
-      })
-      .catch((err) => console.error("Session check failed:", err));
-  }, [token, loginWithGoogle]); // Added dependencies back so state shifts trigger navbar updates instantly
+  // useEffect(() => {
+  //   fetch(`${import.meta.env.VITE_API_URL}/auth/user-status`, {
+  //     credentials: "include",
+  //   })
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       if (data.loggedIn) {
+  //         // Use real JWT from DB, not a fake google-oauth string
+  //         const realToken = data.user.token || localStorage.getItem("token");
+  //         if (!token && realToken) {
+  //           loginWithGoogle(data.user, realToken);
+  //         }
+  //       }
+  //     })
+  //     .catch((err) => console.error("Session check failed:", err));
+  // }, [token, loginWithGoogle]);
 
   // Second useEffect - fetch the user data instead of passing null
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get("token");
     if (urlToken) {
-      // Fetch the actual user data before calling loginWithGoogle
-      fetch(`${import.meta.env.VITE_API_URL}/auth/user-status`, {
-        credentials: "include",
+      // Save the real JWT token immediately
+      localStorage.setItem("token", urlToken);
+
+      // Fetch user data using the real JWT
+      fetch(`${import.meta.env.VITE_API_URL}/users/me`, {
+        headers: { Authorization: `Bearer ${urlToken}` },
       })
         .then((res) => res.json())
         .then((data) => {
-          if (data.loggedIn) {
-            loginWithGoogle(data.user, urlToken);
-          } else {
-            loginWithGoogle(null, urlToken);
-          }
-          window.history.replaceState({}, "", "/selection");
+          loginWithGoogle(data, urlToken);
+          localStorage.setItem("user", JSON.stringify(data));
         })
         .catch(() => {
           loginWithGoogle(null, urlToken);
+        })
+        .finally(() => {
           window.history.replaceState({}, "", "/selection");
         });
     }

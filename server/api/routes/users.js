@@ -119,4 +119,22 @@ router.patch("/interests", requireUser, async (req, res, next) => {
   }
 });
 
+router.patch("/me/profile", requireUser, async (req, res, next) => {
+  try {
+    const { firstname, lastname, email } = req.body;
+    const {
+      rows: [user],
+    } = await db.query(
+      `UPDATE users 
+       SET firstname = $1, lastname = $2, email = $3
+       WHERE id = $4 
+       RETURNING id, firstname, lastname, email, username, current_level, total_xp, current_streak, created_at`,
+      [firstname, lastname, email, req.user.id],
+    );
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
