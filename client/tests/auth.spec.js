@@ -27,8 +27,9 @@ test("register page renders correctly", async ({ page }) => {
 
 test("login with valid credentials redirects home", async ({ page }) => {
   await skipSplash(page, "/login");
+  await page.waitForLoadState("networkidle");
   await page.locator('input[name="email"]').fill("testuser2@test.com");
-  await page.locator('input[name="password"]').fill("password123");
-  await page.locator('button[type="submit"]').click();
-  await expect(page).toHaveURL("/", { timeout: 10000 });
+  await page.locator('input[name="password"]').fill("12345678");
+  await page.locator('input[name="password"]').press("Enter");
+  await expect(page).toHaveURL("/dashboard", { timeout: 10000 });
 });

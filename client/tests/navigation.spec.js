@@ -16,3 +16,10 @@ test("can navigate to courses page", async ({ page }) => {
   await skipSplash(page, "/selection");
   await expect(page).toHaveURL(/.*selection/);
 });
+
+test("search bar navigates to browse page", async ({ page }) => {
+  await skipSplash(page, "/selection");
+  await page.locator(".search-container input").fill("guitar");
+  await page.locator(".search-container input").press("Enter");
+  await expect(page).toHaveURL(/.*browse.*guitar/);
+});

@@ -5,7 +5,7 @@ export default defineConfig({
   timeout: 30000,
   use: {
     baseURL: "http://localhost:5173",
-    headless: true,
+    headless: false,
     screenshot: "only-on-failure",
   },
   webServer: {
