@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../features/05-Auth/AuthContext";
 import "./HowItWorks.css";
 
 const STEPS = [
@@ -112,7 +113,7 @@ const PATHS = [
 
 export default function HowItWorksPage() {
   const navigate = useNavigate();
-
+  const { token } = useAuth();
   return (
     <div className="hiw-page">
       <div className="hiw-inner">
@@ -187,12 +188,14 @@ export default function HowItWorksPage() {
             Your first lesson is one click away. No credit card, no commitment.
           </p>
           <div className="hiw-cta-buttons">
-            <button
-              className="hiw-cta-primary"
-              onClick={() => navigate("/register")}
-            >
-              Create free account →
-            </button>
+            {!token && (
+              <button
+                className="hiw-cta-primary"
+                onClick={() => navigate("/register")}
+              >
+                Create free account →
+              </button>
+            )}
             <button
               className="hiw-cta-secondary"
               onClick={() => navigate("/selection")}

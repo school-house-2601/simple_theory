@@ -119,4 +119,64 @@ router.patch("/interests", requireUser, async (req, res, next) => {
   }
 });
 
+router.patch("/me/profile", requireUser, async (req, res, next) => {
+  try {
+    const { firstname, lastname, email } = req.body;
+    const {
+      rows: [user],
+    } = await db.query(
+      `UPDATE users 
+       SET firstname = $1, lastname = $2, email = $3
+       WHERE id = $4 
+       RETURNING id, firstname, lastname, email, username, current_level, total_xp, current_streak, created_at`,
+      [firstname, lastname, email, req.user.id],
+    );
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch("/me/password", requireUser, async (req, res, next) => {
+  try {
+    const { current, newPass, confirm } = req.body;
+
+    if (newPass !== confirm) {
+      return res.status(400).json({ message: "New passwords don't match." });
+    }
+
+    if (newPass.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 8 characters." });
+    }
+
+    // Get current password hash
+    const {
+      rows: [user],
+    } = await db.query("SELECT password_hash FROM users WHERE id = $1", [
+      req.user.id,
+    ]);
+
+    // Verify current password
+    const isValid = await bcrypt.compare(current, user.password_hash);
+    if (!isValid) {
+      return res
+        .status(401)
+        .json({ message: "Current password is incorrect." });
+    }
+
+    // Hash and save new password
+    const hashedPassword = await bcrypt.hash(newPass, SALT_ROUNDS);
+    await db.query("UPDATE users SET password_hash = $1 WHERE id = $2", [
+      hashedPassword,
+      req.user.id,
+    ]);
+
+    res.json({ success: true, message: "Password updated successfully." });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

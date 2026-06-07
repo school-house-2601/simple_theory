@@ -39,7 +39,7 @@ export async function getUserById(id) {
   const {
     rows: [user],
   } = await db.query(
-    "SELECT id, username, email, selected_path, current_level, total_xp, current_streak FROM users WHERE id = $1",
+    "SELECT id, username, email, firstname, lastname, selected_path, current_level, total_xp, current_streak FROM users WHERE id = $1",
     [id],
   );
   return user;
@@ -154,7 +154,7 @@ export async function getUserBookmarks(userId) {
     JOIN content c ON c.id = b.content_id
     WHERE b.user_id = $1
     ORDER BY b.saved_at DESC`,
-    [userId]
+    [userId],
   );
   return rows;
 }
@@ -173,7 +173,7 @@ export async function getUserProgress(userId) {
     WHERE up.user_id = $1
     ORDER BY up.completed_at DESC
     LIMIT 10`,
-    [userId]
+    [userId],
   );
   return rows;
 }
@@ -188,13 +188,15 @@ export async function getUserXPHistory(userId) {
     AND played_at >= NOW() - INTERVAL '7 days'
     GROUP BY TO_CHAR(played_at, 'Dy'), DATE(played_at)
     ORDER BY DATE(played_at) ASC`,
-    [userId]
+    [userId],
   );
   return rows;
 }
 
 export async function updateLoginStreak(userId) {
-  const { rows: [user] } = await db.query(
+  const {
+    rows: [user],
+  } = await db.query(
     `UPDATE users
     SET current_streak = CASE
       WHEN last_login::date = CURRENT_DATE THEN current_streak
@@ -204,7 +206,7 @@ export async function updateLoginStreak(userId) {
     last_login = NOW()
     WHERE id = $1
     RETURNING current_streak`,
-    [userId]
+    [userId],
   );
   return user;
 }
@@ -219,7 +221,7 @@ export async function getUserSkillDistribution(userId) {
     WHERE user_id = $1
     AND skill_category IS NOT NULL
     GROUP BY skill_category`,
-    [userId]
+    [userId],
   );
   return rows;
 }
@@ -228,15 +230,14 @@ export async function getDailyGoals(userId) {
   const { rows: existing } = await db.query(
     `SELECT * FROM daily_goals
     WHERE user_id = $1 AND date = CURRENT_DATE`,
-    [userId]
+    [userId],
   );
 
   if (existing.length > 0) return existing;
 
-  const { rows: [user] } = await db.query(
-    `SELECT * FROM users WHERE id = $1`,
-    [userId]
-  );
+  const {
+    rows: [user],
+  } = await db.query(`SELECT * FROM users WHERE id = $1`, [userId]);
 
   const { rows: skills } = await db.query(
     `SELECT skill_category, SUM(xp_earned) as total_xp
@@ -245,7 +246,7 @@ export async function getDailyGoals(userId) {
     GROUP BY skill_category
     ORDER BY total_xp ASC
     LIMIT 1`,
-    [userId]
+    [userId],
   );
 
   const weakestSkill = skills[0]?.skill_category || "Theory";
@@ -272,15 +273,17 @@ export async function getDailyGoals(userId) {
   ];
 
   const inserted = await Promise.all(
-      goals.map((goal) =>
-      db.query(
-        `INSERT INTO daily_goals
+    goals.map((goal) =>
+      db
+        .query(
+          `INSERT INTO daily_goals
         (user_id, goal_type, goal_label, target, bonus_xp)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING *`,
-        [userId, goal.goal_type, goal.goal_label, goal.target, goal.bonus_xp]
-      ).then((r) => r.rows[0])
-    )
+          [userId, goal.goal_type, goal.goal_label, goal.target, goal.bonus_xp],
+        )
+        .then((r) => r.rows[0]),
+    ),
   );
 
   return inserted;
@@ -292,7 +295,7 @@ export async function updateDailyGoals(userId, xpEarned, skillCategory) {
   const { rows: goals } = await db.query(
     `SELECT * FROM daily_goals
     WHERE user_id = $1 AND date = CURRENT_DATE AND completed = FALSE`,
-    [userId]
+    [userId],
   );
 
   console.log("Goals found:", goals);
@@ -301,7 +304,11 @@ export async function updateDailyGoals(userId, xpEarned, skillCategory) {
     let increment = 0;
 
     if (goal.goal_type === "watch_videos") increment = 1;
-    if (goal.goal_type === "weak_skill" && goal.goal_label.includes(skillCategory)) increment = 1;
+    if (
+      goal.goal_type === "weak_skill" &&
+      goal.goal_label.includes(skillCategory)
+    )
+      increment = 1;
     if (goal.goal_type === "xp_goal") increment = xpEarned;
 
     if (increment === 0) continue;
@@ -313,13 +320,13 @@ export async function updateDailyGoals(userId, xpEarned, skillCategory) {
       `UPDATE daily_goals
       SET current = $1, completed = $2
       WHERE id = $3`,
-      [newCurrent, completed, goal.id]
+      [newCurrent, completed, goal.id],
     );
 
     if (completed) {
       await db.query(
         `UPDATE users SET total_xp = total_xp + $1 WHERE id = $2`,
-        [goal.bonus_xp, userId]
+        [goal.bonus_xp, userId],
       );
     }
   }

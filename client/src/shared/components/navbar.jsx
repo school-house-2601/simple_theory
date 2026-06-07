@@ -10,6 +10,10 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  // Add this near the top of the Navbar component
+  const profilePhoto = user?.id
+    ? localStorage.getItem(`profile_photo_${user.id}`)
+    : null;
 
   const handleNavSearch = (e) => {
     if (e.key === "Enter") {
@@ -84,7 +88,22 @@ export default function Navbar() {
               onClick={() => setDropdownOpen(!dropdownOpen)}
               aria-label="Open user menu"
             >
-              <div className="avatar-circle">{getAvatar()}</div>
+              <div className="avatar-circle">
+                {profilePhoto ? (
+                  <img
+                    src={profilePhoto}
+                    alt="avatar"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block",
+                    }}
+                  />
+                ) : (
+                  getAvatar()
+                )}
+              </div>
             </button>
 
             {dropdownOpen && (
@@ -117,6 +136,7 @@ export default function Navbar() {
                   className="dropdown-item dropdown-logout"
                   onClick={() => {
                     logout();
+                    navigate("/login");
                     setDropdownOpen(false);
                   }}
                 >
@@ -161,6 +181,7 @@ export default function Navbar() {
             <button
               onClick={() => {
                 logout();
+                navigate("/login");
                 setIsOpen(false);
               }}
               className="logout-link"

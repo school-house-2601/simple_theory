@@ -61,49 +61,27 @@ export default function SelectionPage() {
   const { token, loginWithGoogle } = useAuth();
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/auth/user-status`, {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.loggedIn) {
-          console.log("User is currently logged in:", data.user);
-
-          // FIX: If the frontend state is missing the token, restore it immediately!
-          if (!token && loginWithGoogle) {
-            // Re-generate a stable state tracking key based on their database user id
-            const generatedToken =
-              data.user.token || `google-oauth-${data.user.id}`;
-            loginWithGoogle(data.user, generatedToken);
-          }
-        } else {
-          console.log("Guest session active.");
-        }
-      })
-      .catch((err) => console.error("Session check failed:", err));
-  }, [token, loginWithGoogle]); // Added dependencies back so state shifts trigger navbar updates instantly
-
-  // Second useEffect - fetch the user data instead of passing null
-  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get("token");
     if (urlToken) {
-      // Fetch the actual user data before calling loginWithGoogle
-      fetch(`${import.meta.env.VITE_API_URL}/auth/user-status`, {
-        credentials: "include",
+      // Save the real JWT token immediately
+      localStorage.setItem("token", urlToken);
+
+      // Fetch user data using the real JWT
+      fetch(`${import.meta.env.VITE_API_URL}/users/me`, {
+        headers: { Authorization: `Bearer ${urlToken}` },
       })
         .then((res) => res.json())
         .then((data) => {
-          if (data.loggedIn) {
-            loginWithGoogle(data.user, urlToken);
-          } else {
-            loginWithGoogle(null, urlToken);
-          }
-          window.history.replaceState({}, "", "/selection");
+          loginWithGoogle(data, urlToken);
+          localStorage.setItem("user", JSON.stringify(data));
         })
         .catch(() => {
           loginWithGoogle(null, urlToken);
+        })
+        .finally(() => {
           window.history.replaceState({}, "", "/selection");
+          navigate("/dashboard");
         });
     }
   }, []);
@@ -156,7 +134,7 @@ export default function SelectionPage() {
               : "Create a free account to sync your learning data across devices and earn exclusive XP rewards as you complete paths."}
           </p>
         </div>
-        <button onClick={() => navigate("/auth")}>Learn More</button>
+        <button onClick={() => navigate("/howitworks")}>Learn More</button>
         {!token && (
           <button onClick={() => navigate("/register")}>Create Account</button>
         )}

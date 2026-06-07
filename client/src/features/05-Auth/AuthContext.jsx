@@ -18,10 +18,10 @@ export function AuthProvider({ children }) {
 
   const fetchUser = useCallback(async () => {
     if (!token) return;
-    if (token.startsWith("google-oauth")) {
-      console.log("Skipping local fetch user check for stable Google Session.");
-      return;
-    }
+
+    // For Google users, skip the JWT fetch — user is set via loginWithGoogle
+    if (token.startsWith("google-oauth")) return;
+
     try {
       const response = await fetch(`${API}/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -29,6 +29,7 @@ export function AuthProvider({ children }) {
       const result = await response.json();
       if (response.ok) {
         setUser(result);
+        localStorage.setItem("user", JSON.stringify(result));
       } else {
         logout();
       }
@@ -69,6 +70,8 @@ export function AuthProvider({ children }) {
     const result = await response.json();
     if (!response.ok) throw Error(result.message || "Login failed");
     setToken(result.token);
+    setUser(result.user); // 👈 set user immediately, don't wait for fetchUser
+    localStorage.setItem("user", JSON.stringify(result.user));
   };
 
   const loginWithGoogle = (userData, userToken) => {
