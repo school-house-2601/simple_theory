@@ -178,6 +178,9 @@ export default function Navbar() {
             <NavLink to="/dashboard" onClick={() => setIsOpen(false)}>
               Dashboard
             </NavLink>
+            <NavLink to="/profile" onClick={() => setIsOpen(false)}>
+              Profile
+            </NavLink>
             <button
               onClick={() => {
                 logout();
