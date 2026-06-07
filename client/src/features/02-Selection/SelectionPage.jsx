@@ -57,6 +57,9 @@ const PATHS = [
 
 export default function SelectionPage() {
   const [selected, setSelected] = useState(null);
+  const [isProcessingToken, setIsProcessingToken] = useState(() => {
+    return new URLSearchParams(window.location.search).has("token");
+  });
   const navigate = useNavigate();
   const { token, loginWithGoogle } = useAuth();
 
@@ -64,10 +67,7 @@ export default function SelectionPage() {
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get("token");
     if (urlToken) {
-      // Save the real JWT token immediately
       localStorage.setItem("token", urlToken);
-
-      // Fetch user data using the real JWT
       fetch(`${import.meta.env.VITE_API_URL}/users/me`, {
         headers: { Authorization: `Bearer ${urlToken}` },
       })
@@ -80,11 +80,25 @@ export default function SelectionPage() {
           loginWithGoogle(null, urlToken);
         })
         .finally(() => {
+          setIsProcessingToken(false);
           window.history.replaceState({}, "", "/selection");
           navigate("/dashboard");
         });
     }
   }, []);
+
+  // Render nothing while processing the Google OAuth token
+  if (isProcessingToken)
+    return (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "#0d0d1a",
+          zIndex: 9999,
+        }}
+      />
+    );
 
   const handleSelect = (level) => {
     setSelected(level);
@@ -93,17 +107,14 @@ export default function SelectionPage() {
       level === "Intermediate" ||
       level === "Professional"
     ) {
-      // Navigate to your new lessons page
       navigate("/lessons", { state: { selectedPath: level } });
     } else {
-      // Keep existing logic for other levels
       navigate(`/dashboard`, { state: { selectedPath: level } });
     }
   };
 
   return (
     <main className="selection-page">
-      {/* <span className="step-label">Step 1 of 3</span> */}
       <h1>Choose your learning path</h1>
       <p className="subtitle">
         Every master was once a beginner. Select the track that best fits your
@@ -124,11 +135,9 @@ export default function SelectionPage() {
         <span>⭐</span>
         <div>
           <b>
-            {" "}
             {token ? "Unsure where to start?" : "Quick Tip: Save Your Progress"}
           </b>
           <p>
-            {" "}
             {token
               ? "You can always switch paths later. Your XP and progress are tracked globally."
               : "Create a free account to sync your learning data across devices and earn exclusive XP rewards as you complete paths."}
