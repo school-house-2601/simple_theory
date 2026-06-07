@@ -228,7 +228,3 @@ npx playwright test
 ## Team
 
 Built by Sarah Hopp, Joseph Pena, & Jaison Davis @ Fullstack Academy
-<<<<<<< HEAD
-
-=======
->>>>>>> 452e077 (tests passed, everything updated)
