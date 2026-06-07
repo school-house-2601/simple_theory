@@ -76,14 +76,13 @@ passport.use(
       try {
         const userEmail = profile.emails[0].value;
         const firstName = profile.name.givenName || "Google User";
-        const photoUrl = profile.photos?.[0]?.value || null; // 👈 grab the photo
+        const photoUrl = profile.photos?.[0]?.value || null; //
 
         const result = await pool.query(
           "SELECT * FROM users WHERE email = $1",
           [userEmail],
         );
         if (result.rows.length > 0) {
-          // Update photo every login in case it changes
           const updated = await pool.query(
             "UPDATE users SET profile_photo = $1 WHERE email = $2 RETURNING *",
             [photoUrl, userEmail],
@@ -110,7 +109,6 @@ passport.deserializeUser((obj, done) => done(null, obj));
 app.get(
   "/auth/google",
   (req, res, next) => {
-    // Save where to redirect after login
     if (req.query.redirect) {
       req.session.redirectTo = req.query.redirect;
     }
@@ -132,7 +130,7 @@ app.get(
     const redirectTo = req.session.redirectTo || "/selection";
     delete req.session.redirectTo;
     res.redirect(
-      `${process.env.FRONTEND_URL || "http://localhost:5173"}${redirectTo}?token=${token}`,
+      `${process.env.FRONTEND_URL || "http://localhost:5173"}/selection?token=${token}`,
     );
   },
 );

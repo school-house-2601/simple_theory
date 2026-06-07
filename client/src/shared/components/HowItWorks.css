@@ -225,10 +225,12 @@
 .hiw-cta {
   margin-top: 6rem;
   text-align: center;
-  background: linear-gradient(135deg, #12122a, #1a1040);
-  border: 1px solid #2e2e4e;
-  border-radius: 20px;
-  padding: 4rem 2rem;
+  background-color: #12124a;
+  border: 1px solid #3b3b6b;
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  max-width: 1200px;
+  width: 100%;
 }
 
 .hiw-cta h2 {
@@ -271,21 +273,22 @@
 }
 
 .hiw-cta-secondary {
-  background: transparent;
-  color: #c0c0e0;
-  border: 1px solid #2e2e4e;
+  background-color: #6c63ff;
+  color: #fff;
+  border: 1px solid #6c63ff;
   border-radius: 8px;
   padding: 12px 28px;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   transition:
-    border-color 0.2s ease,
-    color 0.2s ease;
+    background-color 0.2s ease,
+    transform 0.15s ease;
 }
 
 .hiw-cta-secondary:hover {
-  border-color: #6c63ff;
-  color: #ffffff;
+  background-color: #5a52e0;
+  transform: translateY(-2px);
 }
 
 /* MOBILE */

@@ -25,6 +25,7 @@ export default function ProfilePage() {
     newPass: "",
     confirm: "",
   });
+  const [passwordStatus, setPasswordStatus] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -33,7 +34,7 @@ export default function ProfilePage() {
         lastname: user.lastname || "",
         email: user.email || "",
       });
-      const savedPhoto = localStorage.getItem("profile_photo");
+      const savedPhoto = localStorage.getItem(`profile_photo_${user.id}`);
       if (user.profile_photo) setProfilePhoto(user.profile_photo);
       else if (savedPhoto) setProfilePhoto(savedPhoto);
     }
@@ -90,9 +91,9 @@ export default function ProfilePage() {
   const xpPercent = Math.min(Math.round((totalXp / xpGoal) * 100), 100);
 
   const levelColors = {
-    Novice: "#22c55e",
-    Intermediate: "#6366f1",
-    Professional: "#f59e0b",
+    Novice: "#6262bc",
+    Intermediate: "#1a2e1a",
+    Professional: "#2e1a12",
   };
   const levelColor = levelColors[currentLevel] || "#6366f1";
 
@@ -102,7 +103,7 @@ export default function ProfilePage() {
     const reader = new FileReader();
     reader.onloadend = () => {
       setProfilePhoto(reader.result);
-      localStorage.setItem("profile_photo", reader.result);
+      localStorage.setItem(`profile_photo_${user.id}`, reader.result);
     };
     reader.readAsDataURL(file);
   };
@@ -140,9 +141,46 @@ export default function ProfilePage() {
       setSaveStatus("error");
     }
   };
+
+  const handlePasswordUpdate = async () => {
+    if (passwordData.newPass !== passwordData.confirm) {
+      setPasswordStatus("Passwords don't match");
+      return;
+    }
+    if (passwordData.newPass.length < 8) {
+      setPasswordStatus("Password must be at least 8 characters");
+      return;
+    }
+    setPasswordStatus("saving");
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/users/me/password`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(passwordData),
+        },
+      );
+      const data = await res.json();
+      if (res.ok) {
+        setPasswordStatus("saved");
+        setPasswordData({ current: "", newPass: "", confirm: "" });
+        setPasswordSection(false);
+        setTimeout(() => setPasswordStatus(null), 3000);
+      } else {
+        setPasswordStatus(data.message || "error");
+      }
+    } catch {
+      setPasswordStatus("error");
+    }
+  };
+
   const handleLogout = async () => {
     await logout();
-    navigate("/");
+    navigate("/login");
   };
 
   return (
@@ -392,7 +430,11 @@ export default function ProfilePage() {
               {!isGoogleUser && (
                 <button
                   className="btn-outline"
-                  onClick={() => setPasswordSection(!passwordSection)}
+                  onClick={() => {
+                    setPasswordSection(!passwordSection);
+                    setPasswordStatus(null);
+                    setPasswordData({ current: "", newPass: "", confirm: "" });
+                  }}
                 >
                   {passwordSection ? "Cancel" : "Change"}
                 </button>
@@ -405,6 +447,18 @@ export default function ProfilePage() {
               </p>
             ) : passwordSection ? (
               <div className="password-fields">
+                {passwordStatus === "saved" && (
+                  <div className="status-banner success">
+                    ✓ Password updated successfully
+                  </div>
+                )}
+                {passwordStatus &&
+                  passwordStatus !== "saving" &&
+                  passwordStatus !== "saved" && (
+                    <div className="status-banner error">
+                      ✗ {passwordStatus}
+                    </div>
+                  )}
                 <div className="field">
                   <label>Current Password</label>
                   <input
@@ -447,8 +501,15 @@ export default function ProfilePage() {
                     }
                   />
                 </div>
-                <button className="btn-purple-sm" style={{ marginTop: "4px" }}>
-                  Update Password
+                <button
+                  className="btn-purple-sm"
+                  style={{ marginTop: "4px" }}
+                  onClick={handlePasswordUpdate}
+                  disabled={passwordStatus === "saving"}
+                >
+                  {passwordStatus === "saving"
+                    ? "Updating..."
+                    : "Update Password"}
                 </button>
               </div>
             ) : (

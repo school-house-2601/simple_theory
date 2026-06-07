@@ -60,24 +60,6 @@ export default function SelectionPage() {
   const navigate = useNavigate();
   const { token, loginWithGoogle } = useAuth();
 
-  // useEffect(() => {
-  //   fetch(`${import.meta.env.VITE_API_URL}/auth/user-status`, {
-  //     credentials: "include",
-  //   })
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       if (data.loggedIn) {
-  //         // Use real JWT from DB, not a fake google-oauth string
-  //         const realToken = data.user.token || localStorage.getItem("token");
-  //         if (!token && realToken) {
-  //           loginWithGoogle(data.user, realToken);
-  //         }
-  //       }
-  //     })
-  //     .catch((err) => console.error("Session check failed:", err));
-  // }, [token, loginWithGoogle]);
-
-  // Second useEffect - fetch the user data instead of passing null
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get("token");
@@ -99,6 +81,7 @@ export default function SelectionPage() {
         })
         .finally(() => {
           window.history.replaceState({}, "", "/selection");
+          navigate("/dashboard");
         });
     }
   }, []);
@@ -151,7 +134,7 @@ export default function SelectionPage() {
               : "Create a free account to sync your learning data across devices and earn exclusive XP rewards as you complete paths."}
           </p>
         </div>
-        <button onClick={() => navigate("/auth")}>Learn More</button>
+        <button onClick={() => navigate("/howitworks")}>Learn More</button>
         {!token && (
           <button onClick={() => navigate("/register")}>Create Account</button>
         )}

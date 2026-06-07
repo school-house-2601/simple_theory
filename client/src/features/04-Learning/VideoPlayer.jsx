@@ -32,17 +32,25 @@ export default function BrowsePage() {
   });
   const [savedVideos, setSavedVideos] = useState(() => {
     try {
-      const saved = localStorage.getItem("savedLessons");
+      const key = user?.id ? `savedLessons_${user.id}` : "savedLessons_guest";
+      const saved = localStorage.getItem(key);
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
     }
   });
 
+  useEffect(() => {
+    const key = user?.id ? `savedLessons_${user.id}` : "savedLessons_guest";
+    const saved = localStorage.getItem(key);
+    setSavedVideos(saved ? JSON.parse(saved) : []);
+  }, [user?.id]);
+
   const [watchTimer, setWatchTimer] = useState(null);
   const [xpAwarded, setXpAwarded] = useState(new Set());
 
   const toggleSaveVideo = (video) => {
+    const key = user?.id ? `savedLessons_${user.id}` : "savedLessons_guest";
     let updatedSaved;
     const isAlreadySaved = savedVideos.some(
       (v) => v.id.videoId === video.id.videoId,
@@ -55,7 +63,7 @@ export default function BrowsePage() {
       updatedSaved = [...savedVideos, video];
     }
     setSavedVideos(updatedSaved);
-    localStorage.setItem("savedLessons", JSON.stringify(updatedSaved));
+    localStorage.setItem(key, JSON.stringify(updatedSaved));
   };
 
   const awardVideoXP = async (videoId) => {
