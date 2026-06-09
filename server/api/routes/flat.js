@@ -2,9 +2,9 @@ import { Router } from "express";
 
 const router = Router();
 
-const FLAT_CLIENT_ID = process.env.FLAT_CLIENT_ID;
-const FLAT_CLIENT_SECRET = process.env.FLAT_CLIENT_SECRET;
-const FLAT_REDIRECT_URI = process.env.FLAT_REDIRECT_URI;
+const FLAT_CLIENT_ID = process.env.FLAT_IO_CLIENT_ID;
+const FLAT_CLIENT_SECRET = process.env.FLAT_IO_CLIENT_SECRET;
+const FLAT_REDIRECT_URI = process.env.FLAT_IO_REDIRECT_URI;
 
 router.get("/auth", (req, res) => {
     const params = new URLSearchParams({
@@ -17,6 +17,7 @@ router.get("/auth", (req, res) => {
 });
 
 router.get("/auth/callback", async (req, res) => {
+    const { code } = req.query;
     if (!code) return res.status(400).json({ error: "No code provided" });
 
     try {
