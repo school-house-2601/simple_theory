@@ -11,6 +11,7 @@ import xpRouter from "#api/routes/xp";
 import progressRouter from "#api/routes/progress";
 import getUserFromToken from "#middleware/getUserFromToken";
 import { createToken } from "#utils/jwt";
+import flatRouter from "#api/routes/flat";
 
 const app = express();
 
@@ -163,6 +164,7 @@ app.use("/stats", statsRouter);
 app.use("/users", usersRouter);
 app.use("/xp", xpRouter);
 app.use("/progress", progressRouter);
+app.use("/flat", flatRouter);
 
 // 10. Central Error handling structures
 app.use((err, req, res, next) => {
