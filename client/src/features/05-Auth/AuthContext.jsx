@@ -12,10 +12,15 @@ const API = "/api";
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const fetchUser = useCallback(async () => {
-    if (!token) return;
+    if (!token) {
+      setLoading(false);
+      return;
+    };
     if (token.startsWith("google-oauth")) {
-      console.log("Skipping local fetch user check for stable Google Session.");
+      setLoading(false);
       return;
     }
 
@@ -32,6 +37,8 @@ export function AuthProvider({ children }) {
     } catch (error) {
       console.error("Failed to fetch user:", error);
       logout();
+    } finally {
+      setLoading(false);
     }
   }, [token]);
 
@@ -86,6 +93,7 @@ export function AuthProvider({ children }) {
     user,
     fetchUser,
     loginWithGoogle,
+    loading,
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

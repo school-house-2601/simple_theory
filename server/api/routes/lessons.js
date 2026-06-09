@@ -85,4 +85,79 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+const flatCache = {};
+
+router.get("/flat/search", async (req, res) => {
+  const { query, instrument } = req.query;
+  const cacheKey = `${query}-${instrument}`;
+
+  if (flatCache[cacheKey]) {
+    console.log(`Serving Flat.io "${cacheKey}" from cache`);
+    return res.json(flatCache[cacheKey]);
+  }
+
+  try {
+    const params = new URLSearchParams({
+      q: query || "",
+      limit: 20,
+      ...(instrument && { instrument }),
+    });
+
+    const response = await fetch(
+      `https://api.flat.io/v2/scores?${params}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.FLAT_TO_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.error("Flat.io API Error:", err);
+      return res.status(500).json({ error: "Flat.io API failed" });
+    }
+
+    const data = await response.json();
+    flatCache[cacheKey] = data;
+    res.json(data);
+  } catch (err) {
+    console.error("Flat.io fetch failed:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.get("/flat/score/:scoreId", async (req, res) => {
+  try {
+    const { scoreId } = req.params;
+
+    const response = await fetch(
+      `https://api.flat.io/v2/scores/${scoreId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.FLAT_TO_API_KEY}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return res.status(404).json({ error: "Score not found" });
+    }
+
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch score" });
+  }
+});
+
+router.get("/flat/embed/:scoreId", async (req, res) => {
+  const { scoreId } = req.params;
+  res.json({
+    embedURL: `https://flat.io/embed/${scoreId}?jsapi=true&layout=track&zoom=auto`,
+  });
+});
+
 export default router;
