@@ -114,4 +114,13 @@ router.get("/me", async (req, res) => {
     res.send(text);
 });
 
+router.get("/test", (req, res) => {
+    res.json({
+        hasClientId: !!FLAT_CLIENT_ID,
+        hasClientSecret: !!FLAT_CLIENT_SECRET,
+        hasRedirectUri: !!FLAT_REDIRECT_URI,
+        redirectUri: FLAT_REDIRECT_URI,
+    });
+});
+
 export default router;
