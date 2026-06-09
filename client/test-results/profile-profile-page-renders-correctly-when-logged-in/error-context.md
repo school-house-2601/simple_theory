@@ -7,84 +7,22 @@
 # Test info
 
 - Name: profile.spec.js >> profile page renders correctly when logged in
-- Location: tests\profile.spec.js:4:1
+- Location: tests/profile.spec.js:4:1
 
 # Error details
 
 ```
-TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
-=========================== logs ===========================
-waiting for navigation to "/dashboard" until "load"
-============================================================
-```
+Error: expect(locator).toBeVisible() failed
 
-# Page snapshot
+Locator: locator('.profile-banner')
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
 
-```yaml
-- generic [ref=e3]:
-  - navigation [ref=e4]:
-    - generic [ref=e5]:
-      - link "♫ SimpleTheory" [ref=e6] [cursor=pointer]:
-        - /url: /
-        - generic [ref=e7]: ♫
-        - generic [ref=e8]: SimpleTheory
-      - generic [ref=e9]:
-        - link "Courses" [ref=e10] [cursor=pointer]:
-          - /url: /selection
-        - link "Browse Videos" [ref=e11] [cursor=pointer]:
-          - /url: /browse
-        - link "Practice" [ref=e12] [cursor=pointer]:
-          - /url: /practice
-    - generic [ref=e14]:
-      - generic [ref=e15]: Q
-      - textbox "Search theory, tabs, tutorials..." [ref=e16]
-    - generic [ref=e17]:
-      - link "Login" [ref=e18] [cursor=pointer]:
-        - /url: /login
-      - link "Sign Up" [ref=e19] [cursor=pointer]:
-        - /url: /register
-  - generic [ref=e21]:
-    - heading "Welcome Back" [level=1] [ref=e22]
-    - paragraph [ref=e23]: Continue your journey to musical mastery
-    - link "Sign in with Google" [ref=e25] [cursor=pointer]:
-      - /url: undefined/auth/google?redirect=%2Flogin
-      - img [ref=e26]
-      - generic [ref=e31]: Sign in with Google
-    - generic [ref=e32]: OR CONTINUE WITH
-    - generic [ref=e33]:
-      - generic [ref=e34]:
-        - generic [ref=e35]: Email
-        - textbox "mister.musician@theory.com" [ref=e36]: testuser2@test.com
-      - generic [ref=e37]:
-        - generic [ref=e39]: Password
-        - textbox "••••••••" [active] [ref=e40]: "12345678"
-      - paragraph [ref=e41]: Failed to fetch
-      - button "Sign In to SimpleTheory →" [ref=e42] [cursor=pointer]
-    - paragraph [ref=e43]:
-      - text: Don't have an account?
-      - link "Create an account" [ref=e44] [cursor=pointer]:
-        - /url: /register
-  - contentinfo [ref=e45]:
-    - generic [ref=e46]:
-      - link "♫ SimpleTheory" [ref=e47] [cursor=pointer]:
-        - /url: /
-      - paragraph [ref=e48]: Master your instrument with data-driven theory and interactive practice.
-    - generic [ref=e49]:
-      - heading "Learning" [level=3] [ref=e50]
-      - link "Courses" [ref=e51] [cursor=pointer]:
-        - /url: /selection
-      - link "Browse Videos" [ref=e52] [cursor=pointer]:
-        - /url: /browse
-      - link "Challenges" [ref=e53] [cursor=pointer]:
-        - /url: /challenges
-    - generic [ref=e54]:
-      - heading "Account" [level=3] [ref=e55]
-      - link "Login" [ref=e56] [cursor=pointer]:
-        - /url: /login
-      - link "Register" [ref=e57] [cursor=pointer]:
-        - /url: /register
-      - link "How it works" [ref=e58] [cursor=pointer]:
-        - /url: /howitworks
+Call log:
+  - Expect "toBeVisible" with timeout 5000ms
+  - waiting for locator('.profile-banner')
+
 ```
 
 # Test source
@@ -98,11 +36,11 @@ waiting for navigation to "/dashboard" until "load"
   6  |   await page.locator('input[name="email"]').fill("testuser2@test.com");
   7  |   await page.locator('input[name="password"]').fill("12345678");
   8  |   await page.locator('input[name="password"]').press("Enter");
-> 9  |   await page.waitForURL("/dashboard", { timeout: 10000 });
-     |              ^ TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+  9  |   await page.waitForURL("/dashboard", { timeout: 10000 });
   10 |   await page.goto("/profile");
   11 |   await page.waitForLoadState("networkidle");
-  12 |   await expect(page.locator(".profile-banner")).toBeVisible();
+> 12 |   await expect(page.locator(".profile-banner")).toBeVisible();
+     |                                                 ^ Error: expect(locator).toBeVisible() failed
   13 |   await expect(page.locator(".pcard").first()).toBeVisible();
   14 |   await expect(page.locator("text=Account Information")).toBeVisible();
   15 |   await expect(page.locator("text=Profile Photo")).toBeVisible();

@@ -7,15 +7,19 @@
 # Test info
 
 - Name: profile.spec.js >> dark mode toggle works on profile page
-- Location: tests\profile.spec.js:20:1
+- Location: tests/profile.spec.js:20:1
 
 # Error details
 
 ```
-Error: page.waitForURL: Target page, context or browser has been closed
-=========================== logs ===========================
-waiting for navigation to "/dashboard" until "load"
-============================================================
+Test timeout of 30000ms exceeded.
+```
+
+```
+Error: locator.click: Test timeout of 30000ms exceeded.
+Call log:
+  - waiting for locator('button[aria-label="Enable light mode"]')
+
 ```
 
 # Test source
@@ -45,12 +49,12 @@ waiting for navigation to "/dashboard" until "load"
   22 |   await page.locator('input[name="email"]').fill("testuser2@test.com");
   23 |   await page.locator('input[name="password"]').fill("12345678");
   24 |   await page.locator('input[name="password"]').press("Enter");
-> 25 |   await page.waitForURL("/dashboard", { timeout: 10000 });
-     |              ^ Error: page.waitForURL: Target page, context or browser has been closed
+  25 |   await page.waitForURL("/dashboard", { timeout: 10000 });
   26 |   await page.goto("/profile");
   27 |   await page.waitForLoadState("networkidle");
   28 |   // Enable light mode
-  29 |   await page.locator('button[aria-label="Enable light mode"]').click();
+> 29 |   await page.locator('button[aria-label="Enable light mode"]').click();
+     |                                                                ^ Error: locator.click: Test timeout of 30000ms exceeded.
   30 |   const bodyClass = await page.evaluate(() => document.body.className);
   31 |   expect(bodyClass).toContain("light-mode");
   32 |   // Switch back to dark mode
