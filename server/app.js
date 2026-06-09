@@ -7,14 +7,28 @@ import pool from "./db/db.js";
 import lessonsRouter from "#api/routes/lessons";
 import statsRouter from "#api/routes/stats";
 import usersRouter from "#api/routes/users";
+import xpRouter from "#api/routes/xp";
+import progressRouter from "#api/routes/progress";
 import getUserFromToken from "#middleware/getUserFromToken";
+import { createToken } from "#utils/jwt";
 
 const app = express();
 
 // 1. MUST BE FIRST: Configure CORS with strict credential permissions
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+      const allowed = [process.env.CORS_ORIGIN, "http://localhost:5173"];
+      if (
+        !origin ||
+        allowed.includes(origin) ||
+        origin.endsWith("-sarah-hopp-s-projects.vercel.app")
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
@@ -26,9 +40,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     },
   }),
 );
@@ -56,22 +70,28 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
+      callbackURL: process.env.GOOGLE_CALLBACK_URL || "/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
         const userEmail = profile.emails[0].value;
         const firstName = profile.name.givenName || "Google User";
+        const photoUrl = profile.photos?.[0]?.value || null; //
+
         const result = await pool.query(
           "SELECT * FROM users WHERE email = $1",
           [userEmail],
         );
         if (result.rows.length > 0) {
-          return done(null, result.rows[0]);
+          const updated = await pool.query(
+            "UPDATE users SET profile_photo = $1 WHERE email = $2 RETURNING *",
+            [photoUrl, userEmail],
+          );
+          return done(null, updated.rows[0]);
         } else {
           const newUser = await pool.query(
-            "INSERT INTO users (firstname, email, password) VALUES ($1, $2, $3) RETURNING *",
-            [firstName, userEmail, "OAUTH_GOOGLE_ACCOUNT"],
+            "INSERT INTO users (username, email, password_hash, profile_photo) VALUES ($1, $2, $3, $4) RETURNING *",
+            [firstName, userEmail, "OAUTH_GOOGLE_ACCOUNT", photoUrl],
           );
           return done(null, newUser.rows[0]);
         }
@@ -85,9 +105,15 @@ passport.use(
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
-// 7. Core Authentication Redirect Paths
+// 7. Core Authentication Redirect & Logout Paths
 app.get(
   "/auth/google",
+  (req, res, next) => {
+    if (req.query.redirect) {
+      req.session.redirectTo = req.query.redirect;
+    }
+    next();
+  },
   passport.authenticate("google", {
     scope: ["profile", "email"],
     prompt: "select_account",
@@ -97,12 +123,31 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "http://localhost:5173/login",
+    failureRedirect: `${process.env.FRONTEND_URL || "http://localhost:5173"}/login`,
   }),
-  (req, res) => {
-    res.redirect("http://localhost:5173/selection");
+  async (req, res) => {
+    const token = createToken({ id: req.user.id });
+    const redirectTo = req.session.redirectTo || "/selection";
+    delete req.session.redirectTo;
+    res.redirect(
+      `${process.env.FRONTEND_URL || "http://localhost:5173"}/selection?token=${token}`,
+    );
   },
 );
+
+// ADDED LOGOUT HANDLER: Destroys the cookie and session context storage
+app.get("/auth/logout", (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).json({ error: "Logout failed" });
+    }
+
+    req.session.destroy(() => {
+      res.clearCookie("connect.sid", { path: "/" });
+      res.json({ success: true, message: "Logged out completely!" });
+    });
+  });
+});
 
 // 8. Dynamic middleware wrapper to prevent manual JWT bypass breaks
 app.use((req, res, next) => {
@@ -116,6 +161,8 @@ app.use((req, res, next) => {
 app.use("/lessons", lessonsRouter);
 app.use("/stats", statsRouter);
 app.use("/users", usersRouter);
+app.use("/xp", xpRouter);
+app.use("/progress", progressRouter);
 
 // 10. Central Error handling structures
 app.use((err, req, res, next) => {
