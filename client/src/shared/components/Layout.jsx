@@ -1,4 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import Navbar from "./navbar";
 import Footer from "./Footer";
 import Sidebar from "./Sidebar";
