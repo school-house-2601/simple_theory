@@ -150,6 +150,8 @@ app.get("/auth/logout", (req, res) => {
   });
 });
 
+app.use("/flat", flatRouter);
+
 // 8. Dynamic middleware wrapper to prevent manual JWT bypass breaks
 app.use((req, res, next) => {
   if (req.isAuthenticated && req.isAuthenticated()) {
@@ -164,7 +166,6 @@ app.use("/stats", statsRouter);
 app.use("/users", usersRouter);
 app.use("/xp", xpRouter);
 app.use("/progress", progressRouter);
-app.use("/flat", flatRouter);
 
 // 10. Central Error handling structures
 app.use((err, req, res, next) => {
