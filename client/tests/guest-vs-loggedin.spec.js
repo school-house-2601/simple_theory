@@ -13,11 +13,8 @@ test("guest cannot access dashboard", async ({ page }) => {
 });
 
 test("guest sees sign in nudge on lesson progress", async ({ page }) => {
-  await skipSplash(page, "/selection");
-  await page.locator("button", { hasText: "Start Learning" }).first().click();
-  await expect(page.locator(".login-nudge").first()).toBeVisible({
-    timeout: 10000,
-  });
+  await skipSplash(page, "/lessons");
+  await expect(page).toHaveURL(/.*login/, { timeout: 10000 });
 });
 
 test("avatar shows login link for guest", async ({ page }) => {

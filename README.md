@@ -17,7 +17,7 @@ SimpleTheory is a full-stack music learning platform designed for musicians at e
 - 🔖 **Save videos** for later, per account
 - 👤 **Profile page** — edit name, upload photo, change password, toggle dark/light mode
 - 🔐 **Google OAuth + email/password auth**
-- 🧪 **26 Playwright end-to-end tests**
+- 🧪 **25 Playwright end-to-end tests**
 
 ---
 
@@ -210,7 +210,7 @@ App runs at `http://localhost:5173`
 npx playwright test
 ```
 
-**Expected:** 26 tests passing ✅
+**Expected:** 25 tests passing ✅
 
 > **Note:** The login test requires a `testuser2@test.com` account to exist in your local database. Register at `/register` if it doesn't exist, then update the password in `auth.spec.js` and `profile.spec.js` to match.
 

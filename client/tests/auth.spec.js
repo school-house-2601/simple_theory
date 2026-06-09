@@ -14,7 +14,7 @@ test("login with wrong password shows error", async ({ page }) => {
   await page.locator('input[name="email"]').fill("fake@email.com");
   await page.locator('input[name="password"]').fill("wrongpassword");
   await page.locator('button[type="submit"]').click();
-  await page.waitForTimeout(2000); // wait for async login to fail
+  await page.waitForTimeout(2000);
   await expect(page.locator(".error-message")).toBeVisible({ timeout: 10000 });
 });
 

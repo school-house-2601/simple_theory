@@ -11,14 +11,24 @@ const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  const [loading, setLoading] = useState(() => {
+    const hasUser = !!localStorage.getItem("user");
+    const hasToken = !!localStorage.getItem("token");
+    // If we already have user data, no loading needed
+    return hasToken && !hasUser;
+  });
 
   const fetchUser = useCallback(async () => {
     if (!token) {
       setLoading(false);
       return;
-    };
+    }
     if (token.startsWith("google-oauth")) {
       setLoading(false);
       return;
@@ -43,14 +53,20 @@ export function AuthProvider({ children }) {
     }
   }, [token]);
 
-  // This handles the "Stay Logged In" logic
   useEffect(() => {
     if (token) {
       localStorage.setItem("token", token);
-      fetchUser();
+      // Only fetch if we don't already have user data
+      const savedUser = localStorage.getItem("user");
+      if (!savedUser) {
+        fetchUser();
+      } else {
+        setLoading(false);
+      }
     } else {
       localStorage.removeItem("token");
       setUser(null);
+      setLoading(false);
     }
   }, [token, fetchUser]);
 
@@ -96,6 +112,7 @@ export function AuthProvider({ children }) {
       setToken(null);
       setUser(null);
       localStorage.removeItem("user");
+      setLoading(false);
     }
   };
 

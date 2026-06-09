@@ -1,25 +1,37 @@
 import { test, expect } from "@playwright/test";
-import { skipSplash } from "./helpers.js";
+import { loginAsTestUser } from "./helpers.js";
 
-test("homepage loads correctly", async ({ page }) => {
-  await skipSplash(page, "/selection");
-  await expect(page).toHaveTitle(/Simple Theory/);
+test("profile page renders correctly when logged in", async ({ page }) => {
+  await loginAsTestUser(page);
+  await page.goto("/profile");
+  await page.waitForLoadState("networkidle");
+  await expect(page.locator(".profile-banner")).toBeVisible();
+  await expect(page.locator(".pcard").first()).toBeVisible();
+  await expect(page.locator("text=Account Information")).toBeVisible();
+  await expect(page.locator("text=Profile Photo")).toBeVisible();
+  await expect(page.locator("text=Password & Security")).toBeVisible();
+  await expect(page.locator("text=Appearance")).toBeVisible();
 });
 
-test("can navigate to browse page", async ({ page }) => {
-  await skipSplash(page, "/browse");
-  await expect(page).toHaveURL(/.*browse/);
-  await expect(page.locator("h1")).toContainText("Browse Video Knowledge");
+test("dark mode toggle works on profile page", async ({ page }) => {
+  await loginAsTestUser(page);
+  await page.goto("/profile");
+  await page.waitForLoadState("networkidle");
+  await page.locator('button[aria-label="Enable light mode"]').click();
+  const bodyClass = await page.evaluate(() => document.body.className);
+  expect(bodyClass).toContain("light-mode");
+  await page.locator('button[aria-label="Enable dark mode"]').click();
+  const bodyClassAfter = await page.evaluate(() => document.body.className);
+  expect(bodyClassAfter).not.toContain("light-mode");
 });
 
-test("can navigate to courses page", async ({ page }) => {
-  await skipSplash(page, "/selection");
-  await expect(page).toHaveURL(/.*selection/);
-});
-
-test("search bar navigates to browse page", async ({ page }) => {
-  await skipSplash(page, "/selection");
-  await page.locator(".search-container input").fill("guitar");
-  await page.locator(".search-container input").press("Enter");
-  await expect(page).toHaveURL(/.*browse.*guitar/);
+test("lesson progress bar shows for logged in users", async ({ page }) => {
+  await loginAsTestUser(page);
+  await page.goto("/selection");
+  await page.waitForLoadState("networkidle");
+  await page.locator("button", { hasText: "Start Learning" }).first().click();
+  await page.waitForLoadState("networkidle");
+  await expect(page.locator(".progress-bar-bg").first()).toBeVisible({
+    timeout: 10000,
+  });
 });

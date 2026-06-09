@@ -13,9 +13,7 @@ const PUBLIC_ROUTES = [
   "/login",
   "/register",
   "/selection",
-  "/browse",
   "/howitworks",
-  "/lessons",
   "/profile",
   "/practice",
 ];
