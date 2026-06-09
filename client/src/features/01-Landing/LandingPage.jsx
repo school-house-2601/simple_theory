@@ -13,21 +13,16 @@ export default function LandingPage() {
         <PiMicrophoneStageThin className="mic-symbol" />
 
         <p className="landing-badge">✦ THE FUTURE OF MUSIC LEARNING</p>
-        
+
         <h1 className="landing-title">SimpleTheory</h1>
 
         <p className="subtitle">
           The focused path to mastering instruments and music production.
         </p>
 
-        <p className="small-text">
-          Learn any instrument. Start playing.
-        </p>
+        <p className="small-text">Learn any instrument. Start playing.</p>
 
-        <button
-          className="enter-button"
-          onClick={() => navigate("/selection")}
-        >
+        <button className="enter-button" onClick={() => navigate("/selection")}>
           Press Enter <span>›</span>
         </button>
 
