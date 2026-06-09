@@ -1,6 +1,14 @@
 import { test, expect } from "@playwright/test";
 import { skipSplash } from "./helpers.js";
 
+async function loginAsTestUser(page) {
+  await skipSplash(page, "/login");
+  await page.locator('input[name="email"]').fill("testuser2@test.com");
+  await page.locator('input[name="password"]').fill("your_password");
+  await page.locator('input[name="password"]').press("Enter");
+  await page.waitForURL("/dashboard", { timeout: 10000 });
+}
+
 test("browse page loads with default Theory videos", async ({ page }) => {
   await skipSplash(page, "/browse");
   await expect(page.locator("h1")).toContainText("Browse Video Knowledge");
