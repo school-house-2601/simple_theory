@@ -1,0 +1,162 @@
+.practice-page {
+    min-height: 100vh;
+    background-color: #0d0d1a;
+    color: #ffffff;
+    padding: 32px;
+    font-family: 'Inter', sans-serif;
+}
+
+.practice-header {
+    margin-bottom: 32px;
+}
+
+.practice-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.practice-header p {
+    color: #a0a0c0;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.instrument-selector {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+}
+
+.instrument-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 24px;
+    background-color: #12122a;
+    border: 1px solid #1e1e3a;
+    border-radius: 14px;
+    color: #a0a0c0;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    min-width: 100px;
+}
+
+.instrument-btn:hover {
+    border-color: #6c63ff;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.instrument-btn.active {
+    border-color: #6c63ff;
+    background-color: #1a1a3e;
+    color: #ffffff;
+}
+
+.instrument-icon {
+    font-size: 2rem;
+}
+
+.instrument-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.detector-container {
+    background-color: #12122a;
+    border: 1px solid #1e1e3a;
+    border-radius: 16px;
+    padding: 32px;
+}
+
+.practice-empty {
+    text-align: center;
+    color: #6a6a9a;
+    padding: 60px;
+    background-color: #12122a;
+    border: 1px dashed #1e1e3a;
+    border-radius: 16px;
+}
+
+.start-btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    background-color: #6c63ff;
+    color: #ffffff;
+    font-size: 0.9 rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.start-btn:hover {
+    background-color: #5a52e0;
+}
+
+.stop-btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    background-color: #ff6b6b;
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.stop-btn:hover {
+    background-color: #e05555;
+}
+
+.instrument-detector {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.instrument-detector h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.instrument-detector p {
+    color: #a0a0c0;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #6c63ff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 16px;
+    padding: 0;
+}
+
+.back-btn:hover {
+    opacity: 0.75;
+}
+
+@media (max-width: 768px) {
+    .practice-page {
+        padding: 16px;
+    }
+
+    .instrument-selector {
+        justify-content: center;
+    }
+
+    .instrument-btn {
+        min-width: 80px;
+        padding: 16px;
+    }
+}

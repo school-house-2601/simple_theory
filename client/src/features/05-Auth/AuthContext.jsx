@@ -11,16 +11,18 @@ const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem("user");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchUser = useCallback(async () => {
-    if (!token) return;
-
-    // For Google users, skip the JWT fetch — user is set via loginWithGoogle
-    if (token.startsWith("google-oauth")) return;
+    if (!token) {
+      setLoading(false);
+      return;
+    };
+    if (token.startsWith("google-oauth")) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch(`${API}/users/me`, {
@@ -36,6 +38,8 @@ export function AuthProvider({ children }) {
     } catch (error) {
       console.error("Failed to fetch user:", error);
       logout();
+    } finally {
+      setLoading(false);
     }
   }, [token]);
 
@@ -70,7 +74,7 @@ export function AuthProvider({ children }) {
     const result = await response.json();
     if (!response.ok) throw Error(result.message || "Login failed");
     setToken(result.token);
-    setUser(result.user); // 👈 set user immediately, don't wait for fetchUser
+    setUser(result.user);
     localStorage.setItem("user", JSON.stringify(result.user));
   };
 
@@ -103,6 +107,7 @@ export function AuthProvider({ children }) {
     user,
     fetchUser,
     loginWithGoogle,
+    loading,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
