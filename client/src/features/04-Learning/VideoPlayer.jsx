@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import "./VideoPlayer.css";
 import { MOCK_VIDEOS } from "../../mockData";
@@ -8,8 +8,10 @@ import { useAuth } from "../05-Auth/AuthContext";
 export default function BrowsePage() {
   const { user } = useAuth();
   const [searchResults, setSearchResults] = useState([]);
+  const [flatResults, setFlatResults] = useState([]);
   const [selectedVideoId, setSelectedVideoId] = useState(null);
   const [activeInstrument, setActiveInstrument] = useState(null);
+  const [activeScoreId, setActiveScoreId] = useState(null);
   const [currentTab, setCurrentTab] = useState("browse");
   const [searchParams] = useSearchParams();
   const queryFromUrl = searchParams.get("search");
@@ -24,20 +26,31 @@ export default function BrowsePage() {
       return {};
     }
   });
-
+  const [flatCache, setFlatCache] = useState(() => {
+    const savedFlatCache = localStorage.getItem("flat_io_cache");
+    return savedFlatCache ? JSON.parse(savedFlatCache) : {};
+  });
   const [savedVideos, setSavedVideos] = useState(() => {
     try {
-      const saved = localStorage.getItem("savedLessons");
+      const key = user?.id ? `savedLessons_${user.id}` : "savedLessons_guest";
+      const saved = localStorage.getItem(key);
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
     }
   });
 
+  useEffect(() => {
+    const key = user?.id ? `savedLessons_${user.id}` : "savedLessons_guest";
+    const saved = localStorage.getItem(key);
+    setSavedVideos(saved ? JSON.parse(saved) : []);
+  }, [user?.id]);
+
   const [watchTimer, setWatchTimer] = useState(null);
   const [xpAwarded, setXpAwarded] = useState(new Set());
 
   const toggleSaveVideo = (video) => {
+    const key = user?.id ? `savedLessons_${user.id}` : "savedLessons_guest";
     let updatedSaved;
     const isAlreadySaved = savedVideos.some(
       (v) => v.id.videoId === video.id.videoId,
@@ -50,27 +63,30 @@ export default function BrowsePage() {
       updatedSaved = [...savedVideos, video];
     }
     setSavedVideos(updatedSaved);
-    localStorage.setItem("savedLessons", JSON.stringify(updatedSaved));
+    localStorage.setItem(key, JSON.stringify(updatedSaved));
   };
 
-    const awardVideoXP = async (videoId) => {
+  const awardVideoXP = async (videoId) => {
     if (!user) return;
     try {
-      const res = await fetch("/api/progress/video-complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user.id,
-          videoId: videoId,
-          xpEarned: 5,
-          skillCategory: activeInstrument || "Theory"
-        })
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/progress/video-complete`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: user.id,
+            videoId: videoId,
+            xpEarned: 5,
+            skillCategory: activeInstrument || "Theory",
+          }),
+        },
+      );
       const data = await res.json();
       console.log("XP response:", data);
     } catch (err) {
       console.error("Failed to award XP", err);
-    } 
+    }
   };
 
   const handleVideoSelect = (videoId) => {
@@ -78,8 +94,8 @@ export default function BrowsePage() {
     if (xpAwarded.has(videoId)) return;
     const timer = setTimeout(async () => {
       await awardVideoXP(videoId);
-      setXpAwarded((prev) => new Set(prev).add(videoId))
-    }, 60000)
+      setXpAwarded((prev) => new Set(prev).add(videoId));
+    }, 60000);
     setWatchTimer(timer);
   };
 
@@ -114,46 +130,59 @@ export default function BrowsePage() {
     }
   }, [queryFromUrl, activeInstrument]);
 
-  const handleSearch = async (query, setter = setSearchResults) => {
-    console.log("Searching for:", query);
+  const handleSearch = async (query) => {
     if (searchCache[query]) {
-      console.log(`Loading "${query}" from cache. No credits used!`);
-      setter(searchCache[query]);
-      return;
+      setSearchResults(searchCache[query]);
+    } else {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/lessons/youtube-search?query=${query}`,
+        );
+        if (!res.ok) throw new Error(`YouTube API Error: ${res.status}`);
+        const data = await res.json();
+        if (data.items && data.items.length > 0) {
+          const newCache = { ...searchCache, [query]: data.items };
+          setSearchCache(newCache);
+          localStorage.setItem("youtube_cache", JSON.stringify(newCache));
+          setSearchResults(data.items);
+        } else {
+          setSearchResults(MOCK_VIDEOS);
+        }
+      } catch (err) {
+        console.error("YouTube Error. Using mock data.", err);
+        setSearchResults(MOCK_VIDEOS);
+      }
     }
 
-    try {
-      const res = await fetch(`/api/lessons/youtube-search?query=${query}`);
-      if (!res.ok) throw new Error(`API Error: ${res.status}`);
-
-      const data = await res.json();
-
-      if (data.items && data.items.length > 0) {
-        const newCache = { ...searchCache, [query]: data.items };
-        setSearchCache(newCache);
-        localStorage.setItem("youtube_cache", JSON.stringify(newCache));
-
-        setter(data.items);
-      } else {
-        setter(MOCK_VIDEOS);
+    if (flatCache[query]) {
+      console.log(flatCache);
+      setFlatResults(flatCache[query]);
+    } else {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/lessons/flat-search?query=${query}`,
+        );
+        if (!res.ok) throw new Error(`Flat.io API Error: ${res.status}`);
+        const data = await res.json();
+        const sheets = Array.isArray(data) ? data : data.results || [];
+        const newFlatCache = { ...flatCache, [query]: sheets };
+        setFlatCache(newFlatCache);
+        localStorage.setItem("flat_io_cache", JSON.stringify(newFlatCache));
+        setFlatResults(sheets);
+      } catch (err) {
+        console.error("Flat.io layout fetch failed.", err);
+        setFlatResults([]);
       }
-    } catch (err) {
-      console.error("Quota exceeded. Using mock data.", err);
-      setter(MOCK_VIDEOS);
     }
   };
 
   return (
     <div className="browse-container">
-      {/* MAIN CONTENT AREA */}
       <main className="browse-content">
-        {/* NEW HEADER SECTION */}
         <header className="browse-header">
           <h1>Browse Video Knowledge</h1>
           <p>Aggregated tutorials and theory from across the web.</p>
         </header>
-
-        {/* WRAP NAV AND SORT IN A FLEX CONTAINER */}
         <div className="filter-bar">
           <nav className="category-pills">
             <button
@@ -161,61 +190,61 @@ export default function BrowsePage() {
               onClick={() => {
                 setActiveInstrument("Theory");
                 setCurrentTab("browse");
-                navigate("/browse", {replace: true});
+                navigate("/browse", { replace: true });
                 handleSearch("Music Theory for Beginners");
               }}
             >
-              🎼 Theory
+              {" "}
+              🎼 Theory{" "}
             </button>
-
             <button
               className={activeInstrument === "Piano" ? "pill active" : "pill"}
               onClick={() => {
                 setActiveInstrument("Piano");
                 setCurrentTab("browse");
-                navigate("/browse", {replace: true});
+                navigate("/browse", { replace: true });
                 handleSearch("Piano tutorials");
               }}
             >
-              🎹 Piano
+              {" "}
+              🎹 Piano{" "}
             </button>
-
             <button
               className={activeInstrument === "Guitar" ? "pill active" : "pill"}
               onClick={() => {
                 setActiveInstrument("Guitar");
                 setCurrentTab("browse");
-                navigate("/browse", {replace: true});
+                navigate("/browse", { replace: true });
                 handleSearch("Guitar lessons");
               }}
             >
-              🎸 Guitar
+              {" "}
+              🎸 Guitar{" "}
             </button>
-
             <button
               className={activeInstrument === "Drums" ? "pill active" : "pill"}
               onClick={() => {
                 setActiveInstrument("Drums");
                 setCurrentTab("browse");
-                navigate("/browse", {replace: true});
+                navigate("/browse", { replace: true });
                 handleSearch("Drum basics");
               }}
             >
-              🥁 Drums
+              {" "}
+              🥁 Drums{" "}
             </button>
-
             <button
               className={activeInstrument === "Vocals" ? "pill active" : "pill"}
               onClick={() => {
                 setActiveInstrument("Vocals");
                 setCurrentTab("browse");
-                navigate("/browse", {replace: true});
+                navigate("/browse", { replace: true });
                 handleSearch("Vocal lessons");
               }}
             >
-              🎤 Vocals
+              {" "}
+              🎤 Vocals{" "}
             </button>
-
             <button
               className={
                 activeInstrument === "Production" ? "pill active" : "pill"
@@ -223,13 +252,13 @@ export default function BrowsePage() {
               onClick={() => {
                 setActiveInstrument("Production");
                 setCurrentTab("browse");
-                navigate("/browse", {replace: true});
+                navigate("/browse", { replace: true });
                 handleSearch("DAW production tutorials");
               }}
             >
-              🎚️ Production
+              {" "}
+              🎚️ Production{" "}
             </button>
-
             <button
               className={currentTab === "saved" ? "pill active" : "pill"}
               onClick={() => {
@@ -237,12 +266,12 @@ export default function BrowsePage() {
                 setActiveInstrument(null);
               }}
             >
-              🔖 Saved ({savedVideos.length})
+              {" "}
+              🔖 Saved ({savedVideos.length}){" "}
             </button>
           </nav>
         </div>
 
-        {/* VIDEO GRID SECTION */}
         <div className="results-container">
           {currentTab === "saved" ? (
             <section className="video-section">
@@ -264,30 +293,50 @@ export default function BrowsePage() {
               </div>
             </section>
           ) : (
-            <section className="video-section">
-              <h2>{activeInstrument || "Explore"} Tutorials</h2>
-              <div className="video-grid">
-                {searchResults.length > 0 ? (
-                  searchResults.map((video) => (
-                    <VideoCard
-                      key={video.id.videoId}
-                      video={video}
-                      onSelect={handleVideoSelect}
-                      onSave={toggleSaveVideo}
-                      isSaved={savedVideos.some(
-                        (v) => v.id.videoId === video.id.videoId,
-                      )}
-                    />
-                  ))
-                ) : (
-                  <p>Select a category to start learning.</p>
-                )}
-              </div>
-            </section>
+            <>
+              <section className="video-section">
+                <h2>{activeInstrument || "Explore"} Video Tutorials</h2>
+                <div className="video-grid">
+                  {searchResults.length > 0 ? (
+                    searchResults.map((video) => (
+                      <VideoCard
+                        key={video.id.videoId}
+                        video={video}
+                        onSelect={setSelectedVideoId}
+                        onSave={toggleSaveVideo}
+                        isSaved={savedVideos.some(
+                          (v) => v.id.videoId === video.id.videoId,
+                        )}
+                      />
+                    ))
+                  ) : (
+                    <p>Select a category to start learning.</p>
+                  )}
+                </div>
+              </section>
+
+              {flatResults.length > 0 && (
+                <section
+                  className="video-section"
+                  style={{ marginBottom: "40px" }}
+                >
+                  <h2>Interactive Sheet Music</h2>
+                  <div className="video-grid">
+                    {flatResults.slice(0, 4).map((sheet) => (
+                      <SheetMusicCard
+                        key={sheet.id}
+                        sheet={sheet}
+                        onSelectScore={setActiveScoreId}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
+            </>
           )}
         </div>
 
-        {/* MODAL */}
+        {/* YOUTUBE MODAL */}
         {selectedVideoId && (
           <div
             className="video-modal-overlay"
@@ -301,13 +350,14 @@ export default function BrowsePage() {
                 className="close-modal"
                 onClick={() => handleCloseVideo()}
               >
-                &times;
+                {" "}
+                &times;{" "}
               </button>
               <div className="video-responsive">
                 <iframe
                   width="100%"
                   height="100%"
-                  src={`https://youtube.com/embed/${selectedVideoId}?autoplay=1`}
+                  src={`https://www.youtube.com/embed/${selectedVideoId}?autoplay=1`}
                   title="YouTube video player"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -317,6 +367,14 @@ export default function BrowsePage() {
             </div>
           </div>
         )}
+
+        {/* FLAT.IO SHEET MUSIC MODAL */}
+        {activeScoreId && (
+          <ModalWrapper
+            activeScoreId={activeScoreId}
+            setActiveScoreId={setActiveScoreId}
+          />
+        )}
       </main>
     </div>
   );
@@ -324,13 +382,11 @@ export default function BrowsePage() {
 
 function VideoCard({ video, onSelect, onSave, isSaved }) {
   const videoId = video.id.videoId;
-
   const decodeHTML = (str) => {
     const txt = document.createElement("textarea");
     txt.innerHTML = str;
     return txt.value;
   };
-
   return (
     <div
       className="video-card"
@@ -352,8 +408,75 @@ function VideoCard({ video, onSelect, onSave, isSaved }) {
           onSave(video);
         }}
       >
-        {isSaved ? "★" : "☆"}
+        {" "}
+        {isSaved ? "★" : "☆"}{" "}
       </button>
+    </div>
+  );
+}
+
+function SheetMusicCard({ sheet, onSelectScore }) {
+  return (
+    <div
+      className="video-card sheet-card"
+      onClick={() => onSelectScore(sheet.id)}
+      style={{ cursor: "pointer", borderLeft: "4px solid #0052cc" }}
+    >
+      <div className="video-info" style={{ padding: "20px 15px" }}>
+        <span
+          style={{
+            fontSize: "12px",
+            textTransform: "uppercase",
+            color: "#6b778c",
+            fontWeight: "bold",
+          }}
+        >
+          🎼 Flat.io Score
+        </span>
+        <h4 style={{ marginTop: "5px", marginBottom: "5px" }}>{sheet.title}</h4>
+        <p>By {sheet.author || "Community Contributor"}</p>
+        <p style={{ fontSize: "12px", color: "#0052cc", marginTop: "10px" }}>
+          Click to open music notation here →
+        </p>
+      </div>
+    </div>
+  );
+}
+function ModalWrapper({ activeScoreId, setActiveScoreId }) {
+  const iframeRef = useRef(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (iframeRef.current) {
+        iframeRef.current.focus();
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [activeScoreId]);
+
+  return (
+    <div className="video-modal-overlay" onClick={() => setActiveScoreId(null)}>
+      <div
+        className="video-modal-content"
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: "900px", width: "90%" }}
+      >
+        <button className="close-modal" onClick={() => setActiveScoreId(null)}>
+          &times;
+        </button>
+        <div className="video-responsive" style={{ paddingTop: "65%" }}>
+          <iframe
+            ref={iframeRef}
+            width="100%"
+            height="100%"
+            src={`https://flat.io/embed/${activeScoreId}?layout=responsive`}
+            title="Flat.io sheet music player"
+            frameBorder="0"
+            allow="autoplay; midi"
+            allowFullScreen
+          ></iframe>
+        </div>
+      </div>
     </div>
   );
 }

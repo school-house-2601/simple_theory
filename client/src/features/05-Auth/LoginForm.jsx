@@ -15,7 +15,7 @@ export default function Login() {
 
     try {
       await login({ email, password });
-      nav("/");
+      nav("/dashboard");
     } catch (e) {
       setError(e.message);
     }
@@ -29,7 +29,7 @@ export default function Login() {
 
         <div className="social-buttons">
           <a
-            href="http://localhost:3000/auth/google"
+            href={`${import.meta.env.VITE_API_URL}/auth/google?redirect=${encodeURIComponent(window.location.pathname)}`}
             className="google-sign-in-btn"
           >
             <svg
@@ -63,7 +63,12 @@ export default function Login() {
 
         <div className="divider">OR CONTINUE WITH</div>
 
-        <form action={tryLogin}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            tryLogin(new FormData(e.currentTarget));
+          }}
+        >
           <div className="auth-form-group">
             <label>Email</label>
             <input

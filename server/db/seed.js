@@ -3,13 +3,11 @@ import bcrypt from "bcrypt";
 
 async function seed() {
   try {
-    await db.connect();
-    console.log("Connected to database...");
-
     // Clear existing data - Added bookmarks and play_sessions to the list
     await db.query(
       "TRUNCATE users, content, user_progress, bookmarks, play_sessions RESTART IDENTITY CASCADE;",
     );
+    console.log("Database cleared...");
 
     // 1. Create Demo User
     const hashedPassword = await bcrypt.hash("password123", 10);
@@ -100,8 +98,9 @@ async function seed() {
     console.log("SimpleTheory Seeded Successfully! 🌱");
   } catch (err) {
     console.error("Seed failed:", err);
+    process.exit(1);
   } finally {
-    await db.end();
+    process.exit(0);
   }
 }
 

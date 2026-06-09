@@ -7,7 +7,7 @@ import {
 } from "react";
 
 const AuthContext = createContext();
-const API = "/api";
+const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -31,6 +31,7 @@ export function AuthProvider({ children }) {
       const result = await response.json();
       if (response.ok) {
         setUser(result);
+        localStorage.setItem("user", JSON.stringify(result));
       } else {
         logout();
       }
@@ -73,16 +74,29 @@ export function AuthProvider({ children }) {
     const result = await response.json();
     if (!response.ok) throw Error(result.message || "Login failed");
     setToken(result.token);
+    setUser(result.user); // 👈 set user immediately, don't wait for fetchUser
+    localStorage.setItem("user", JSON.stringify(result.user));
   };
 
   const loginWithGoogle = (userData, userToken) => {
     localStorage.setItem("token", userToken);
+    localStorage.setItem("user", JSON.stringify(userData));
     setToken(userToken);
     setUser(userData);
   };
-  const logout = () => {
-    setToken(null);
-    setUser(null);
+
+  const logout = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Failed to clear backend auth session cookie:", err);
+    } finally {
+      setToken(null);
+      setUser(null);
+      localStorage.removeItem("user");
+    }
   };
 
   const value = {
@@ -95,6 +109,7 @@ export function AuthProvider({ children }) {
     loginWithGoogle,
     loading,
   };
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
