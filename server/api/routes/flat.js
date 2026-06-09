@@ -2,23 +2,30 @@ import { Router } from "express";
 
 const router = Router();
 
-const FLAT_CLIENT_ID = process.env.FLAT_IO_CLIENT_ID;
-const FLAT_CLIENT_SECRET = process.env.FLAT_IO_CLIENT_SECRET;
-const FLAT_REDIRECT_URI = process.env.FLAT_IO_REDIRECT_URI;
-
 router.get("/auth", (req, res) => {
-    const params = new URLSearchParams({
-        response_type: "code",
-        client_id: FLAT_CLIENT_ID,
-        redirect_uri: FLAT_REDIRECT_URI,
-        scope: "score.readonly",
-    });
-    res.redirect(`https://flat.io/auth/oauth?${params}`);
-});
+    const clientId = process.env.FLAT_IO_CLIENT_ID;
+    const redirectUri = process.env.FLAT_IO_REDIRECT_URI;
+
+    if (!clientId || !redirectUri) {
+        return res.status(500).json({
+            error: "Missing Flat.io config",
+            hasClientId: !!clientId,
+            hasRedirectUri: !!redirectUri
+        });
+    }
+
+    const authUrl = `https://flat.io/auth/oauth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=score.readonly`;
+
+    console.log("Redirecting to:", authUrl);
+    return res.redirect(authUrl);
+});    
 
 router.get("/auth/callback", async (req, res) => {
     const { code } = req.query;
-    if (!code) return res.status(400).json({ error: "No code provided" });
+
+    if (!code) {
+        return res.status(400).json({ error: "No code provided" });
+    }
 
     try {
         const response = await fetch("https://api.flat.io/oauth/access_token", {
@@ -27,22 +34,22 @@ router.get("/auth/callback", async (req, res) => {
             body: new URLSearchParams({
                 grant_type: "authorization_code",
                 code,
-                redirect_uri: FLAT_REDIRECT_URI,
-                client_id: FLAT_CLIENT_ID,
-                client_secret: FLAT_CLIENT_SECRET,
+                redirect_uri: process.env.FLAT_IO_REDIRECT_URI,
+                client_id: process.env.FLAT_IO_CLIENT_ID,
+                client_secret: process.env.FLAT_IO_CLIENT_SECRET,
             }),
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-            console.error("Flat.io token error:", data);
-            return res.status(500).json({ error: "Failed to get token" });
+            return res.status(500).json({ error: "Token exchange failed", details: data });
         }
 
+        const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
         res.redirect(`${process.env.CLIENT_URL}/practice?flat_token=${data.access_token}`);
     } catch (err) {
-        console.error(err);
+        console.error("Flat OAuth error:", err);
         res.status(500).json({ error: "OAuth failed" });
     }
 });
@@ -52,34 +59,22 @@ router.get("/search", async (req, res) => {
     if (!token) return res.status(401).json({ error: "No Flat.io token" });
 
     try {
-        const params = new URLSearchParams({
-            q: query || "",
-            limit: 20,
-        });
-
-        if (instrument) {
-            params.append("instruments", instrument);
-        }
+        const params = new URLSearchParams({ q: query || "", limit: 20,});
+        if (instrument) params.append("instruments", instrument);
 
         const response = await fetch(
             `https://api.flat.io/v2/scores?${params}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            }
+            { headers: { Authorization: `Bearer ${token}` } }
         );
 
         if (!response.ok) {
-            console.error("Flat.io API Error:", text);
-            return res.status(response.status).json({ error: text });
+            console.err = await response.json();
+            return res.status(response.status).json(err);
         }
 
         const data = await response.json();
         res.json(data);
     } catch (err) {
-        console.error(err);
         res.status(500).json({ error: "Search failed" });
     }
 });
@@ -112,15 +107,6 @@ router.get("/me", async (req, res) => {
     });
     const text = await response.text();
     res.send(text);
-});
-
-router.get("/test", (req, res) => {
-    res.json({
-        hasClientId: !!FLAT_CLIENT_ID,
-        hasClientSecret: !!FLAT_CLIENT_SECRET,
-        hasRedirectUri: !!FLAT_REDIRECT_URI,
-        redirectUri: FLAT_REDIRECT_URI,
-    });
 });
 
 export default router;
