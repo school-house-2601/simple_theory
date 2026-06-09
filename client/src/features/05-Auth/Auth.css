@@ -81,7 +81,6 @@
   font-weight: 500;
   text-decoration: none;
 
-  /* Smooth interaction animations */
   transition:
     background-color 0.218s,
     border-color 0.218s,
@@ -94,12 +93,10 @@
   font-weight: bold;
 }
 
-/* Active clicked state */
 .google-sign-in-btn:active {
   background-color: #ebf1fa;
 }
 
-/* Spacing out the integrated logo from the text */
 .google-icon {
   margin-right: 12px;
   flex-shrink: 0;

@@ -10,7 +10,6 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
-  // Add this near the top of the Navbar component
   const profilePhoto = user?.id
     ? localStorage.getItem(`profile_photo_${user.id}`)
     : null;
