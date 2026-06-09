@@ -11,37 +11,49 @@ import ProtectedRoute from "./shared/components/ProtectedRoute.jsx";
 import HowItWorksPage from "./shared/components/HowItWorks.jsx";
 import ProfilePage from "./features/06-Profile/ProfilePage.jsx";
 import Error404 from "./Error404.jsx";
+import PracticePage from "./features/06-Practice/PracticePage.jsx";
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route index element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/selection" element={<Selection />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/lessons" element={<LessonPage />} />
-        <Route path="/browse" element={<BrowsePage />} />
-        <Route path="/howitworks" element={<HowItWorksPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+          <Route index element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/selection" element={<Selection />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/lessons"
+            element={
+              <ProtectedRoute>
+                <LessonPage />
+              </ProtectedRoute>
+            }
+          />
+        <Route
+          path="/browse"
+          element={
+            <ProtectedRoute>
+              <BrowsePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/practice"
+          element={
+            <ProtectedRoute>
+              <PracticePage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Error404 />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/lessons"
-          element={
-            <ProtectedRoute>
-              <LessonPage />
-            </ProtectedRoute>
-          }
-        />
       </Route>
     </Routes>
   );
