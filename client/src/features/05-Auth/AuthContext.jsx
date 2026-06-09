@@ -74,7 +74,7 @@ export function AuthProvider({ children }) {
     const result = await response.json();
     if (!response.ok) throw Error(result.message || "Login failed");
     setToken(result.token);
-    setUser(result.user); // 👈 set user immediately, don't wait for fetchUser
+    setUser(result.user);
     localStorage.setItem("user", JSON.stringify(result.user));
   };
 
