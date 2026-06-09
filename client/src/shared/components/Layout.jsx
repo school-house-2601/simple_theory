@@ -16,11 +16,14 @@ const PUBLIC_ROUTES = [
   "/browse",
   "/howitworks",
   "/lessons",
+  "/profile",
+  "/practice",
 ];
 
 export default function Layout() {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const showSidebar = user && !NO_SIDEBAR_ROUTES.includes(location.pathname);
 
   useEffect(() => {
