@@ -1,9 +1,14 @@
 .settings-page {
-  padding: 40px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   color: white;
+  padding: 40px;
 }
 
 .settings-card {
+  width: 100%;
   max-width: 500px;
   background: #1c1f26;
   padding: 24px;
@@ -12,6 +17,15 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  border: 1px solid #2d333d;
+  transition: all 0.3s ease;
+}
+
+.settings-card:hover {
+  border-color: #6366f1;
+  box-shadow: 0 0 25px rgba(99, 102, 241, 0.45);
+  transform: translateY(-4px);
 }
 
 .settings-card select {
@@ -29,4 +43,11 @@
   padding: 12px;
   border-radius: 6px;
   font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.settings-card button:hover {
+  background: #7c7ff8;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
 }

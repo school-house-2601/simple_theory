@@ -7,6 +7,7 @@ export default function Register() {
   const { register } = useAuth();
   const nav = useNavigate();
   const [error, setError] = useState(null);
+  const [instrument, setInstrument] = useState("");
 
   // Track selected instruments for the "What do you play?" section
   const [selectedInterests, setSelectedInterests] = useState([]);
@@ -30,6 +31,8 @@ export default function Register() {
     const fullName = formData.get("fullname");
     const email = formData.get("email");
     const password = formData.get("password");
+
+    // Split name back for your backend if needed
     const [firstname, ...lastNames] = fullName.split(" ");
     const lastname = lastNames.join(" ");
 
@@ -39,6 +42,7 @@ export default function Register() {
         lastname,
         email,
         password,
+        instrument,
         interests: selectedInterests,
       });
       nav("/");
@@ -97,7 +101,24 @@ export default function Register() {
                 required
               />
             </div>
-
+            
+            <div className="auth-form-group">
+            <label>Primary Instrument</label>
+            <select
+                value={instrument}
+                onChange={(e) => setInstrument(e.target.value)}
+                required
+              >
+                <option value="">Select an instrument</option>
+                <option value="Guitar">Guitar</option>
+                <option value="Piano">Piano</option>
+                <option value="Bass">Bass</option>
+                <option value="Drums">Drums</option>
+                <option value="Vocals">Vocals</option>
+                <option value="Production">Production</option>
+            </select>
+            </div>
+            
             <div className="interest-section">
               <div className="interest-header">
                 <label>What do you play?</label>

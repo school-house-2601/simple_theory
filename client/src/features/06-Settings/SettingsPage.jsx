@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./Settings.css";
+import "./SettingsPage.css";
 
 export default function SettingsPage() {
   const [instrument, setInstrument] = useState("Guitar");
