@@ -26,16 +26,19 @@ export default function SongBrowser({ instrument, onSelectSong }) {
 
     useEffect(() => {
         if (!user) return;
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get("flat_token");
+        const params = new URLSearchParams(window.location.hash.replace("#", ""));
+        const token = hash.get("access_token");
         if (token) {
-            localStorage.getItem(`flat_token_${user.id}`, token);
+            localStorage.setItem(`flat_token_${user.id}`, token);
             setFlatToken(token);
             window.history.replaceState({}, "", "/practice");
         }
     }, [user]);
 
     const handleConnectFlat = () => {
+        const clientId = import.meta.env.VITE_FLAT_IO_CLIENT_ID;
+        const redirectUri = encodeURIComponent(window.location.origin + "/practice");
+        const authUrl = `https://flat.io/auth/oauth?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}&scope=score.readonly`;
         window.location.href = "/api/flat/auth";
     };
 
