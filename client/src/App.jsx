@@ -12,6 +12,7 @@ import HowItWorksPage from "./shared/components/HowItWorks.jsx";
 import ProfilePage from "./features/07-Profile/ProfilePage.jsx";
 import Error404 from "./Error404.jsx";
 import PracticePage from "./features/06-Practice/PracticePage.jsx";
+import SettingsPage from "./features/06-Settings/SettingsPage.jsx";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/selection" element={<Selection />} />
         <Route path="/howitworks" element={<HowItWorksPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route
           path="/dashboard"
           element={
