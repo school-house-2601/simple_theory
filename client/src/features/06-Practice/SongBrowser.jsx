@@ -26,7 +26,7 @@ export default function SongBrowser({ instrument, onSelectSong }) {
 
     useEffect(() => {
         if (!user) return;
-        const params = new URLSearchParams(window.location.hash.replace("#", ""));
+        const hash = new URLSearchParams(window.location.hash.replace("#", ""));
         const token = hash.get("access_token");
         if (token) {
             localStorage.setItem(`flat_token_${user.id}`, token);
