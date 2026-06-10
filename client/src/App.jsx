@@ -11,6 +11,7 @@ import PracticePage from "./features/06-Practice/PracticePage.jsx";
 import SettingsPage from "./features/06-Settings/SettingsPage.jsx";
 import HowItWorksPage from "./shared/components/HowItWorks.jsx";
 import ProfilePage from "./features/07-Profile/ProfilePage.jsx";
+import ProtectedRoute from "./shared/componentes/ProtectedRoute.jsx";
 
 export default function App() {
   return (
