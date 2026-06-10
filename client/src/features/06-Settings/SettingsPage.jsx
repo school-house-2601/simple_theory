@@ -40,22 +40,13 @@ export default function SettingsPage() {
 
         <label>Learning Path</label>
 
-        <select
-          value={path}
-          onChange={(e) => setPath(e.target.value)}
-        >
+        <select value={path} onChange={(e) => setPath(e.target.value)}>
           <option value="Novice">Novice</option>
-          <option value="Intermediate">
-            Intermediate
-          </option>
-          <option value="Professional">
-            Professional
-          </option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Professional">Professional</option>
         </select>
 
-        <button onClick={handleSave}>
-          Save Settings
-        </button>
+        <button onClick={handleSave}>Save Settings</button>
       </div>
     </div>
   );

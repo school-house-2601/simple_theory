@@ -38,8 +38,8 @@ export default function SongBrowser({ instrument, onSelectSong }) {
     const handleConnectFlat = () => {
         const clientId = import.meta.env.VITE_FLAT_IO_CLIENT_ID;
         const redirectUri = encodeURIComponent(window.location.origin + "/practice");
-        const authUrl = `https://flat.io/auth/oauth?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}&scope=score.readonly`;
-        window.location.href = "/api/flat/auth";
+        const authUrl = `https://flat.io/auth/oauth?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}&scope=scores.readonly`;
+        window.location.href = authUrl;
     };
 
     const handleSearch = async () => {

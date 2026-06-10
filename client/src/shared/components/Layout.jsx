@@ -16,6 +16,7 @@ const PUBLIC_ROUTES = [
   "/howitworks",
   "/profile",
   "/practice",
+  "/settings",
 ];
 
 export default function Layout() {
