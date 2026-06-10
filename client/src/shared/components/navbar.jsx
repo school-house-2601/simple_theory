@@ -4,6 +4,7 @@ import { useState } from "react";
 import "./navbar.css";
 
 export default function Navbar() {
+
   const { token, logout } = useAuth();
   const [navSearch, setNavSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -52,6 +53,7 @@ export default function Navbar() {
         {token ? (
           <>
             <NavLink to="/dashboard">Dashboard</NavLink>
+            <NavLink to="/settings">Settings</NavLink>
             <button onClick={logout} className="logout-link">
               Log out
             </button>
