@@ -9,6 +9,7 @@ import Login from "./features/05-Auth/LoginForm";
 import Error404 from "./Error404.jsx";
 import PracticePage from "./features/06-Practice/PracticePage.jsx";
 import SettingsPage from "./features/06-Settings/SettingsPage.jsx";
+import HowItWorksPage from "./shared/components/HowItWorks.jsx";
 
 export default function App() {
   return (
