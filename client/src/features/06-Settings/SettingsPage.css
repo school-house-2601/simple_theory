@@ -1,0 +1,32 @@
+.settings-page {
+  padding: 40px;
+  color: white;
+}
+
+.settings-card {
+  max-width: 500px;
+  background: #1c1f26;
+  padding: 24px;
+  border-radius: 12px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-card select {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #2d333d;
+  background: #0f1117;
+  color: white;
+}
+
+.settings-card button {
+  background: #6366f1;
+  color: black;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: bold;
+}
