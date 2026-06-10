@@ -25,13 +25,6 @@ export default function Footer() {
       </div>
 
       <div className="footer-column">
-        <h3>Platform</h3>
-        <NavLink to="/how-it-works">How it works</NavLink>
-        <NavLink to="/library">Library</NavLink>
-        <NavLink to="/pricing">Pricing</NavLink>
-      </div>
-
-      <div className="footer-column">
         <h3>Account</h3>
         {token ? (
           <>
@@ -44,7 +37,7 @@ export default function Footer() {
             <NavLink to="/register">Register</NavLink>
           </>
         )}
-        <NavLink to="/support">Support</NavLink>
+        <NavLink to="/howitworks">How it works</NavLink>
       </div>
     </footer>
   );

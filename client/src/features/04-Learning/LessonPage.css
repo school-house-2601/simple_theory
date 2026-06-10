@@ -1,6 +1,5 @@
 .lessons-container {
   display: grid;
-  /* DEFAULT: 1 column for mobile */
   grid-template-columns: 1fr;
   gap: 20px;
   padding: 10px;
@@ -48,6 +47,7 @@
   justify-content: center;
   font-size: 1.5rem;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .download-btn {
@@ -115,7 +115,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .progress-container {
@@ -183,6 +183,7 @@
   flex-direction: column;
   justify-content: center;
   margin: 15px 0;
+  width: 100%;
 }
 
 .lesson-text h3,

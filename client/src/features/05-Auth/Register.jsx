@@ -30,8 +30,6 @@ export default function Register() {
     const fullName = formData.get("fullname");
     const email = formData.get("email");
     const password = formData.get("password");
-
-    // Split name back for your backend if needed
     const [firstname, ...lastNames] = fullName.split(" ");
     const lastname = lastNames.join(" ");
 
