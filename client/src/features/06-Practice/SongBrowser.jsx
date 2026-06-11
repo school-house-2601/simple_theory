@@ -44,6 +44,8 @@ export default function SongBrowser({ instrument, onSelectSong }) {
 
     const handleSearch = async () => {
         if (!query.trim()) return;
+        console.log("Searching with token:", flatToken ? "exists" : "missing");
+        console.log("Query:", query);
         setLoading(true);
         setError(null);
         try {
@@ -51,9 +53,12 @@ export default function SongBrowser({ instrument, onSelectSong }) {
             const res = await fetch (
                 `/api/flat/search?query=${encodeURIComponent(query)}&instrument=${instrumentFilter}&token=${flatToken}`
             );
+            console.log("Response status:", res.status);
             const data = await res.json();
+            console.log("Response data:", data);
             setResults(Array.isArray(data) ? data : []);
         } catch (err) {
+            console.error("Search error:", err);
             setError("Failed to search songs. Try again.");
         } finally {
             setLoading(false);
