@@ -53,6 +53,9 @@ export default function SongBrowser({ instrument, onSelectSong }) {
             const res = await fetch (
                 `/api/flat/search?query=${encodeURIComponent(query)}&instrument=${instrumentFilter}&token=${flatToken}`
             );
+            const text = await res.text();
+            console.log("Raw response:", text);
+            const data = JSON.parse(text);
             console.log("Response status:", res.status);
             const data = await res.json();
             console.log("Response data:", data);
