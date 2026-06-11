@@ -19,6 +19,15 @@ export default function Navbar() {
       navigate(`/browse?search=${encodeURIComponent(navSearch)}`);
     }
   };
+  // Add this inside the Navbar component
+  const handleCoursesClick = (e) => {
+    e.preventDefault();
+    if (user?.selected_path) {
+      navigate("/lessons", { state: { selectedPath: user.selected_path } });
+    } else {
+      navigate("/selection");
+    }
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -58,7 +67,17 @@ export default function Navbar() {
           <span className="logo-text">SimpleTheory</span>
         </Link>
         <div className="desktop-only-links">
-          <NavLink to="/selection">Courses</NavLink>
+          <a
+            href="#"
+            onClick={handleCoursesClick}
+            style={{
+              color: "#94a3b8",
+              textDecoration: "none",
+              fontSize: "0.95rem",
+            }}
+          >
+            Courses
+          </a>
           <NavLink to="/browse">Browse Videos</NavLink>
           <NavLink to="/practice">Practice</NavLink>
         </div>
@@ -163,9 +182,16 @@ export default function Navbar() {
 
       {/* 5. MOBILE MENU: Hidden on desktop */}
       <div className={`nav-menu ${isOpen ? "open" : ""}`}>
-        <NavLink to="/selection" onClick={() => setIsOpen(false)}>
+        <a
+          href="#"
+          onClick={handleCoursesClick}
+          style={{
+            textDecoration: "none",
+            fontSize: "0.95rem",
+          }}
+        >
           Courses
-        </NavLink>
+        </a>
         <NavLink to="/browse" onClick={() => setIsOpen(false)}>
           Browse Videos
         </NavLink>

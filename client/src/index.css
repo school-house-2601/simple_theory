@@ -435,3 +435,52 @@ body.light-mode .nav-menu button {
 body.light-mode .nav-menu .logout-link {
   background: #6366f1;
 }
+
+body.light-mode .footer-column h3 {
+  color: #0f1117;
+}
+
+body.light-mode .desktop-only-links a,
+body.light-mode .desktop-only-links a:visited,
+body.light-mode .desktop-only-links a[href="#"] {
+  color: #0f1117 !important;
+}
+
+body.light-mode .search-container input::placeholder {
+  color: #64748b;
+}
+
+body.light-mode .search-icon {
+  color: #64748b;
+}
+
+body.light-mode .avatar-dropdown {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .dropdown-header {
+  background: #f8fafc;
+}
+
+body.light-mode .dropdown-name {
+  color: #0f1117;
+}
+
+body.light-mode .dropdown-email {
+  color: #64748b;
+}
+
+body.light-mode .dropdown-divider {
+  background: #e2e8f0;
+}
+
+body.light-mode .dropdown-item {
+  color: #0f1117;
+}
+
+body.light-mode .dropdown-item:hover {
+  background: #f1f5f9;
+  color: #0f1117;
+}

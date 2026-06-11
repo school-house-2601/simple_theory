@@ -74,7 +74,7 @@ export default function ProfilePage() {
       })
     : "Recently";
 
-  const currentLevel = user?.current_level || "Novice";
+  const currentLevel = user?.selected_path || user?.current_level || "Novice";
   const totalXp = user?.total_xp || 0;
   const xpGoal =
     currentLevel === "Novice"
@@ -92,8 +92,8 @@ export default function ProfilePage() {
 
   const levelColors = {
     Novice: "#6262bc",
-    Intermediate: "#1a2e1a",
-    Professional: "#2e1a12",
+    Intermediate: "#2fd02f",
+    Professional: "#c84d1c",
   };
   const levelColor = levelColors[currentLevel] || "#6366f1";
 
