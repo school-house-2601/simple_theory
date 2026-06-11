@@ -39,7 +39,7 @@ export async function getUserById(id) {
   const {
     rows: [user],
   } = await db.query(
-    "SELECT id, username, email, firstname, lastname, selected_path, current_level, total_xp, current_streak FROM users WHERE id = $1",
+    "SELECT id, username, email, firstname, lastname, interests, selected_path, current_level, total_xp, current_streak, created_at FROM users WHERE id = $1",
     [id],
   );
   return user;
