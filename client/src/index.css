@@ -420,3 +420,17 @@ body.light-mode .login-nudge {
 body.light-mode .progress-bar-bg {
   background: #e2e8f0;
 }
+
+/* Mobile hamburger menu */
+body.light-mode .nav-menu {
+  background: #ffffff;
+  border-bottom-color: #e2e8f0;
+}
+
+body.light-mode .nav-menu a,
+body.light-mode .nav-menu button {
+  color: #0f1117;
+}
+
+body.light-mode .nav-menu .logout-link {
+  background: #6366f1
