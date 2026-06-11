@@ -417,4 +417,6 @@ body.light-mode .login-nudge {
   color: #64748b;
 }
 
-body.light-mode .pr
+body.light-mode .progress-bar-bg {
+  background: #e2e8f0;
+}
