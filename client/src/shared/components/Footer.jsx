@@ -21,7 +21,7 @@ export default function Footer() {
         <h3>Learning</h3>
         <NavLink to="/selection">Courses</NavLink>
         <NavLink to="/browse">Browse Videos</NavLink>
-        <NavLink to="/challenges">Challenges</NavLink>
+        <NavLink to="/practice">Practice</NavLink>
       </div>
 
       <div className="footer-column">

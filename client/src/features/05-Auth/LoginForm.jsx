@@ -25,7 +25,7 @@ export default function Login() {
     <div className="auth-container">
       <div className="login-form">
         <h1 className="welcome">Welcome Back</h1>
-        <p>Continue your journey to musical mastery</p>
+        <p className="continue">Continue your journey to musical mastery</p>
 
         <div className="social-buttons">
           <a

@@ -37,10 +37,12 @@
   margin-top: 10px;
 }
 
+.submit-btn:hover {
+  opacity: 0.85;
+}
+
 .social-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  display: flex;
   margin: 24px 0;
 }
 
@@ -253,4 +255,35 @@
   border-radius: 6px;
   color: white;
   font-size: 14px;
+}
+
+.google-sign-in-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: #6366f1;
+  color: white;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.google-sign-in-btn:hover {
+  opacity: 0.85;
+  color: white;
+}
+
+.sign-in-text {
+  color: white;
+  font-size: small;
+}
+
+.continue {
+  padding-left: 10px;
 }

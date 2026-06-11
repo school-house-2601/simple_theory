@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
 import Layout from "./shared/components/Layout.jsx";
 import Landing from "./features/01-Landing/LandingPage.jsx";
 import Selection from "./features/02-Selection/SelectionPage.jsx";
@@ -15,6 +16,14 @@ import DashboardPage from "./features/03-Dashboard/DashboardPage.jsx";
 import ProtectedRoute from "./shared/components/ProtectedRoute.jsx";
 
 export default function App() {
+  useEffect(() => {
+    const theme = localStorage.getItem("theme");
+    if (theme === "light") {
+      document.body.classList.add("light-mode");
+    } else {
+      document.body.classList.remove("light-mode");
+    }
+  }, []);
   return (
     <Routes>
       <Route path="/" element={<Layout />}>

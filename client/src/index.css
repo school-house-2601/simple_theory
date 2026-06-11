@@ -66,5 +66,355 @@ main {
   .app-container {
     max-width: 1400px;
     padding: 20px 40px;
+  }
 }
+
+/* ── GLOBAL LIGHT MODE ── */
+body.light-mode {
+  --bg-dark: #f4f6fb;
+  --bg-card: #ffffff;
+  --text-main: #0f1117;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  background-color: #f4f6fb;
+  color: #0f1117;
 }
+
+body.light-mode input {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+body.light-mode a {
+  color: #4f46e5;
+}
+
+/* Browse page */
+body.light-mode .browse-container,
+body.light-mode .browse-content {
+  background-color: #f4f6fb;
+}
+
+body.light-mode .browse-header h1,
+body.light-mode .browse-header p,
+body.light-mode .video-section h2 {
+  color: #0f1117;
+}
+
+body.light-mode .video-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+body.light-mode .video-info h4,
+body.light-mode .video-info p {
+  color: #0f1117;
+}
+
+/* Navbar */
+body.light-mode .navbar {
+  background: #ffffff;
+  border-bottom-color: #e2e8f0;
+}
+
+body.light-mode .nav-logo,
+body.light-mode .desktop-only-links a,
+body.light-mode .nav-right a {
+  color: #0f1117;
+}
+
+body.light-mode .search-container {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+body.light-mode .search-container input {
+  color: #0f1117;
+}
+
+/* Cards globally */
+body.light-mode .path-card,
+body.light-mode .hiw-step,
+body.light-mode .hiw-feature-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+/* Footer */
+body.light-mode footer {
+  background: #ffffff;
+  border-top-color: #e2e8f0;
+  color: #0f1117;
+}
+
+/* Dashboard */
+body.light-mode .app-layout,
+body.light-mode main,
+body.light-mode .dashboard-container,
+body.light-mode .dashboard-layout {
+  background-color: #f4f6fb;
+  color: #0f1117;
+}
+
+body.light-mode .stats-card,
+body.light-mode .dashboard-card,
+body.light-mode .goal-item,
+body.light-mode .recommended-card,
+body.light-mode .sidebar {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+/* Courses / Selection page */
+body.light-mode .selection-page {
+  background-color: #f4f6fb;
+  color: #0f1117;
+}
+
+body.light-mode .selection-page h1,
+body.light-mode .selection-page .subtitle,
+body.light-mode .selection-page .footer-note {
+  color: #0f1117;
+}
+
+body.light-mode .quick-tip {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+body.light-mode .quick-tip div b,
+body.light-mode .quick-tip div p {
+  color: #0f1117;
+}
+
+/* Practice page */
+body.light-mode .practice-page,
+body.light-mode .practice-container {
+  background-color: #f4f6fb;
+  color: #0f1117;
+}
+
+body.light-mode .instrument-btn,
+body.light-mode .practice-area {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+/* Settings page */
+body.light-mode .settings-page,
+body.light-mode .settings-container {
+  background-color: #f4f6fb;
+  color: #0f1117;
+}
+
+body.light-mode .settings-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+body.light-mode .settings-card select,
+body.light-mode .settings-card label {
+  color: #0f1117;
+}
+
+/* How It Works */
+body.light-mode .hiw-page {
+  background-color: #f4f6fb;
+  color: #0f1117;
+}
+
+body.light-mode .hiw-title,
+body.light-mode .hiw-subtitle,
+body.light-mode .hiw-section-title,
+body.light-mode .hiw-section-sub,
+body.light-mode .hiw-step-title,
+body.light-mode .hiw-step-desc,
+body.light-mode .hiw-feature-title,
+body.light-mode .hiw-feature-desc,
+body.light-mode .hiw-path-level,
+body.light-mode .hiw-path-desc,
+body.light-mode .hiw-path-list li {
+  color: #0f1117;
+}
+
+body.light-mode .hiw-step,
+body.light-mode .hiw-feature-card,
+body.light-mode .hiw-path-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+body.light-mode .hiw-cta {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+body.light-mode .hiw-cta h2,
+body.light-mode .hiw-cta p {
+  color: #0f1117;
+}
+
+/* Dashboard */
+body.light-mode .dashboard-wrapper {
+  background-color: #f4f6fb;
+}
+
+body.light-mode .dashboard-main {
+  background-color: #f4f6fb;
+}
+
+body.light-mode .dashboard-header h1,
+body.light-mode .dashboard-header p {
+  color: #0f1117;
+}
+
+body.light-mode .right-sidebar {
+  background-color: #f4f6fb;
+}
+
+/* Practice page */
+body.light-mode .practice-page {
+  background-color: #f4f6fb;
+}
+
+body.light-mode .practice-header h1,
+body.light-mode .practice-header p {
+  color: #0f1117;
+}
+
+body.light-mode .instrument-btn {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+body.light-mode .instrument-btn.active {
+  background: #6366f1;
+  color: #ffffff;
+  border-color: #6366f1;
+}
+
+body.light-mode .practice-empty {
+  background: #e8edf5;
+  color: #0f1117;
+}
+
+body.light-mode .detector-container {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+/* Dashboard cards */
+body.light-mode .stat-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+body.light-mode .stat-label,
+body.light-mode .stat-value,
+body.light-mode .stat-sub {
+  color: #0f1117;
+}
+
+body.light-mode .skill-radar-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+body.light-mode .skill-panel {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+body.light-mode .daily-goals-card {
+  background: #ffffff;
+}
+
+/* Saved Items card */
+body.light-mode .saved-items-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+body.light-mode .saved-item {
+  background: #f1f5f9;
+  color: black;
+}
+
+body.light-mode .daily-goals-card *,
+body.light-mode .saved-items-card * {
+  color: #0f1117;
+}
+
+body.light-mode .goal-bar-bg {
+  background: #e2e8f0;
+}
+
+body.light-mode .saved-item {
+  border-bottom-color: #e2e8f0;
+}
+
+body.light-mode .path-card * {
+  color: #0f1117;
+}
+
+body.light-mode .path-card button {
+  color: #6366f1;
+}
+
+body.light-mode .path-card.popular button {
+  color: #ffffff;
+}
+
+body.light-mode select {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+body.light-mode option {
+  background: #f1f5f9;
+  color: #0f1117;
+}
+
+/* Lessons page */
+body.light-mode .lessons-container,
+body.light-mode .curriculum-column,
+body.light-mode .resources-column {
+  background-color: #f4f6fb;
+}
+
+body.light-mode .lesson-card,
+body.light-mode .resource-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f1117;
+}
+
+body.light-mode .lesson-card *,
+body.light-mode .resource-card * {
+  color: #0f1117;
+}
+
+body.light-mode .section-header h2,
+body.light-mode .section-header p {
+  color: #0f1117;
+}
+
+body.light-mode .login-nudge {
+  color: #64748b;
+}
+
+body.light-mode .pr
