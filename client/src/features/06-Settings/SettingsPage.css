@@ -3,13 +3,28 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
   padding: 40px;
+  color: white;
+}
+
+.settings-container {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.settings-title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: white;
+  font-size: 32px;
+  font-weight: 700;
 }
 
 .settings-card {
   width: 100%;
-  max-width: 500px;
   background: #1c1f26;
   padding: 24px;
   border-radius: 12px;
@@ -28,12 +43,25 @@
   transform: translateY(-4px);
 }
 
+.settings-card label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
 .settings-card select {
+  width: 100%;
   padding: 10px;
   border-radius: 6px;
   border: 1px solid #2d333d;
   background: #0f1117;
   color: white;
+  font-size: 14px;
+  outline: none;
+}
+
+.settings-card select:focus {
+  border-color: #6366f1;
 }
 
 .settings-card button {
@@ -50,4 +78,22 @@
 .settings-card button:hover {
   background: #7c7ff8;
   box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+}
+
+.settings-card button:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 600px) {
+  .settings-page {
+    padding: 20px;
+  }
+
+  .settings-title {
+    font-size: 26px;
+  }
+
+  .settings-card {
+    padding: 20px;
+  }
 }
