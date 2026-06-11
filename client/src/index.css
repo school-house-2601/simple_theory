@@ -484,3 +484,7 @@ body.light-mode .dropdown-item:hover {
   background: #f1f5f9;
   color: #0f1117;
 }
+
+body.light-mode .settings-title {
+  color: #0f1117;
+}
