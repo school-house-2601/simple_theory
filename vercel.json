@@ -8,17 +8,41 @@
     {
       "src": "client/package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "config": { "distDir": "client/dist" }
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
+      "src": "/auth/(.*)",
+      "dest": "server/api/index.js"
+    },
+    {
+      "src": "/users/(.*)",
+      "dest": "server/api/index.js"
+    },
+    {
+      "src": "/lessons/(.*)",
+      "dest": "server/api/index.js"
+    },
+    {
+      "src": "/progress/(.*)",
+      "dest": "server/api/index.js"
+    },
+    {
+      "src": "/stats/(.*)",
+      "dest": "server/api/index.js"
+    },
+    {
+      "src": "/xp/(.*)",
+      "dest": "server/api/index.js"
+    },
+    {
+      "src": "/bookmarks/(.*)",
       "dest": "server/api/index.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/client/dist/index.html"
     }
   ]
 }
