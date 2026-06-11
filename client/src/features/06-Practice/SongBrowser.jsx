@@ -56,7 +56,6 @@ export default function SongBrowser({ instrument, onSelectSong }) {
             const text = await res.text();
             console.log("Raw response:", text);
             const data = JSON.parse(text);
-            console.log("Response status:", res.status);
         } catch (err) {
             console.error("Search error:", err);
             setError("Failed to search songs. Try again.");
