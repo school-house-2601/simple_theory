@@ -17,15 +17,28 @@ SimpleTheory is a full-stack music learning platform designed for musicians at e
 - 🔖 **Save videos** for later, per account
 - 👤 **Profile page** — edit name, upload photo, change password, toggle dark/light mode
 - 🔐 **Google OAuth + email/password auth**
-- 🧪 **25 Playwright end-to-end tests**
+- 🧪 **44 tests** — 25 Playwright frontend tests + 19 backend API tests
 
 ---
 
 ## Tech Stack
 
-**Frontend:** React, Vite, React Router, Recharts, Playwright  
-**Backend:** Node.js, Express, PostgreSQL, Passport.js, JWT, bcrypt  
-**Services:** Neon (PostgreSQL), Upstash (Redis cache), YouTube Data API v3, Flat.io API, Vercel
+**Frontend:** React, Vite, React Router, Recharts, Playwright
+**Backend:** Node.js, Express, PostgreSQL, Passport.js, JWT, bcrypt
+**Testing:** Playwright (frontend E2E), Vitest + Supertest (backend API)
+**Caching:** Upstash Redis — YouTube search results and Flat.io scores are cached for 24 hours to reduce API quota usage and improve response times
+**Services:** Neon (PostgreSQL), YouTube Data API v3, Flat.io API, Vercel
+
+---
+
+## Caching Strategy
+
+SimpleTheory uses **Upstash Redis** as a serverless Redis cache to optimize API performance:
+
+- **YouTube search results** — cached for 24 hours per query (`yt:<query>` key). Saves YouTube Data API quota and speeds up repeat searches.
+- **Flat.io sheet music results** — cached for 24 hours per query (`flat:<query>` key). Reduces latency on the lesson and browse pages.
+
+When a cached result exists, the server returns it instantly without hitting the external API. Cache misses trigger a fresh API call which is then stored for future requests.
 
 ---
 
@@ -37,7 +50,11 @@ simple-theory/
 ├── server/                        # Backend (Node/Express/PostgreSQL)
 │   ├── index.js                   # Entry point (app.listen)
 │   ├── app.js                     # Express app, CORS, Passport, Google OAuth
+│   ├── vitest.config.js           # Vitest configuration for backend tests
 │   ├── .env                       # API keys & DB credentials (not committed)
+│   │
+│   ├── tests/
+│   │   └── api.test.js            # 19 backend API tests (auth, protected routes, security)
 │   │
 │   ├── api/
 │   │   └── routes/
@@ -60,7 +77,7 @@ simple-theory/
 │   ├── middleware/
 │   │   ├── getUserFromToken.js    # JWT verification middleware
 │   │   ├── requireUser.js         # Protected route guard
-│   │   └── requireBody.js         # Request body validation
+│   │   └── requireBody.js         # Request body validation + bodyIdMatchesSession
 │   │
 │   └── utils/
 │       └── jwt.js                 # createToken / verifyToken
@@ -69,14 +86,14 @@ simple-theory/
 │   ├── vite.config.js
 │   ├── playwright.config.js       # E2E test config
 │   │
-│   ├── tests/                     # Playwright test suite (26 tests)
+│   ├── tests/                     # Playwright test suite (25 tests)
 │   │   ├── navigation.spec.js     # Page routing & search bar
 │   │   ├── auth.spec.js           # Login, register, credentials
 │   │   ├── browse.spec.js         # Video pills, saved tab, save button
 │   │   ├── lessons.spec.js        # Lesson cards, resources, progress
 │   │   ├── guest-vs-loggedin.spec.js  # Auth-gated UI behavior
 │   │   ├── profile.spec.js        # Profile page, dark mode, progress bar
-│   │   └── helpers.js             # skipSplash utility
+│   │   └── helpers.js             # skipSplash + loginAsTestUser helpers
 │   │
 │   └── src/
 │       ├── App.jsx                # Routes
@@ -184,6 +201,23 @@ NODE_ENV=development
 VITE_API_URL=http://localhost:3000
 ```
 
+### VS Code Setup (Recommended)
+
+Install these extensions for automatic formatting on save:
+
+- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) by Microsoft
+- [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) by Prettier
+
+The `.vscode/settings.json` file is included in the repo and will automatically configure format-on-save for you once the extensions are installed.
+
+To manually lint or format:
+
+```bash
+# From /client or /server
+npm run lint     # check for errors
+npm run format   # auto-fix formatting
+```
+
 ### Database Setup
 
 ```bash
@@ -203,7 +237,7 @@ npm run dev
 
 App runs at `http://localhost:5173`
 
-### Running Tests
+### Running Frontend Tests
 
 ```bash
 # Make sure both servers are running first, then from /client:
@@ -212,7 +246,26 @@ npx playwright test
 
 **Expected:** 25 tests passing ✅
 
-> **Note:** The login test requires a `testuser2@test.com` account to exist in your local database. Register at `/register` if it doesn't exist, then update the password in `auth.spec.js` and `profile.spec.js` to match.
+> **Note:** The login tests require a `testuser2@test.com` account to exist in your local database. Register at `/register` if it doesn't exist, then update the password in `auth.spec.js` and `profile.spec.js` to match.
+
+### Running Backend Tests
+
+```bash
+# From /server (server does NOT need to be running):
+npm test
+```
+
+**Expected:** 19 tests passing ✅
+
+Covers:
+
+- Registration & login validation
+- Protected routes rejecting unauthenticated requests
+- Authenticated routes working with valid token
+- `bodyIdMatchesSession` blocking user ID spoofing
+- Google OAuth redirect and user status
+
+> **Note:** Requires the same `testuser2@test.com` account in your local database.
 
 ---
 

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Navbar from "./navbar";
 import Footer from "./Footer";
 import Sidebar from "./Sidebar";
-import { useAuth } from "../../features/05-Auth/AuthContext";
+import { useAuth } from "../../features/Auth/AuthContext";
 import "../../index.css";
 
 const NO_SIDEBAR_ROUTES = ["/", "/login", "/register", "/selection"];
