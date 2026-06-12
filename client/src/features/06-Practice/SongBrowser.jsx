@@ -1,64 +1,59 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../05-Auth/AuthContext";
 import "./SongBrowser.css";
 
-const INSTRUMENT_FILTERS = {
-    Piano: "piano",
-    Guitar: "guitar",
-    Vocals: "voice",
-    Drums: "drums",
-    Production: "",
+const BUILT_IN_SONGS = [
+    {
+        id: "Ode-to-joy",
+        title: "Ode to Joy",
+        artist: "Beethoven",
+        instrument: ["Piano", "Vocals"],
+        difficulty: "Novice",
+        xmlUrl: "https://raw.githubusercontent.com/opensheetmusicdisplay/opensheetmusicdisplay/develop/test/data/MuzikaFestivale2011_Schmid.xml",
+    },
+    {
+        id: "twinkle",
+        title: "Twinkle Twinkle Little Star",
+        artist: "Traditional",
+        instrument: ["Piano", "Vocals", "Guitar"],
+        difficulty: "Novice",
+        xmlUrl: "https://raw.githubusercontent.com/opensheetmusicdisplay/opensheetmusicdisplay/develop/test/data/Haydn_Menuet.xml",
+    },
+    {
+        id: "happy-birthday",
+        title: "Happy Birthday",
+        artist: "Traditional",
+        instrument: ["Piano", "Vocals", "Guitar"],
+        difficulty: "Novice",
+        xmlUrl: "https://raw.githubusercontent.com/opensheetmusicdisplay/opensheetmusicdisplay/develop/test/data/ActorPreludeSample.xml",
+    },
+];
+
+const DIFFICULTY_COLORS = {
+    Novice: "#4caf7d",
+    Intermediate: "#f0a500",
+    Professional: "#6c63ff",
 };
 
 export default function SongBrowser({ instrument, onSelectSong }) {
     const { user } = useAuth();
+    const [activeTab, setActoveTab] = useState("library");
     const [query, setQuery] = useState("");
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [flatToken, setFlatToken] = useState(null);
 
-    useEffect(() => {
-        if (!user) return;
-        const stored = localStorage.getItem(`flat_token_${user.id}`);
-        if (stored) setFlatToken(stored);
-    }, [user]);
-
-    useEffect(() => {
-        if (!user) return;
-        const hash = new URLSearchParams(window.location.hash.replace("#", ""));
-        const token = hash.get("access_token");
-        if (token) {
-            localStorage.setItem(`flat_token_${user.id}`, token);
-            setFlatToken(token);
-            window.history.replaceState({}, "", "/practice");
-        }
-    }, [user]);
-
-    const handleConnectFlat = () => {
-        const clientId = import.meta.env.VITE_FLAT_IO_CLIENT_ID;
-        const redirectUri = encodeURIComponent(window.location.origin + "/practice");
-        const authUrl = `https://flat.io/auth/oauth?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}&scope=scores.readonly`;
-        window.location.href = authUrl;
-    };
+    const filteredSongs = BUILT_IN_SONGS.filter(
+        (song) => song.instrument.include(instrument)
+    );
 
     const handleSearch = async () => {
-        if (!query.trim() || !flatToken) return;
+        if (!query.trim()) return;
         setLoading(true);
         setError(null);
         try {
-            const instrumentFilter = INSTRUMENT_FILTERS[instrument] || "";
-            const params = new URLSearchParams({ q: query, limit: "20" });
-            if (instrumentFilter) params.append("instruments", instrumentFilter);
-
             const res = await fetch (
-                `https://api.flat.io/v2/scores?${params}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${flatToken}`,
-                        "Content-Type": "application/json",
-                    }
-                }
+                `/api/musescore/search?query=${encodeURIComponent(query)}&instrument=${instrument}`,
             );
             const text = await res.text();
             console.log("Raw Flat.io response:", text);
