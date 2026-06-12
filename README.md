@@ -24,9 +24,13 @@ SimpleTheory is a full-stack music learning platform designed for musicians at e
 ## Tech Stack
 
 **Frontend:** React, Vite, React Router, Recharts, Playwright
+
 **Backend:** Node.js, Express, PostgreSQL, Passport.js, JWT, bcrypt
+
 **Testing:** Playwright (frontend E2E), Vitest + Supertest (backend API)
+
 **Caching:** Upstash Redis — YouTube search results and Flat.io scores are cached for 24 hours to reduce API quota usage and improve response times
+
 **Services:** Neon (PostgreSQL), YouTube Data API v3, Flat.io API, Vercel
 
 ---
@@ -47,7 +51,7 @@ When a cached result exists, the server returns it instantly without hitting the
 ```
 simple-theory/
 │
-├── server/                        # Backend (Node/Express/PostgreSQL)
+├── server/
 │   ├── index.js                   # Entry point (app.listen)
 │   ├── app.js                     # Express app, CORS, Passport, Google OAuth
 │   ├── vitest.config.js           # Vitest configuration for backend tests
@@ -56,14 +60,13 @@ simple-theory/
 │   ├── tests/
 │   │   └── api.test.js            # 19 backend API tests (auth, protected routes, security)
 │   │
-│   ├── api/
-│   │   └── routes/
-│   │       ├── users.js           # Auth, profile, password, bookmarks, interests
-│   │       ├── lessons.js         # YouTube search, Flat.io search (Redis cached)
-│   │       ├── progress.js        # XP awarding & video completion
-│   │       ├── stats.js           # Dashboard stats
-│   │       ├── xp.js              # XP transactions
-│   │       └── bookmarks.js       # Bookmark management
+│   ├── api/routes/
+│   │   ├── users.js               # Auth, profile, password, bookmarks, interests
+│   │   ├── lessons.js             # YouTube search, Flat.io search (Redis cached)
+│   │   ├── progress.js            # XP awarding & video completion
+│   │   ├── stats.js               # Dashboard stats
+│   │   ├── xp.js                  # XP transactions
+│   │   └── bookmarks.js           # Bookmark management
 │   │
 │   ├── db/
 │   │   ├── schema.sql             # Table definitions
@@ -82,15 +85,15 @@ simple-theory/
 │   └── utils/
 │       └── jwt.js                 # createToken / verifyToken
 │
-├── client/                        # Frontend (React + Vite)
+├── client/
 │   ├── vite.config.js
-│   ├── playwright.config.js       # E2E test config
+│   ├── playwright.config.js
 │   │
-│   ├── tests/                     # Playwright test suite (25 tests)
-│   │   ├── navigation.spec.js     # Page routing & search bar
+│   ├── tests/
 │   │   ├── auth.spec.js           # Login, register, credentials
 │   │   ├── browse.spec.js         # Video pills, saved tab, save button
 │   │   ├── lessons.spec.js        # Lesson cards, resources, progress
+│   │   ├── navigation.spec.js     # Page routing & search bar
 │   │   ├── guest-vs-loggedin.spec.js  # Auth-gated UI behavior
 │   │   ├── profile.spec.js        # Profile page, dark mode, progress bar
 │   │   └── helpers.js             # skipSplash + loginAsTestUser helpers
@@ -102,50 +105,67 @@ simple-theory/
 │       ├── mockData.js            # Fallback mock video data
 │       ├── Error404.jsx           # 404 page
 │       │
-│       ├── shared/
-│       │   └── components/
-│       │       ├── Navbar.jsx / .css       # Global navigation + avatar dropdown
-│       │       ├── Layout.jsx              # Route guard & sidebar logic
-│       │       ├── Sidebar.jsx / .css      # Dashboard sidebar
-│       │       ├── Footer.jsx / .css       # Global footer
-│       │       ├── HowItWorks.jsx / .css   # How it works page
-│       │       └── ProtectedRoute.jsx      # Auth-protected route wrapper
+│       ├── shared/components/
+│       │   ├── Navbar.jsx / .css          # Global navigation + avatar dropdown
+│       │   ├── Layout.jsx                 # Route guard & sidebar logic
+│       │   ├── Sidebar.jsx / .css         # Dashboard sidebar
+│       │   ├── Footer.jsx / .css          # Global footer
+│       │   ├── HowItWorks.jsx / .css      # How it works page
+│       │   └── ProtectedRoute.jsx         # Auth-protected route wrapper
 │       │
 │       └── features/
-│           ├── 01-Landing/
-│           │   ├── LandingPage.jsx         # Splash / enter screen
-│           │   └── Landing.css
-│           │
-│           ├── 02-Selection/
-│           │   ├── SelectionPage.jsx       # Path selection + Google OAuth token handler
-│           │   ├── PathCard.jsx
-│           │   └── Selection.css
-│           │
-│           ├── 03-Dashboard/
-│           │   ├── DashboardPage.jsx       # Main dashboard
-│           │   ├── Dashboard.css
-│           │   ├── XPChart.jsx / .css      # XP history chart
-│           │   ├── SkillRadar.jsx / .css   # Skill distribution radar
-│           │   ├── StatsCards.jsx          # Level, XP, streak, path cards
-│           │   ├── DailyGoals.jsx / .css   # Daily goal tracking
-│           │   ├── SavedItems.jsx / .css   # Saved videos panel
-│           │   ├── LearningJourney.jsx / .css  # Progress timeline
-│           │   └── Recommended.jsx / .css  # Recommended lesson widget
-│           │
-│           ├── 04-Learning/
-│           │   ├── LessonPage.jsx / .css   # Structured lesson curriculum
-│           │   └── VideoPlayer.jsx / .css  # Browse videos + Flat.io sheet music
-│           │
-│           ├── 05-Auth/
+│           ├── Auth/
 │           │   ├── AuthContext.jsx         # Global auth state (token, user, login, logout)
 │           │   ├── LoginForm.jsx           # Email/password + Google login
 │           │   ├── Register.jsx            # Registration form
-│           │   ├── AuthPage.jsx
 │           │   └── Auth.css
 │           │
-│           └── 06-Profile/
-│               ├── ProfilePage.jsx         # Profile editing, photo upload, theme toggle
-│               └── ProfilePage.css
+│           ├── Dashboard/
+│           │   ├── DashboardPage.jsx / .css      # Main dashboard layout
+│           │   ├── XPChart.jsx / .css            # XP history chart
+│           │   ├── SkillRadar.jsx / .css         # Skill distribution radar
+│           │   ├── StatsCards.jsx / .css         # Level, XP, streak, path cards
+│           │   ├── DailyGoals.jsx / .css         # Daily goal tracking
+│           │   ├── SavedItems.jsx / .css         # Saved videos panel
+│           │   ├── LearningJourney.jsx / .css    # Progress timeline
+│           │   └── RecommendedCard.jsx / .css    # Recommended lesson widget
+│           │
+│           ├── Landing/
+│           │   ├── LandingPage.jsx         # Splash / enter screen
+│           │   └── Landing.css
+│           │
+│           ├── Learning/
+│           │   ├── LessonPage.jsx / .css   # Structured lesson curriculum
+│           │   └── VideoPlayer.jsx / .css  # Browse videos + Flat.io sheet music
+│           │
+│           ├── Practice/
+│           │   ├── PracticePage.jsx / .css  # Practice room main page
+│           │   ├── SongBrowser.jsx / .css   # Flat.io song search
+│           │   ├── SongPlayer.jsx / .css    # Play-along interface
+│           │   ├── components/
+│           │   │   ├── AccuracyMeter.jsx / .css  # Real-time accuracy display
+│           │   │   ├── FallingNotes.jsx / .css   # Falling notes game
+│           │   │   ├── NoteDetector.jsx          # Pitch detection via microphone
+│           │   │   └── ResultsModal.jsx / .css   # Session results + XP awarded
+│           │   └── instruments/
+│           │       ├── DrumDetector.jsx     # Drum beat detection
+│           │       ├── GuitarDetector.jsx   # Guitar note detection
+│           │       ├── PianoDetector.jsx    # Piano note detection
+│           │       ├── VocalDetector.jsx    # Vocal pitch detection
+│           │       └── ProductionQuiz.jsx   # Production knowledge quiz
+│           │
+│           ├── Profile/
+│           │   ├── ProfilePage.jsx          # Profile editing, photo upload, theme toggle
+│           │   └── ProfilePage.css
+│           │
+│           ├── Selection/
+│           │   ├── SelectionPage.jsx        # Path selection + Google OAuth token handler
+│           │   ├── PathCard.jsx             # Individual path card component
+│           │   └── Selection.css
+│           │
+│           └── Settings/
+│               ├── SettingsPage.jsx         # Learning path + instrument preferences
+│               └── SettingsPage.css
 │
 └── README.md
 ```
