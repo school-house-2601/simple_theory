@@ -43,19 +43,34 @@ export default function SongBrowser({ instrument, onSelectSong }) {
     };
 
     const handleSearch = async () => {
-        if (!query.trim()) return;
-        console.log("Searching with token:", flatToken ? "exists" : "missing");
-        console.log("Query:", query);
+        if (!query.trim() || !flatToken) return;
         setLoading(true);
         setError(null);
         try {
             const instrumentFilter = INSTRUMENT_FILTERS[instrument] || "";
+            const params = new URLSearchParams({ q: query, limit: "20" });
+            if (instrumentFilter) params.append("instruments", instrumentFilter);
+
             const res = await fetch (
-                `/api/flat/search?query=${encodeURIComponent(query)}&instrument=${instrumentFilter}&token=${flatToken}`
+                `https://api.flat.io/v2/scores?${params}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${flatToken}`,
+                        "Content-Type": "application/json",
+                    }
+                }
             );
-            const text = await res.text();
-            console.log("Raw response:", text);
-            const data = JSON.parse(text);
+
+            if (!res.ok) {
+                const err = await res.json();
+                setError("Session expired. Please reconect Flat.io.");
+                setFlatToken(null);
+                localStorage.removeItem(`flat_token_${user?.id}`);
+                return;
+            }
+
+            const data = await res.json();
+            setResults(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error("Search error:", err);
             setError("Failed to search songs. Try again.");
