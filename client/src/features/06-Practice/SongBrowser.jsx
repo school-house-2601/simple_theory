@@ -60,6 +60,9 @@ export default function SongBrowser({ instrument, onSelectSong }) {
                     }
                 }
             );
+            const text = await res.text();
+            console.log("Raw Flat.io response:", text);
+            console.log("Status:", res.status);
 
             if (!res.ok) {
                 const err = await res.json();
