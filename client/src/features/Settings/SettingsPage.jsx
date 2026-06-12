@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../05-Auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 import "./SettingsPage.css";
 
 export default function SettingsPage() {

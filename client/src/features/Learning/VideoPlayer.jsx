@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import "./VideoPlayer.css";
 import { MOCK_VIDEOS } from "../../mockData";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../05-Auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 
 export default function BrowsePage() {
   const { user } = useAuth();

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../features/05-Auth/AuthContext";
+import { useAuth } from "../../features/Auth/AuthContext";
 import "./HowItWorks.css";
 
 const STEPS = [

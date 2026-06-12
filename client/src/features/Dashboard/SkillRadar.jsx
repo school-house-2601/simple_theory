@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../05-Auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 import {
   Radar,
   RadarChart,
@@ -29,7 +29,7 @@ const SKILL_TIPS = {
 };
 
 export default function SkillRadar() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [data, setData] = useState(
     ALL_SKILLS.map((s) => ({ skill: s, value: 0 })),
   );
@@ -42,7 +42,9 @@ export default function SkillRadar() {
     if (!user) return;
 
     const fetchSkills = () => {
-      fetch(`${import.meta.env.VITE_API_URL}/stats/skills/${user.id}`)
+      fetch(`${import.meta.env.VITE_API_URL}/stats/skills`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
         .then((res) => res.json())
         .then((rows) => {
           if (!Array.isArray(rows) || rows.length === 0) return;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../05-Auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "./RecommendedCard.css";
 
@@ -22,13 +22,15 @@ const SKILL_ICONS = {
 };
 
 export default function RecommendedCard() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [rec, setRec] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
-    fetch(`${import.meta.env.VITE_API_URL}/stats/recommendations/${user.id}`)
+    fetch(`${import.meta.env.VITE_API_URL}/stats/recommendations`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then((res) => res.json())
       .then((data) => {
         console.log("Recommendation data:", data);

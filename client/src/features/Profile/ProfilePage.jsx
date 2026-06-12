@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useAuth } from "../05-Auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "./ProfilePage.css";
 

@@ -1,4 +1,4 @@
-import { useAuth } from "../../features/05-Auth/AuthContext";
+import { useAuth } from "../../features/Auth/AuthContext";
 import { NavLink, Link } from "react-router-dom";
 import "./Footer.css";
 

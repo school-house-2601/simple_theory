@@ -10,3 +10,17 @@ export default function requireBody(fields) {
     next();
   };
 }
+
+/** Checks if the userId in the request body matches the logged-in user */
+export function bodyIdMatchesSession() {
+  return (req, res, next) => {
+    if (req.body && req.body.userId) {
+      if (Number(req.body.userId) !== Number(req.user.id)) {
+        return res.status(401).send({
+          message: `Cannot take actions on another users behalf.`,
+        });
+      }
+    }
+    next();
+  };
+}

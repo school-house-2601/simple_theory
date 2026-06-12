@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../05-Auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 import {
   LineChart,
   Line,
@@ -14,12 +14,14 @@ import "./XPChart.css";
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export default function XPChart() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [data, setData] = useState(DAYS.map((day) => ({ day, xp: 0 })));
 
   useEffect(() => {
     if (!user) return;
-    fetch(`${import.meta.env.VITE_API_URL}/xp/${user.id}`)
+    fetch(`${import.meta.env.VITE_API_URL}/xp`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then((res) => res.json())
       .then((rows) => {
         if (rows.length === 0) return;
