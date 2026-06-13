@@ -9,7 +9,7 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
-import { useAuth } from "../../features/05-Auth/AuthContext";
+import { useAuth } from "../../features/Auth/AuthContext";
 import "./Sidebar.css";
 
 const NAV_ITEMS = [

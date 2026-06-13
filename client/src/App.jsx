@@ -1,18 +1,18 @@
 import { Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
 import Layout from "./shared/components/Layout.jsx";
-import Landing from "./features/01-Landing/LandingPage.jsx";
-import Selection from "./features/02-Selection/SelectionPage.jsx";
-import BrowsePage from "./features/04-Learning/VideoPlayer.jsx";
-import LessonPage from "./features/04-Learning/LessonPage.jsx";
-import Register from "./features/05-Auth/Register";
-import Login from "./features/05-Auth/LoginForm";
+import Landing from "./features/Landing/LandingPage.jsx";
+import Selection from "./features/Selection/SelectionPage.jsx";
+import BrowsePage from "./features/Learning/VideoPlayer.jsx";
+import LessonPage from "./features/Learning/LessonPage.jsx";
+import Register from "./features/Auth/Register";
+import Login from "./features/Auth/LoginForm";
 import Error404 from "./Error404.jsx";
-import PracticePage from "./features/06-Practice/PracticePage.jsx";
-import SettingsPage from "./features/06-Settings/SettingsPage.jsx";
+import PracticePage from "./features/Practice/PracticePage.jsx";
+import SettingsPage from "./features/Settings/SettingsPage.jsx";
 import HowItWorksPage from "./shared/components/HowItWorks.jsx";
-import ProfilePage from "./features/07-Profile/ProfilePage.jsx";
-import DashboardPage from "./features/03-Dashboard/DashboardPage.jsx";
+import ProfilePage from "./features/Profile/ProfilePage.jsx";
+import DashboardPage from "./features/Dashboard/DashboardPage.jsx";
 import ProtectedRoute from "./shared/components/ProtectedRoute.jsx";
 
 export default function App() {

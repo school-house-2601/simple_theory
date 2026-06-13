@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../05-Auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 import StatsCards from "./StatsCards";
@@ -18,13 +18,15 @@ import SavedItems from "./SavedItems";
 import "./SavedItems.css";
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [stats, setStats] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
-    fetch(`${import.meta.env.VITE_API_URL}/stats/${user.id}`)
+    fetch(`${import.meta.env.VITE_API_URL}/stats`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then((res) => res.json())
       .then((data) => setStats(data));
   }, [user]);

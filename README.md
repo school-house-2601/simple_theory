@@ -17,15 +17,32 @@ SimpleTheory is a full-stack music learning platform designed for musicians at e
 - 🔖 **Save videos** for later, per account
 - 👤 **Profile page** — edit name, upload photo, change password, toggle dark/light mode
 - 🔐 **Google OAuth + email/password auth**
-- 🧪 **25 Playwright end-to-end tests**
+- 🧪 **44 tests** — 25 Playwright frontend tests + 19 backend API tests
 
 ---
 
 ## Tech Stack
 
-**Frontend:** React, Vite, React Router, Recharts, Playwright  
-**Backend:** Node.js, Express, PostgreSQL, Passport.js, JWT, bcrypt  
-**Services:** Neon (PostgreSQL), Upstash (Redis cache), YouTube Data API v3, Flat.io API, Vercel
+**Frontend:** React, Vite, React Router, Recharts, Playwright
+
+**Backend:** Node.js, Express, PostgreSQL, Passport.js, JWT, bcrypt
+
+**Testing:** Playwright (frontend E2E), Vitest + Supertest (backend API)
+
+**Caching:** Upstash Redis — YouTube search results and Flat.io scores are cached for 24 hours to reduce API quota usage and improve response times
+
+**Services:** Neon (PostgreSQL), YouTube Data API v3, Flat.io API, Vercel
+
+---
+
+## Caching Strategy
+
+SimpleTheory uses **Upstash Redis** as a serverless Redis cache to optimize API performance:
+
+- **YouTube search results** — cached for 24 hours per query (`yt:<query>` key). Saves YouTube Data API quota and speeds up repeat searches.
+- **Flat.io sheet music results** — cached for 24 hours per query (`flat:<query>` key). Reduces latency on the lesson and browse pages.
+
+When a cached result exists, the server returns it instantly without hitting the external API. Cache misses trigger a fresh API call which is then stored for future requests.
 
 ---
 
@@ -34,19 +51,22 @@ SimpleTheory is a full-stack music learning platform designed for musicians at e
 ```
 simple-theory/
 │
-├── server/                        # Backend (Node/Express/PostgreSQL)
+├── server/
 │   ├── index.js                   # Entry point (app.listen)
 │   ├── app.js                     # Express app, CORS, Passport, Google OAuth
+│   ├── vitest.config.js           # Vitest configuration for backend tests
 │   ├── .env                       # API keys & DB credentials (not committed)
 │   │
-│   ├── api/
-│   │   └── routes/
-│   │       ├── users.js           # Auth, profile, password, bookmarks, interests
-│   │       ├── lessons.js         # YouTube search, Flat.io search (Redis cached)
-│   │       ├── progress.js        # XP awarding & video completion
-│   │       ├── stats.js           # Dashboard stats
-│   │       ├── xp.js              # XP transactions
-│   │       └── bookmarks.js       # Bookmark management
+│   ├── tests/
+│   │   └── api.test.js            # 19 backend API tests (auth, protected routes, security)
+│   │
+│   ├── api/routes/
+│   │   ├── users.js               # Auth, profile, password, bookmarks, interests
+│   │   ├── lessons.js             # YouTube search, Flat.io search (Redis cached)
+│   │   ├── progress.js            # XP awarding & video completion
+│   │   ├── stats.js               # Dashboard stats
+│   │   ├── xp.js                  # XP transactions
+│   │   └── bookmarks.js           # Bookmark management
 │   │
 │   ├── db/
 │   │   ├── schema.sql             # Table definitions
@@ -60,23 +80,23 @@ simple-theory/
 │   ├── middleware/
 │   │   ├── getUserFromToken.js    # JWT verification middleware
 │   │   ├── requireUser.js         # Protected route guard
-│   │   └── requireBody.js         # Request body validation
+│   │   └── requireBody.js         # Request body validation + bodyIdMatchesSession
 │   │
 │   └── utils/
 │       └── jwt.js                 # createToken / verifyToken
 │
-├── client/                        # Frontend (React + Vite)
+├── client/
 │   ├── vite.config.js
-│   ├── playwright.config.js       # E2E test config
+│   ├── playwright.config.js
 │   │
-│   ├── tests/                     # Playwright test suite (26 tests)
-│   │   ├── navigation.spec.js     # Page routing & search bar
+│   ├── tests/
 │   │   ├── auth.spec.js           # Login, register, credentials
 │   │   ├── browse.spec.js         # Video pills, saved tab, save button
 │   │   ├── lessons.spec.js        # Lesson cards, resources, progress
+│   │   ├── navigation.spec.js     # Page routing & search bar
 │   │   ├── guest-vs-loggedin.spec.js  # Auth-gated UI behavior
 │   │   ├── profile.spec.js        # Profile page, dark mode, progress bar
-│   │   └── helpers.js             # skipSplash utility
+│   │   └── helpers.js             # skipSplash + loginAsTestUser helpers
 │   │
 │   └── src/
 │       ├── App.jsx                # Routes
@@ -85,50 +105,67 @@ simple-theory/
 │       ├── mockData.js            # Fallback mock video data
 │       ├── Error404.jsx           # 404 page
 │       │
-│       ├── shared/
-│       │   └── components/
-│       │       ├── Navbar.jsx / .css       # Global navigation + avatar dropdown
-│       │       ├── Layout.jsx              # Route guard & sidebar logic
-│       │       ├── Sidebar.jsx / .css      # Dashboard sidebar
-│       │       ├── Footer.jsx / .css       # Global footer
-│       │       ├── HowItWorks.jsx / .css   # How it works page
-│       │       └── ProtectedRoute.jsx      # Auth-protected route wrapper
+│       ├── shared/components/
+│       │   ├── Navbar.jsx / .css          # Global navigation + avatar dropdown
+│       │   ├── Layout.jsx                 # Route guard & sidebar logic
+│       │   ├── Sidebar.jsx / .css         # Dashboard sidebar
+│       │   ├── Footer.jsx / .css          # Global footer
+│       │   ├── HowItWorks.jsx / .css      # How it works page
+│       │   └── ProtectedRoute.jsx         # Auth-protected route wrapper
 │       │
 │       └── features/
-│           ├── 01-Landing/
-│           │   ├── LandingPage.jsx         # Splash / enter screen
-│           │   └── Landing.css
-│           │
-│           ├── 02-Selection/
-│           │   ├── SelectionPage.jsx       # Path selection + Google OAuth token handler
-│           │   ├── PathCard.jsx
-│           │   └── Selection.css
-│           │
-│           ├── 03-Dashboard/
-│           │   ├── DashboardPage.jsx       # Main dashboard
-│           │   ├── Dashboard.css
-│           │   ├── XPChart.jsx / .css      # XP history chart
-│           │   ├── SkillRadar.jsx / .css   # Skill distribution radar
-│           │   ├── StatsCards.jsx          # Level, XP, streak, path cards
-│           │   ├── DailyGoals.jsx / .css   # Daily goal tracking
-│           │   ├── SavedItems.jsx / .css   # Saved videos panel
-│           │   ├── LearningJourney.jsx / .css  # Progress timeline
-│           │   └── Recommended.jsx / .css  # Recommended lesson widget
-│           │
-│           ├── 04-Learning/
-│           │   ├── LessonPage.jsx / .css   # Structured lesson curriculum
-│           │   └── VideoPlayer.jsx / .css  # Browse videos + Flat.io sheet music
-│           │
-│           ├── 05-Auth/
+│           ├── Auth/
 │           │   ├── AuthContext.jsx         # Global auth state (token, user, login, logout)
 │           │   ├── LoginForm.jsx           # Email/password + Google login
 │           │   ├── Register.jsx            # Registration form
-│           │   ├── AuthPage.jsx
 │           │   └── Auth.css
 │           │
-│           └── 06-Profile/
-│               ├── ProfilePage.jsx         # Profile editing, photo upload, theme toggle
-│               └── ProfilePage.css
+│           ├── Dashboard/
+│           │   ├── DashboardPage.jsx / .css      # Main dashboard layout
+│           │   ├── XPChart.jsx / .css            # XP history chart
+│           │   ├── SkillRadar.jsx / .css         # Skill distribution radar
+│           │   ├── StatsCards.jsx / .css         # Level, XP, streak, path cards
+│           │   ├── DailyGoals.jsx / .css         # Daily goal tracking
+│           │   ├── SavedItems.jsx / .css         # Saved videos panel
+│           │   ├── LearningJourney.jsx / .css    # Progress timeline
+│           │   └── RecommendedCard.jsx / .css    # Recommended lesson widget
+│           │
+│           ├── Landing/
+│           │   ├── LandingPage.jsx         # Splash / enter screen
+│           │   └── Landing.css
+│           │
+│           ├── Learning/
+│           │   ├── LessonPage.jsx / .css   # Structured lesson curriculum
+│           │   └── VideoPlayer.jsx / .css  # Browse videos + Flat.io sheet music
+│           │
+│           ├── Practice/
+│           │   ├── PracticePage.jsx / .css  # Practice room main page
+│           │   ├── SongBrowser.jsx / .css   # Flat.io song search
+│           │   ├── SongPlayer.jsx / .css    # Play-along interface
+│           │   ├── components/
+│           │   │   ├── AccuracyMeter.jsx / .css  # Real-time accuracy display
+│           │   │   ├── FallingNotes.jsx / .css   # Falling notes game
+│           │   │   ├── NoteDetector.jsx          # Pitch detection via microphone
+│           │   │   └── ResultsModal.jsx / .css   # Session results + XP awarded
+│           │   └── instruments/
+│           │       ├── DrumDetector.jsx     # Drum beat detection
+│           │       ├── GuitarDetector.jsx   # Guitar note detection
+│           │       ├── PianoDetector.jsx    # Piano note detection
+│           │       ├── VocalDetector.jsx    # Vocal pitch detection
+│           │       └── ProductionQuiz.jsx   # Production knowledge quiz
+│           │
+│           ├── Profile/
+│           │   ├── ProfilePage.jsx          # Profile editing, photo upload, theme toggle
+│           │   └── ProfilePage.css
+│           │
+│           ├── Selection/
+│           │   ├── SelectionPage.jsx        # Path selection + Google OAuth token handler
+│           │   ├── PathCard.jsx             # Individual path card component
+│           │   └── Selection.css
+│           │
+│           └── Settings/
+│               ├── SettingsPage.jsx         # Learning path + instrument preferences
+│               └── SettingsPage.css
 │
 └── README.md
 ```
@@ -184,6 +221,23 @@ NODE_ENV=development
 VITE_API_URL=http://localhost:3000
 ```
 
+### VS Code Setup (Recommended)
+
+Install these extensions for automatic formatting on save:
+
+- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) by Microsoft
+- [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) by Prettier
+
+The `.vscode/settings.json` file is included in the repo and will automatically configure format-on-save for you once the extensions are installed.
+
+To manually lint or format:
+
+```bash
+# From /client or /server
+npm run lint     # check for errors
+npm run format   # auto-fix formatting
+```
+
 ### Database Setup
 
 ```bash
@@ -203,7 +257,7 @@ npm run dev
 
 App runs at `http://localhost:5173`
 
-### Running Tests
+### Running Frontend Tests
 
 ```bash
 # Make sure both servers are running first, then from /client:
@@ -212,7 +266,26 @@ npx playwright test
 
 **Expected:** 25 tests passing ✅
 
-> **Note:** The login test requires a `testuser2@test.com` account to exist in your local database. Register at `/register` if it doesn't exist, then update the password in `auth.spec.js` and `profile.spec.js` to match.
+> **Note:** The login tests require a `testuser2@test.com` account to exist in your local database. Register at `/register` if it doesn't exist, then update the password in `auth.spec.js` and `profile.spec.js` to match.
+
+### Running Backend Tests
+
+```bash
+# From /server (server does NOT need to be running):
+npm test
+```
+
+**Expected:** 19 tests passing ✅
+
+Covers:
+
+- Registration & login validation
+- Protected routes rejecting unauthenticated requests
+- Authenticated routes working with valid token
+- `bodyIdMatchesSession` blocking user ID spoofing
+- Google OAuth redirect and user status
+
+> **Note:** Requires the same `testuser2@test.com` account in your local database.
 
 ---
 

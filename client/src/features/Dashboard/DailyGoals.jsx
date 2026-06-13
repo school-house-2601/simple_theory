@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../05-Auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 import "./DailyGoals.css";
 
 export default function DailyGoals() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [goals, setGoals] = useState([]);
 
   useEffect(() => {
     if (!user) return;
-    fetch(`${import.meta.env.VITE_API_URL}/stats/goals/${user.id}`)
+    fetch(`${import.meta.env.VITE_API_URL}/stats/goals`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then((res) => res.json())
       .then((data) => setGoals(Array.isArray(data) ? data : []))
       .catch(() => {});

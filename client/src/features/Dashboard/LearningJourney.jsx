@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../05-Auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext";
 import "./LearningJourney.css";
 
 const CATEGORY_COLORS = {
@@ -19,12 +19,14 @@ function timeAgo(dateStr) {
 }
 
 export default function LearningJourney() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [journey, setJourney] = useState([]);
 
   useEffect(() => {
     if (!user) return;
-    fetch(`${import.meta.env.VITE_API_URL}/progress/${user.id}`)
+    fetch(`${import.meta.env.VITE_API_URL}/progress`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then((res) => res.json())
       .then((data) => setJourney(data))
       .catch(() => setJourney([]));
