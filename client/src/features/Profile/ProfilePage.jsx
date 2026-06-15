@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../Auth/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { LEVEL_COLORS, XP_GOALS, NEXT_LEVELS } from "../../data/profileData";
 import "./ProfilePage.css";
 
 export default function ProfilePage() {
@@ -10,7 +11,7 @@ export default function ProfilePage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [darkMode, setDarkMode] = useState(
-    () => localStorage.getItem("theme") !== "light",
+    () => localStorage.getItem("theme") !== "light"
   );
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [formData, setFormData] = useState({
@@ -76,26 +77,10 @@ export default function ProfilePage() {
 
   const currentLevel = user?.selected_path || user?.current_level || "Novice";
   const totalXp = user?.total_xp || 0;
-  const xpGoal =
-    currentLevel === "Novice"
-      ? 3000
-      : currentLevel === "Intermediate"
-        ? 8000
-        : 99999;
-  const nextLevel =
-    currentLevel === "Novice"
-      ? "Intermediate"
-      : currentLevel === "Intermediate"
-        ? "Professional"
-        : "Max Level";
+  const levelColor = LEVEL_COLORS[currentLevel] || "#6366f1";
+  const xpGoal = XP_GOALS[currentLevel];
+  const nextLevel = NEXT_LEVELS[currentLevel];
   const xpPercent = Math.min(Math.round((totalXp / xpGoal) * 100), 100);
-
-  const levelColors = {
-    Novice: "#6262bc",
-    Intermediate: "#2fd02f",
-    Professional: "#c84d1c",
-  };
-  const levelColor = levelColors[currentLevel] || "#6366f1";
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
@@ -120,7 +105,7 @@ export default function ProfilePage() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(formData),
-        },
+        }
       );
       if (res.ok) {
         const updatedUser = await res.json();
@@ -162,7 +147,7 @@ export default function ProfilePage() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(passwordData),
-        },
+        }
       );
       const data = await res.json();
       if (res.ok) {
@@ -363,6 +348,37 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
+
+          {/* Primary Instrument */}
+          <div className="field" style={{ marginTop: "14px" }}>
+            <label>Primary Instrument</label>
+            <div className="field-val">
+              {user?.interests?.[0] || (
+                <span className="empty">Not set — update in Settings</span>
+              )}
+            </div>
+          </div>
+
+          {/* Also plays */}
+          {user?.interests?.length > 1 && (
+            <div className="field" style={{ marginTop: "14px" }}>
+              <label>Also Plays</label>
+              <div
+                className="field-val"
+                style={{ flexWrap: "wrap", gap: "6px" }}
+              >
+                {user.interests.slice(1).map((i) => (
+                  <span
+                    key={i}
+                    className="tag tag-streak"
+                    style={{ fontSize: "11px" }}
+                  >
+                    {i}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="xp-section">
             <div className="xp-labels">

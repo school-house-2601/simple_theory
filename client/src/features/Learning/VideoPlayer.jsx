@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import "./VideoPlayer.css";
-import { MOCK_VIDEOS } from "../../mockData";
+import { MOCK_VIDEOS } from "../../data/mockData";
+import { INSTRUMENT_PILLS } from "../../data/browseData";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth/AuthContext";
 
@@ -15,9 +16,8 @@ export default function BrowsePage() {
   const [currentTab, setCurrentTab] = useState("browse");
   const [searchParams] = useSearchParams();
   const queryFromUrl = searchParams.get("search");
-  const USE_MOCK_DATA = true;
   const navigate = useNavigate();
-  // 1. Initialize cache from localStorage so it survives refreshes
+
   const [searchCache, setSearchCache] = useState(() => {
     try {
       const savedCache = localStorage.getItem("youtube_cache");
@@ -26,10 +26,12 @@ export default function BrowsePage() {
       return {};
     }
   });
+
   const [flatCache, setFlatCache] = useState(() => {
     const savedFlatCache = localStorage.getItem("flat_io_cache");
     return savedFlatCache ? JSON.parse(savedFlatCache) : {};
   });
+
   const [savedVideos, setSavedVideos] = useState(() => {
     try {
       const key = user?.id ? `savedLessons_${user.id}` : "savedLessons_guest";
@@ -51,17 +53,12 @@ export default function BrowsePage() {
 
   const toggleSaveVideo = (video) => {
     const key = user?.id ? `savedLessons_${user.id}` : "savedLessons_guest";
-    let updatedSaved;
     const isAlreadySaved = savedVideos.some(
-      (v) => v.id.videoId === video.id.videoId,
+      (v) => v.id.videoId === video.id.videoId
     );
-    if (isAlreadySaved) {
-      updatedSaved = savedVideos.filter(
-        (v) => v.id.videoId !== video.id.videoId,
-      );
-    } else {
-      updatedSaved = [...savedVideos, video];
-    }
+    const updatedSaved = isAlreadySaved
+      ? savedVideos.filter((v) => v.id.videoId !== video.id.videoId)
+      : [...savedVideos, video];
     setSavedVideos(updatedSaved);
     localStorage.setItem(key, JSON.stringify(updatedSaved));
   };
@@ -80,7 +77,7 @@ export default function BrowsePage() {
             xpEarned: 5,
             skillCategory: activeInstrument || "Theory",
           }),
-        },
+        }
       );
       const data = await res.json();
       console.log("XP response:", data);
@@ -136,7 +133,7 @@ export default function BrowsePage() {
     } else {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/lessons/youtube-search?query=${query}`,
+          `${import.meta.env.VITE_API_URL}/lessons/youtube-search?query=${query}`
         );
         if (!res.ok) throw new Error(`YouTube API Error: ${res.status}`);
         const data = await res.json();
@@ -155,12 +152,11 @@ export default function BrowsePage() {
     }
 
     if (flatCache[query]) {
-      console.log(flatCache);
       setFlatResults(flatCache[query]);
     } else {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/lessons/flat-search?query=${query}`,
+          `${import.meta.env.VITE_API_URL}/lessons/flat-search?query=${query}`
         );
         if (!res.ok) throw new Error(`Flat.io API Error: ${res.status}`);
         const data = await res.json();
@@ -183,82 +179,23 @@ export default function BrowsePage() {
           <h1>Browse Video Knowledge</h1>
           <p>Aggregated tutorials and theory from across the web.</p>
         </header>
+
         <div className="filter-bar">
           <nav className="category-pills">
-            <button
-              className={activeInstrument === "Theory" ? "pill active" : "pill"}
-              onClick={() => {
-                setActiveInstrument("Theory");
-                setCurrentTab("browse");
-                navigate("/browse", { replace: true });
-                handleSearch("Music Theory for Beginners");
-              }}
-            >
-              {" "}
-              🎼 Theory{" "}
-            </button>
-            <button
-              className={activeInstrument === "Piano" ? "pill active" : "pill"}
-              onClick={() => {
-                setActiveInstrument("Piano");
-                setCurrentTab("browse");
-                navigate("/browse", { replace: true });
-                handleSearch("Piano tutorials");
-              }}
-            >
-              {" "}
-              🎹 Piano{" "}
-            </button>
-            <button
-              className={activeInstrument === "Guitar" ? "pill active" : "pill"}
-              onClick={() => {
-                setActiveInstrument("Guitar");
-                setCurrentTab("browse");
-                navigate("/browse", { replace: true });
-                handleSearch("Guitar lessons");
-              }}
-            >
-              {" "}
-              🎸 Guitar{" "}
-            </button>
-            <button
-              className={activeInstrument === "Drums" ? "pill active" : "pill"}
-              onClick={() => {
-                setActiveInstrument("Drums");
-                setCurrentTab("browse");
-                navigate("/browse", { replace: true });
-                handleSearch("Drum basics");
-              }}
-            >
-              {" "}
-              🥁 Drums{" "}
-            </button>
-            <button
-              className={activeInstrument === "Vocals" ? "pill active" : "pill"}
-              onClick={() => {
-                setActiveInstrument("Vocals");
-                setCurrentTab("browse");
-                navigate("/browse", { replace: true });
-                handleSearch("Vocal lessons");
-              }}
-            >
-              {" "}
-              🎤 Vocals{" "}
-            </button>
-            <button
-              className={
-                activeInstrument === "Production" ? "pill active" : "pill"
-              }
-              onClick={() => {
-                setActiveInstrument("Production");
-                setCurrentTab("browse");
-                navigate("/browse", { replace: true });
-                handleSearch("DAW production tutorials");
-              }}
-            >
-              {" "}
-              🎚️ Production{" "}
-            </button>
+            {INSTRUMENT_PILLS.map(({ label, icon, query }) => (
+              <button
+                key={label}
+                className={activeInstrument === label ? "pill active" : "pill"}
+                onClick={() => {
+                  setActiveInstrument(label);
+                  setCurrentTab("browse");
+                  navigate("/browse", { replace: true });
+                  handleSearch(query);
+                }}
+              >
+                {icon} {label}
+              </button>
+            ))}
             <button
               className={currentTab === "saved" ? "pill active" : "pill"}
               onClick={() => {
@@ -266,8 +203,7 @@ export default function BrowsePage() {
                 setActiveInstrument(null);
               }}
             >
-              {" "}
-              🔖 Saved ({savedVideos.length}){" "}
+              🔖 Saved ({savedVideos.length})
             </button>
           </nav>
         </div>
@@ -305,7 +241,7 @@ export default function BrowsePage() {
                         onSelect={setSelectedVideoId}
                         onSave={toggleSaveVideo}
                         isSaved={savedVideos.some(
-                          (v) => v.id.videoId === video.id.videoId,
+                          (v) => v.id.videoId === video.id.videoId
                         )}
                       />
                     ))
@@ -350,8 +286,7 @@ export default function BrowsePage() {
                 className="close-modal"
                 onClick={() => handleCloseVideo()}
               >
-                {" "}
-                &times;{" "}
+                &times;
               </button>
               <div className="video-responsive">
                 <iframe
@@ -408,8 +343,7 @@ function VideoCard({ video, onSelect, onSave, isSaved }) {
           onSave(video);
         }}
       >
-        {" "}
-        {isSaved ? "★" : "☆"}{" "}
+        {isSaved ? "★" : "☆"}
       </button>
     </div>
   );
@@ -442,6 +376,7 @@ function SheetMusicCard({ sheet, onSelectScore }) {
     </div>
   );
 }
+
 function ModalWrapper({ activeScoreId, setActiveScoreId }) {
   const iframeRef = useRef(null);
 

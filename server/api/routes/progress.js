@@ -2,7 +2,7 @@ import { Router } from "express";
 import { getUserProgress } from "#db/queries/userQueries";
 import { completeVideoWatch } from "#db/queries/progressQueries";
 import requireUser from "#middleware/requireUser";
-import requireBody, { bodyIdMatchesSession } from "#middleware/requireBody";
+import { bodyIdMatchesSession } from "#middleware/requireBody";
 
 const router = Router();
 
@@ -17,14 +17,14 @@ router.post(
         userId,
         videoId,
         xpEarned,
-        skillCategory,
+        skillCategory
       );
       res.json(result);
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Failed to award XP" });
     }
-  },
+  }
 );
 
 router.get("/", requireUser, async (req, res) => {
