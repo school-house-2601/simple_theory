@@ -22,7 +22,8 @@ router.post(
   requireBody(["email", "password", "firstname", "lastname"]),
   async (req, res, next) => {
     try {
-      const { email, password, firstname, lastname, interests } = req.body;
+      const { email, password, firstname, lastname, interests, instrument } =
+        req.body;
       const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
       const user = await createUser({
         username: email,
@@ -30,7 +31,8 @@ router.post(
         password_hash: hashedPassword,
         firstname,
         lastname,
-        interests: interests || [],
+        interests:
+          interests?.length > 0 ? interests : instrument ? [instrument] : [],
         selected_path: "Novice",
         current_level: "Novice",
       });
@@ -39,7 +41,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  },
+  }
 );
 
 router.post(
@@ -59,7 +61,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  },
+  }
 );
 
 router.get("/me", requireUser, async (req, res, next) => {
@@ -83,7 +85,7 @@ router.patch(
     } catch (error) {
       next(error);
     }
-  },
+  }
 );
 
 router.get("/bookmarks", requireUser, async (req, res, next) => {
@@ -111,7 +113,7 @@ router.patch("/interests", requireUser, async (req, res, next) => {
       rows: [user],
     } = await db.query(
       `UPDATE users SET interests = $1 WHERE id = $2 RETURNING interests`,
-      [interests, req.user.id],
+      [interests, req.user.id]
     );
     res.json(user);
   } catch (error) {
@@ -129,7 +131,7 @@ router.patch("/me/profile", requireUser, async (req, res, next) => {
        SET firstname = $1, lastname = $2, email = $3
        WHERE id = $4 
        RETURNING id, firstname, lastname, email, username, current_level, total_xp, current_streak, created_at`,
-      [firstname, lastname, email, req.user.id],
+      [firstname, lastname, email, req.user.id]
     );
     res.json(user);
   } catch (error) {

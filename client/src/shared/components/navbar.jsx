@@ -19,7 +19,7 @@ export default function Navbar() {
       navigate(`/browse?search=${encodeURIComponent(navSearch)}`);
     }
   };
-  // Add this inside the Navbar component
+
   const handleCoursesClick = (e) => {
     e.preventDefault();
     if (user?.selected_path) {
@@ -27,6 +27,11 @@ export default function Navbar() {
     } else {
       navigate("/selection");
     }
+  };
+
+  const closeMenu = () => {
+    setIsOpen(false);
+    window.scrollTo(0, 0);
   };
 
   // Close dropdown when clicking outside
@@ -184,7 +189,10 @@ export default function Navbar() {
       <div className={`nav-menu ${isOpen ? "open" : ""}`}>
         <a
           href="#"
-          onClick={handleCoursesClick}
+          onClick={(e) => {
+            handleCoursesClick(e);
+            closeMenu();
+          }}
           style={{
             textDecoration: "none",
             fontSize: "0.95rem",
@@ -192,25 +200,25 @@ export default function Navbar() {
         >
           Courses
         </a>
-        <NavLink to="/browse" onClick={() => setIsOpen(false)}>
+        <NavLink to="/browse" onClick={closeMenu}>
           Browse Videos
         </NavLink>
-        <NavLink to="/practice" onClick={() => setIsOpen(false)}>
+        <NavLink to="/practice" onClick={closeMenu}>
           Practice
         </NavLink>
         {token ? (
           <>
-            <NavLink to="/dashboard" onClick={() => setIsOpen(false)}>
+            <NavLink to="/dashboard" onClick={closeMenu}>
               Dashboard
             </NavLink>
-            <NavLink to="/profile" onClick={() => setIsOpen(false)}>
+            <NavLink to="/profile" onClick={closeMenu}>
               Profile
             </NavLink>
             <button
               onClick={() => {
                 logout();
                 navigate("/login");
-                setIsOpen(false);
+                closeMenu();
               }}
               className="logout-link"
             >
@@ -219,10 +227,10 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            <Link to="/login" onClick={() => setIsOpen(false)}>
+            <Link to="/login" onClick={closeMenu}>
               Login
             </Link>
-            <Link to="/register" onClick={() => setIsOpen(false)}>
+            <Link to="/register" onClick={closeMenu}>
               Sign Up
             </Link>
           </>
