@@ -19,7 +19,7 @@ const NAV_ITEMS = [
     path: "/dashboard",
   },
   { label: "My Learning", icon: <BookOpen size={18} />, path: "/lessons" },
-  { label: "Rewards", icon: <Trophy size={18} />, path: "/rewards" },
+  // { label: "Rewards", icon: <Trophy size={18} />, path: "/rewards" },
   { label: "Practice Room", icon: <Music size={18} />, path: "/practice" },
 ];
 
