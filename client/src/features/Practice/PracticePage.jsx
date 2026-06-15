@@ -56,29 +56,33 @@ export default function PracticePage() {
         ))}
       </div>
 
-      {selectedInstrument && !selectedSong && (
+      {selectedInstrument === "Production" && (
         <div className="detector-container">
-          <SongBrowser
-            instrument={selectedInstrument}
-            onSelectSong={handleSelectSong}
-          />
+          <ProductionQuiz />
         </div>
       )}
 
-      {selectedInstrument && selectedSong && (
-        <div className="detector-container">
-          <button className="back-btn" onClick={handleBack}>
-            ← Back to Song List
-          </button>
-          <SongPlayer song={selectedSong} instrument={selectedInstrument} />
-        </div>
-      )}
+      {selectedInstrument &&
+        selectedInstrument !== "Production" &&
+        !selectedSong && (
+          <div className="detector-container">
+            <SongBrowser
+              instrument={selectedInstrument}
+              onSelectSong={handleSelectSong}
+            />
+          </div>
+        )}
 
-      {!selectedInstrument && (
-        <div className="practice-empty">
-          <p>👆 Pick an instrument above to get started</p>
-        </div>
-      )}
+      {selectedInstrument &&
+        selectedInstrument !== "Production" &&
+        selectedSong && (
+          <div className="detector-container">
+            <button className="back-btn" onClick={handleBack}>
+              ← Back to Song List
+            </button>
+            <SongPlayer song={selectedSong} instrument={selectedInstrument} />
+          </div>
+        )}
     </div>
   );
 }

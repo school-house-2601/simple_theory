@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import NoteDetector from "../components/NoteDetector";
-import AccuracyMeter from "../components/FallingNotes";
+import AccuracyMeter from "../components/AccuracyMeter";
 import ResultsModal from "../components/ResultsModal";
 import { useAuth } from "../../Auth/AuthContext";
 import FallingNotes from "../components/FallingNotes";
@@ -22,19 +22,19 @@ export default function PianoDetector() {
 
   const handleNoteDetected = useCallback(
     (note) => {
-      if (sessionComplete) return;
       setDetectedNote(note);
-
-      const expectedNote = EXERCISE_NOTES[currentNoteIndex];
-      const noteName = note.replace(/[0-9]/g, "");
-      const expectedName = expectedNote.repeat(/[0-9]/g, "");
-
+      const noteName = note
+        .replace(/[0-9]/g, "")
+        .replace("#", "")
+        .replace("b", "");
+      const expectedName = EXERCISE_NOTES[currentNoteIndex]
+        .replace(/[0-9]/g, "")
+        .replace("b", "");
       setTotalNotes((prev) => prev + 1);
-
       if (noteName === expectedName) {
         setCorrectNotes((prev) => prev + 1);
-        const nextIndex = currentNoteIndex + 1;
-        if (nextIndex >= EXERCISE_NOTES.length) {
+        const next = currentNoteIndex + 1;
+        if (next >= EXERCISE_NOTES.length) {
           setSessionComplete(true);
           setIsListening(false);
           setShowResults(true);
@@ -43,7 +43,7 @@ export default function PianoDetector() {
         }
       }
     },
-    [currentNoteIndex, sessionComplete],
+    [currentNoteIndex]
   );
 
   const handleStart = () => {

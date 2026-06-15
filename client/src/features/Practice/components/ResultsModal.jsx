@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../Auth/AuthContext";
 import "./ResultsModal.css";
 
-const BASE_XP = 50;
-
 export default function ResultsModal({
   accuracy,
   instrument,
   skillCategory,
+  mode,
   onClose,
   onRetry,
 }) {
@@ -16,7 +15,8 @@ export default function ResultsModal({
   const [leveledUp, setLeveledUp] = useState(false);
   const [newLevel, setNewLevel] = useState(null);
 
-  const bonusXP = Math.round(accuracy * 0.5);
+  const BASE_XP = mode === "manual" ? 15 : 10;
+  const bonusXP = mode === "manual" ? 0 : Math.round(accuracy * 0.5);
   const totalXP = BASE_XP + bonusXP;
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function ResultsModal({
               skillCategory,
               accuracyScore: accuracy,
             }),
-          },
+          }
         );
         const data = await res.json();
         setXpAwarded(totalXP);
@@ -71,25 +71,38 @@ export default function ResultsModal({
             🎉 Level Up! You are now {newLevel}!
           </div>
         )}
+
         <h2>Session Complete!</h2>
-        <div className="results-grade" style={{ color }}>
-          {grade}
-        </div>
-        <div className="results-accuracy">{accuracy}% Accuracy</div>
+
+        {mode !== "manual" && (
+          <div className="results-grade" style={{ color }}>
+            {grade}
+          </div>
+        )}
+
+        {mode === "manual" ? (
+          <div className="results=accuracy">✅ Song Completed</div>
+        ) : (
+          <div className="results-accuracy">{accuracy}% Accuracy</div>
+        )}
+
         <div className="results-xp">
           <div className="xp-row">
             <span>Base XP</span>
             <span>+{BASE_XP}</span>
           </div>
-          <div className="xp-row bonus">
-            <span>Accuracy Bonus</span>
-            <span>+{bonusXP}</span>
-          </div>
+          {mode !== "manual" && (
+            <div className="xp-row bonus">
+              <span>Accuracy Bonus</span>
+              <span>+{bonusXP}</span>
+            </div>
+          )}
           <div className="xp-row total">
             <span>Total XP Earned</span>
             <span>+{totalXP}</span>
           </div>
         </div>
+
         <div className="results-actions">
           <button className="retry-btn" onClick={onRetry}>
             🔄 Try Again
