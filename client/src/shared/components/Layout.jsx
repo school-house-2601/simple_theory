@@ -6,6 +6,7 @@ import Footer from "./Footer";
 import Sidebar from "./Sidebar";
 import { useAuth } from "../../features/Auth/AuthContext";
 import "../../index.css";
+import { AnimatePresence } from "framer-motion";
 
 const NO_SIDEBAR_ROUTES = ["/", "/login", "/register", "/selection"];
 const PUBLIC_ROUTES = [
@@ -35,7 +36,9 @@ export default function Layout() {
     <div className="app-layout">
       <Navbar />
       {showSidebar && <Sidebar />}
-      <Outlet />
+      <AnimatePresence mode="wait">
+        <Outlet key={location.pathname} />
+      </AnimatePresence>
       <Footer />
     </div>
   );

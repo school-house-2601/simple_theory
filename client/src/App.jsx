@@ -14,8 +14,13 @@ import HowItWorksPage from "./shared/components/HowItWorks.jsx";
 import ProfilePage from "./features/Profile/ProfilePage.jsx";
 import DashboardPage from "./features/Dashboard/DashboardPage.jsx";
 import ProtectedRoute from "./shared/components/ProtectedRoute.jsx";
+import { AnimatePresence } from "framer-motion";
+import { useLocation } from "react-router-dom";
+import PageTransition from "./shared/PageTransition.jsx";
 
 export default function App() {
+  const location = useLocation();
+
   useEffect(() => {
     const theme = localStorage.getItem("theme");
     if (theme === "light") {
@@ -24,20 +29,65 @@ export default function App() {
       document.body.classList.remove("light-mode");
     }
   }, []);
+
   return (
-    <Routes>
+    <Routes location={location} key={location.pathname}>
       <Route path="/" element={<Layout />}>
-        <Route index element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/selection" element={<Selection />} />
-        <Route path="/howitworks" element={<HowItWorksPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route
+          index
+          element={
+            <PageTransition>
+              <Landing />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PageTransition>
+              <Login />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PageTransition>
+              <Register />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/selection"
+          element={
+            <PageTransition>
+              <Selection />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/howitworks"
+          element={
+            <PageTransition>
+              <HowItWorksPage />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <PageTransition>
+              <SettingsPage />
+            </PageTransition>
+          }
+        />
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <DashboardPage />
+              <PageTransition>
+                <DashboardPage />
+              </PageTransition>
             </ProtectedRoute>
           }
         />
@@ -45,7 +95,9 @@ export default function App() {
           path="/lessons"
           element={
             <ProtectedRoute>
-              <LessonPage />
+              <PageTransition>
+                <LessonPage />
+              </PageTransition>
             </ProtectedRoute>
           }
         />
@@ -53,7 +105,9 @@ export default function App() {
           path="/browse"
           element={
             <ProtectedRoute>
-              <BrowsePage />
+              <PageTransition>
+                <BrowsePage />
+              </PageTransition>
             </ProtectedRoute>
           }
         />
@@ -61,7 +115,9 @@ export default function App() {
           path="/practice"
           element={
             <ProtectedRoute>
-              <PracticePage />
+              <PageTransition>
+                <PracticePage />
+              </PageTransition>
             </ProtectedRoute>
           }
         />
@@ -69,11 +125,20 @@ export default function App() {
           path="/profile"
           element={
             <ProtectedRoute>
-              <ProfilePage />
+              <PageTransition>
+                <ProfilePage />
+              </PageTransition>
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<Error404 />} />
+        <Route
+          path="*"
+          element={
+            <PageTransition>
+              <Error404 />
+            </PageTransition>
+          }
+        />
       </Route>
     </Routes>
   );
