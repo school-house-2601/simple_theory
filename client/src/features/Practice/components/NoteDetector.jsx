@@ -34,13 +34,19 @@ function frequencyToNote(frequency) {
 export default function NoteDetector({
   onNoteDetected,
   isListening,
-  instrument = "Piano"
+  instrument = "Piano",
 }) {
   const audioContextRef = useRef(null);
   const streamRef = useRef(null);
   const animFrameRef = useRef(null);
   const isClosedRef = useRef(false);
   const pitchDetectorRef = useRef(null);
+  const onNoteDetectedRef = useRef(onNoteDetected);
+
+  // Always keep ref current without triggering re-attachment
+  useEffect(() => {
+    onNoteDetectedRef.current = onNoteDetected;
+  }, [onNoteDetected]);
 
   useEffect(() => {
     isClosedRef.current = false;
@@ -125,7 +131,7 @@ export default function NoteDetector({
                 if (note === lastNote) {
                   noteCount += 1;
                   if (noteCount === 5) {
-                    onNoteDetected(note, frequency);
+                    onNoteDetectedRef.current(note, frequency);
                     noteCount = 0;
                   }
                 } else {

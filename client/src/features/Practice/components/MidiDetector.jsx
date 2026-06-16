@@ -23,6 +23,8 @@ function midiNoteToName(midiNote) {
 export default function MidiDetector({ onNoteDetected, isListening }) {
   const midiAccessRef = useRef(null);
   const onNoteDetectedRef = useRef(onNoteDetected);
+  const lastNoteTimeRef = useRef({});
+  const noteStartTimeRef = useRef({});
 
   // Always keep ref current without triggering re-attachment
   useEffect(() => {
@@ -39,11 +41,36 @@ export default function MidiDetector({ onNoteDetected, isListening }) {
 
         const handleMessage = (event) => {
           const [status, note, velocity] = event.data;
-          // Cover note on messages across all 16 MIDI channels (144-159)
+
           const isNoteOn = status >= 144 && status <= 159 && velocity > 0;
+          const isNoteOff =
+            (status >= 128 && status <= 143) ||
+            (status >= 144 && status <= 159 && velocity === 0);
+
           if (isNoteOn) {
-            const noteName = midiNoteToName(note);
-            onNoteDetectedRef.current(noteName, note, velocity);
+            const now = Date.now();
+            const lastTime = lastNoteTimeRef.current[note] || 0;
+
+            // Ignore if same note fired within 100ms — prevents double triggers
+            if (now - lastTime < 100) return;
+            lastNoteTimeRef.current[note] = now;
+
+            // Record when the key was pressed
+            noteStartTimeRef.current[note] = now;
+          }
+
+          if (isNoteOff) {
+            const pressedAt = noteStartTimeRef.current[note];
+            if (!pressedAt) return;
+
+            const heldMs = Date.now() - pressedAt;
+            delete noteStartTimeRef.current[note];
+
+            // Only count if held for at least 145s
+            if (heldMs >= 145) {
+              const noteName = midiNoteToName(note);
+              onNoteDetectedRef.current(noteName, note, velocity);
+            }
           }
         };
 
@@ -72,7 +99,7 @@ export default function MidiDetector({ onNoteDetected, isListening }) {
         });
       }
     };
-  }, [isListening]); // only re-attach when isListening changes
+  }, [isListening]);
 
   return null;
 }
