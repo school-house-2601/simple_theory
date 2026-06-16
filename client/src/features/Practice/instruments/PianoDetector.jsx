@@ -1,57 +1,52 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import NoteDetector from "../components/NoteDetector";
+import MidiDetector from "../components/MidiDetector";
 import AccuracyMeter from "../components/AccuracyMeter";
 import ResultsModal from "../components/ResultsModal";
-import { useAuth } from "../../Auth/AuthContext";
 import FallingNotes from "../components/FallingNotes";
 
 const EXERCISE_NOTES = ["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"];
 
 export default function PianoDetector() {
-  const { user } = useAuth();
   const [isListening, setIsListening] = useState(false);
   const [detectedNote, setDetectedNote] = useState(null);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(0);
   const [correctNotes, setCorrectNotes] = useState(0);
   const [totalNotes, setTotalNotes] = useState(0);
   const [showResults, setShowResults] = useState(false);
-  const [sessionComplete, setSessionComplete] = useState(false);
 
   const accuracyScore =
     totalNotes > 0 ? Math.round((correctNotes / totalNotes) * 100) : 0;
 
-  const handleNoteDetected = useCallback(
-    (note) => {
-      setDetectedNote(note);
-      const noteName = note
-        .replace(/[0-9]/g, "")
-        .replace("#", "")
-        .replace("b", "");
-      const expectedName = EXERCISE_NOTES[currentNoteIndex]
-        .replace(/[0-9]/g, "")
-        .replace("b", "");
+  const handleNoteDetected = useCallback((note) => {
+    setDetectedNote(note);
+
+    setCurrentNoteIndex((prevIndex) => {
+      const noteName = note.replace(/[0-9]/g, "").replace("#", "");
+      const expectedName = EXERCISE_NOTES[prevIndex].replace(/[0-9]/g, "");
+
       setTotalNotes((prev) => prev + 1);
+
       if (noteName === expectedName) {
         setCorrectNotes((prev) => prev + 1);
-        const next = currentNoteIndex + 1;
+        const next = prevIndex + 1;
         if (next >= EXERCISE_NOTES.length) {
-          setSessionComplete(true);
           setIsListening(false);
           setShowResults(true);
-        } else {
-          setCurrentNoteIndex(nextIndex);
+          return prevIndex;
         }
+        return next;
       }
-    },
-    [currentNoteIndex]
-  );
+      return prevIndex;
+    });
+  }, []);
 
   const handleStart = () => {
     setIsListening(true);
     setCurrentNoteIndex(0);
     setCorrectNotes(0);
     setTotalNotes(0);
-    setSessionComplete(false);
+    setShowResults(false);
     setDetectedNote(null);
   };
 
@@ -83,12 +78,20 @@ export default function PianoDetector() {
           </button>
         ) : (
           <button className="stop-btn" onClick={handleStop}>
-            ⏹ stop
+            ⏹ Stop
           </button>
         )}
       </div>
 
+      {/* Microphone pitch detection */}
       <NoteDetector
+        isListening={isListening}
+        onNoteDetected={handleNoteDetected}
+        instrument="Piano"
+      />
+
+      {/* MIDI keyboard detection */}
+      <MidiDetector
         isListening={isListening}
         onNoteDetected={handleNoteDetected}
       />

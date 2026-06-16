@@ -22,6 +22,12 @@ function midiNoteToName(midiNote) {
 
 export default function MidiDetector({ onNoteDetected, isListening }) {
   const midiAccessRef = useRef(null);
+  const onNoteDetectedRef = useRef(onNoteDetected);
+
+  // Always keep ref current without triggering re-attachment
+  useEffect(() => {
+    onNoteDetectedRef.current = onNoteDetected;
+  }, [onNoteDetected]);
 
   useEffect(() => {
     if (!isListening) return;
@@ -33,10 +39,11 @@ export default function MidiDetector({ onNoteDetected, isListening }) {
 
         const handleMessage = (event) => {
           const [status, note, velocity] = event.data;
-
-          if (status === 144 && velocity > 0) {
+          // Cover note on messages across all 16 MIDI channels (144-159)
+          const isNoteOn = status >= 144 && status <= 159 && velocity > 0;
+          if (isNoteOn) {
             const noteName = midiNoteToName(note);
-            onNoteDetected(noteName, note, velocity);
+            onNoteDetectedRef.current(noteName, note, velocity);
           }
         };
 
@@ -65,7 +72,7 @@ export default function MidiDetector({ onNoteDetected, isListening }) {
         });
       }
     };
-  }, [isListening]);
+  }, [isListening]); // only re-attach when isListening changes
 
   return null;
 }
