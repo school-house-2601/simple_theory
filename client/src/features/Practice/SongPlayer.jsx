@@ -21,10 +21,18 @@ const MODES = [
   },
 ];
 
+// Maps ABC notation pitch values to MIDI note numbers
+const DRUM_MIDI_MAP = {
+  0: 36, // Kick drum
+  2: 38, // Snare drum
+  4: 46, // Hi-Hat
+  6: 49, // Crash
+  8: 51, // Ride
+};
+
 export default function SongPlayer({ song, instrument }) {
   const scoreRef = useRef(null);
   const visualObjRef = useRef(null);
-  const cursorRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [detectedNote, setDetectedNote] = useState(null);
@@ -35,6 +43,7 @@ export default function SongPlayer({ song, instrument }) {
   const [currentNoteIndex, setCurrentNoteIndex] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [songNotes, setSongNotes] = useState([]);
+  const lastAdvanceTimeRef = useRef(0);
 
   const accuracyScore =
     totalNotes > 0 ? Math.round((correctNotes / totalNotes) * 100) : 0;
@@ -63,16 +72,31 @@ export default function SongPlayer({ song, instrument }) {
 
     if (visualObj && visualObj[0]) {
       const notes = [];
+      const seenElements = new Set();
       const lines = visualObj[0].lines || [];
+
       lines.forEach((line) => {
         line.staff?.forEach((staff) => {
           staff.voices?.forEach((voice) => {
             voice.forEach((item) => {
               if (item.el_type === "note" && item.pitches) {
-                item.pitches.forEach((pitch) => {
-                  const noteName = pitchToNote(pitch);
-                  if (noteName) notes.push({ name: noteName, element: item });
-                });
+                if (instrument === "Drums") {
+                  // One entry per beat, store pitch for drum type matching
+                  if (!seenElements.has(item)) {
+                    seenElements.add(item);
+                    const firstPitch = item.pitches[0];
+                    notes.push({
+                      name: "Drum",
+                      pitch: firstPitch?.pitch,
+                      element: item,
+                    });
+                  }
+                } else {
+                  item.pitches.forEach((pitch) => {
+                    const noteName = pitchToNote(pitch);
+                    if (noteName) notes.push({ name: noteName, element: item });
+                  });
+                }
               }
             });
           });
@@ -80,7 +104,7 @@ export default function SongPlayer({ song, instrument }) {
       });
       setSongNotes(notes);
     }
-  }, [song, tempo]);
+  }, [song, tempo, instrument]);
 
   function pitchToNote(pitch) {
     const noteNames = ["C", "D", "E", "F", "G", "A", "B"];
@@ -105,35 +129,70 @@ export default function SongPlayer({ song, instrument }) {
     }
   }, [currentNoteIndex]);
 
-  const handleNoteDetected = (note) => {
-    setDetectedNote(note);
+  const handleNoteDetected = (noteName, midiNote) => {
+    const now = Date.now();
+    if (now - lastAdvanceTimeRef.current < 200) return;
+    lastAdvanceTimeRef.current = now;
+    setDetectedNote(noteName);
 
-    const expectedNote = songNotes[currentNoteIndex];
-    if (!expectedNote) return;
+    // Drums — check correct drum type using MIDI note number
+    if (instrument === "Drums") {
+      setCurrentNoteIndex((prevIndex) => {
+        const expectedNote = songNotes[prevIndex];
+        const expectedMidi = DRUM_MIDI_MAP[expectedNote?.pitch];
 
-    const detectedName = note
-      .replace(/[0-9]/g, "")
-      .replace("#", "")
-      .replace("b", "");
-    const expectedName = expectedNote.name
-      .replace(/[0-9]/g, "")
-      .replace("#", "")
-      .replace("b", "");
-    const isCorrect = detectedName === expectedName;
+        // If no mapping found, accept any hit
+        const isCorrect =
+          expectedMidi === undefined || expectedMidi === midiNote;
 
-    setTotalNotes((prev) => prev + 1);
-    if (isCorrect) setCorrectNotes((prev) => prev + 1);
+        setTotalNotes((prev) => prev + 1);
+        if (isCorrect) setCorrectNotes((prev) => prev + 1);
 
-    if (mode === "wait" && isCorrect) {
-      const next = currentNoteIndex + 1;
-      if (next >= songNotes.length) {
-        setIsPlaying(false);
-        setIsListening(false);
-        setShowResults(true);
-      } else {
-        setCurrentNoteIndex(next);
-      }
+        if (isCorrect) {
+          const next = prevIndex + 1;
+          if (next >= songNotes.length) {
+            setIsPlaying(false);
+            setIsListening(false);
+            setShowResults(true);
+            return prevIndex;
+          }
+          return next;
+        }
+        return prevIndex;
+      });
+      return;
     }
+
+    // All other instruments — match note names
+    setCurrentNoteIndex((prevIndex) => {
+      const expectedNote = songNotes[prevIndex];
+      if (!expectedNote) return prevIndex;
+
+      const detectedName = noteName
+        .replace(/[0-9]/g, "")
+        .replace("#", "")
+        .replace("b", "");
+      const expectedName = expectedNote.name
+        .replace(/[0-9]/g, "")
+        .replace("#", "")
+        .replace("b", "");
+      const isCorrect = detectedName === expectedName;
+
+      setTotalNotes((prev) => prev + 1);
+      if (isCorrect) setCorrectNotes((prev) => prev + 1);
+
+      if (mode === "wait" && isCorrect) {
+        const next = prevIndex + 1;
+        if (next >= songNotes.length) {
+          setIsPlaying(false);
+          setIsListening(false);
+          setShowResults(true);
+          return prevIndex;
+        }
+        return next;
+      }
+      return prevIndex;
+    });
   };
 
   const handleNextNote = () => {
@@ -269,6 +328,7 @@ export default function SongPlayer({ song, instrument }) {
           </button>
         )}
       </div>
+
       {mode === "wait" && (
         <SmartDetector
           isListening={isListening}

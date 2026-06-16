@@ -60,6 +60,7 @@ export default function SmartDetector({
         <MidiDetector
           isListening={isListening}
           onNoteDetected={onNoteDetected}
+          fireOnPress={instrument === "Drums"}
         />
       </>
     );

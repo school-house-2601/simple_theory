@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import MidiDetector from "../components/MidiDetector";
 import AccuracyMeter from "../components/AccuracyMeter";
 import ResultsModal from "../components/ResultsModal";
 
 const BEAT_PATTERN = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0];
 const THRESHOLD = 0.15;
 
-// Standard MIDI drum note numbers
 const DRUM_NOTES = {
   36: "Kick",
   38: "Snare",
@@ -28,17 +26,13 @@ export default function DrumDetector() {
   const audioContextRef = useRef(null);
   const streamRef = useRef(null);
   const animFrameRef = useRef(null);
+  const midiAccessRef = useRef(null);
+  const lastHitTimeRef = useRef({});
 
   const accuracyScore = hits > 0 ? Math.round((correctHits / hits) * 100) : 0;
 
-  // Handle both MIDI and microphone drum hits
-  const handleDrumHit = (noteOrName) => {
-    const hitName =
-      typeof noteOrName === "number"
-        ? DRUM_NOTES[noteOrName] || "Drum"
-        : noteOrName;
+  const handleDrumHit = (hitName) => {
     setLastHitName(hitName);
-
     setHits((prev) => {
       const beatIndex = prev % BEAT_PATTERN.length;
       if (BEAT_PATTERN[beatIndex] === 1) {
@@ -49,12 +43,59 @@ export default function DrumDetector() {
     });
   };
 
-  // MIDI note handler — passes MIDI note number to handleDrumHit
-  const handleMidiNote = (noteName, midiNote) => {
-    handleDrumHit(midiNote);
-  };
+  // ─── MIDI DETECTION ───────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!isListening) return;
 
-  // Microphone audio detection
+    const startMidi = async () => {
+      try {
+        const midi = await navigator.requestMIDIAccess();
+        midiAccessRef.current = midi;
+
+        const handleMessage = (event) => {
+          const [status, note, velocity] = event.data;
+          // Fire immediately on any note on across all channels
+          const isNoteOn = status >= 144 && status <= 159 && velocity > 0;
+
+          if (isNoteOn) {
+            const now = Date.now();
+            const lastTime = lastHitTimeRef.current[note] || 0;
+            if (now - lastTime < 50) return; // 50ms debounce
+            lastHitTimeRef.current[note] = now;
+
+            const hitName = DRUM_NOTES[note] || `Drum ${note}`;
+            handleDrumHit(hitName);
+          }
+        };
+
+        midi.inputs.forEach((input) => {
+          input.onmidimessage = handleMessage;
+        });
+
+        midi.onstatechange = () => {
+          midi.inputs.forEach((input) => {
+            input.onmidimessage = handleMessage;
+          });
+        };
+
+        console.log("Drum MIDI connected:", midi.inputs.size, "device(s)");
+      } catch (err) {
+        console.log("MIDI not available:", err);
+      }
+    };
+
+    startMidi();
+
+    return () => {
+      if (midiAccessRef.current) {
+        midiAccessRef.current.inputs.forEach((input) => {
+          input.onmidimessage = null;
+        });
+      }
+    };
+  }, [isListening]);
+
+  // ─── MICROPHONE DETECTION ─────────────────────────────────────────────────
   useEffect(() => {
     if (!isListening) {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
@@ -172,9 +213,6 @@ export default function DrumDetector() {
           </button>
         )}
       </div>
-
-      {/* MIDI drum kit detection */}
-      <MidiDetector isListening={isListening} onNoteDetected={handleMidiNote} />
 
       {showResults && (
         <ResultsModal
