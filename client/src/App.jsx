@@ -16,7 +16,7 @@ import DashboardPage from "./features/Dashboard/DashboardPage.jsx";
 import ProtectedRoute from "./shared/components/ProtectedRoute.jsx";
 import { AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
-import PageTransition from "./shared/PageTransition.jsx";
+import PageTransition from "./shared/components/PageTransition.jsx";
 
 export default function App() {
   const location = useLocation();

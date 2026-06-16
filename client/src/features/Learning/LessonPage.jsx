@@ -1,8 +1,12 @@
 import { useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import YouTube from "react-youtube";
 import { useAuth } from "../Auth/AuthContext";
-import { curriculumData, resourceData } from "../../data/lessonData";
+import {
+  curriculumData,
+  noviceLessonsByInstrument,
+  resourceData,
+} from "../../data/lessonData";
 import "./LessonPage.css";
 
 export default function LessonsPage() {
@@ -11,6 +15,7 @@ export default function LessonsPage() {
   const [activeVideo, setActiveVideo] = useState(null);
   const [activeScoreId, setActiveScoreId] = useState(null);
   const [flatUserData, setFlatUserData] = useState(null);
+  const progressIntervalRef = useRef(null);
 
   useEffect(() => {
     if (token) {
@@ -21,11 +26,19 @@ export default function LessonsPage() {
         })
         .then((data) => {
           setFlatUserData(data);
-          console.log("Flat.io User connected:", data);
         })
         .catch((err) => console.error(err));
     }
   }, [token]);
+
+  useEffect(() => {
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   const awardLessonXP = async (lessonId, xpAmount) => {
     if (!user) return;
@@ -59,15 +72,17 @@ export default function LessonsPage() {
     const player = event.target;
 
     if (event.data === 1) {
-      console.log(`Video started for: ${lessonId}`);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
 
-      const interval = setInterval(() => {
+      progressIntervalRef.current = setInterval(() => {
         const currentTime = player.getCurrentTime();
         const duration = player.getDuration();
 
         if (duration > 0) {
           const percent = Math.round((currentTime / duration) * 100);
-          console.log(`Current Progress: ${percent}%`);
 
           setProgressData((prev) => {
             const currentVal = prev[lessonId] || 0;
@@ -87,12 +102,10 @@ export default function LessonsPage() {
           });
         }
       }, 2000);
-
-      player.progressInterval = interval;
     } else {
-      if (player.progressInterval) {
-        clearInterval(player.progressInterval);
-        console.log("Video paused/stopped, tracking halted.");
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
       }
     }
   };
@@ -101,8 +114,21 @@ export default function LessonsPage() {
     setActiveVideo(lesson);
   };
 
+  const handleCloseVideo = () => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+    setActiveVideo(null);
+  };
+
   const currentPath = location.state?.selectedPath || "Novice";
-  const lessons = curriculumData[currentPath] || [];
+  const primaryInstrument = user?.interests?.[0];
+  const lessons =
+    currentPath === "Novice"
+      ? noviceLessonsByInstrument[primaryInstrument] ||
+        noviceLessonsByInstrument["Bass"]
+      : curriculumData[currentPath] || [];
   const resources = resourceData[currentPath] || [];
 
   return (
@@ -110,8 +136,11 @@ export default function LessonsPage() {
       {/* LEFT: CURRICULUM */}
       <section className="curriculum-column">
         <div className="section-header">
-          <h2>{currentPath} Curriculum</h2>
-          <p>{currentPath === "Intermediate"}</p>
+          <h2>
+            {currentPath === "Novice" && primaryInstrument
+              ? `${primaryInstrument} — Novice Curriculum`
+              : `${currentPath} Curriculum`}
+          </h2>
         </div>
 
         <div className="lesson-list">
@@ -128,7 +157,6 @@ export default function LessonsPage() {
                     src={`https://img.youtube.com/vi/${lesson.youtubeId}/mqdefault.jpg`}
                     alt={lesson.title}
                     onError={(e) => {
-                      console.log(`Failed to load ID: ${lesson.youtubeId}`);
                       e.target.src = "https://placeholder.com";
                     }}
                   />
@@ -238,7 +266,6 @@ export default function LessonsPage() {
                       );
                       return;
                     }
-
                     if (currentPath === "Novice") {
                       setActiveScoreId(item.link);
                     } else {
@@ -264,18 +291,12 @@ export default function LessonsPage() {
 
       {/* VIDEO MODAL */}
       {activeVideo && (
-        <div
-          className="video-modal-overlay"
-          onClick={() => setActiveVideo(null)}
-        >
+        <div className="video-modal-overlay" onClick={() => handleCloseVideo()}>
           <div
             className="video-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              className="close-button"
-              onClick={() => setActiveVideo(null)}
-            >
+            <button className="close-button" onClick={() => handleCloseVideo()}>
               ×
             </button>
             <YouTube

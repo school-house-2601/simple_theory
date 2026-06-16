@@ -13,6 +13,7 @@
   "dependencies": {
     "abcjs": "^6.6.3",
     "aubiojs": "^0.2.1",
+    "framer-motion": "^12.40.0",
     "lucide-react": "^1.14.0",
     "opensheetmusicdisplay": "^1.9.9",
     "react": "^19.0.0",
