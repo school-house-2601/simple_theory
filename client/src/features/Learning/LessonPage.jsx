@@ -47,7 +47,10 @@ export default function LessonsPage() {
         `${import.meta.env.VITE_API_URL}/progress/video-complete`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify({
             userId: user.id,
             videoId: lessonId,
@@ -57,7 +60,9 @@ export default function LessonsPage() {
         }
       );
       const data = await res.json();
-      console.log("Lesson XP awarded", data);
+      if (data.leveledUp) {
+        await fetchUser();
+      }
     } catch (err) {
       console.error("Failed to award lesson XP", err);
     }
@@ -122,7 +127,8 @@ export default function LessonsPage() {
     setActiveVideo(null);
   };
 
-  const currentPath = location.state?.selectedPath || "Novice";
+  const currentPath =
+    user?.current_level || location.state?.selectedPath || "Novice";
   const primaryInstrument = user?.interests?.[0];
   const lessons =
     currentPath === "Novice"
@@ -206,7 +212,7 @@ export default function LessonsPage() {
       {/* RIGHT: DYNAMIC RESOURCE PANEL */}
       <section className="resources-column">
         <div className="section-header">
-          <h2>{currentPath === "Intermediate" ? "Resourses" : "Resources"}</h2>
+          <h2>Resources</h2>
         </div>
 
         <div className="resources-grid">

@@ -181,4 +181,28 @@ router.patch("/me/password", requireUser, async (req, res, next) => {
   }
 });
 
+router.delete("/reset", requireUser, async (req, res, next) => {
+  try {
+    await db.query(
+      `UPDATE users
+      SET selected_path = 'Novice', current_level = 'Novice',
+        total_xp = 0, current_streak = 0
+      WHERE id = $1`,
+      [req.user.id]
+    );
+
+    await db.query(`DELETE FROM daily_goals WHERE user_id = $1`, [req.user.id]);
+    await db.query(`DELETE FROM play_sessions WHERE user_id = $1`, [
+      req.user.id,
+    ]);
+    await db.query(`DELETE FROM user_progress WHERE user_id = $1`, [
+      req.user.id,
+    ]);
+
+    res.json({ success: true, message: "All data reset to Novice" });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
