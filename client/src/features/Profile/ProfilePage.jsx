@@ -29,6 +29,10 @@ export default function ProfilePage() {
   const [passwordStatus, setPasswordStatus] = useState(null);
 
   useEffect(() => {
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
     if (user) {
       setFormData({
         firstname: user.firstname || "",

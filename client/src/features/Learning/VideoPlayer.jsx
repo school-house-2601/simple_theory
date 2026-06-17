@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth/AuthContext";
 
 export default function BrowsePage() {
-  const { user } = useAuth();
+  const { user, token, fetchUser } = useAuth();
   const [searchResults, setSearchResults] = useState([]);
   const [flatResults, setFlatResults] = useState([]);
   const [selectedVideoId, setSelectedVideoId] = useState(null);
@@ -70,7 +70,10 @@ export default function BrowsePage() {
         `${import.meta.env.VITE_API_URL}/progress/video-complete`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify({
             userId: user.id,
             videoId: videoId,
@@ -80,7 +83,9 @@ export default function BrowsePage() {
         }
       );
       const data = await res.json();
-      console.log("XP response:", data);
+      if (data.leveledUp) {
+        await fetchUser();
+      }
     } catch (err) {
       console.error("Failed to award XP", err);
     }
@@ -238,7 +243,7 @@ export default function BrowsePage() {
                       <VideoCard
                         key={video.id.videoId}
                         video={video}
-                        onSelect={setSelectedVideoId}
+                        onSelect={handleVideoSelect}
                         onSave={toggleSaveVideo}
                         isSaved={savedVideos.some(
                           (v) => v.id.videoId === video.id.videoId

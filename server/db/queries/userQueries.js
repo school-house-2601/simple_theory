@@ -29,7 +29,7 @@ export async function createUser({
       interests,
       selected_path,
       current_level,
-    ],
+    ]
   );
   return user;
 }
@@ -40,7 +40,7 @@ export async function getUserById(id) {
     rows: [user],
   } = await db.query(
     "SELECT id, username, email, firstname, lastname, interests, selected_path, current_level, total_xp, current_streak, created_at FROM users WHERE id = $1",
-    [id],
+    [id]
   );
   return user;
 }
@@ -59,19 +59,32 @@ export async function updateUserXP(userId, xpAmount) {
     rows: [user],
   } = await db.query(
     "UPDATE users SET total_xp = total_xp + $1 WHERE id = $2 RETURNING total_xp",
-    [xpAmount, userId],
+    [xpAmount, userId]
   );
   return user;
 }
 
 /** Updates the user's selected learning path (Novice/Intermediate/Professional) */
 export async function updateSelectedPath(userId, path) {
+  const XP_START = {
+    Novice: 0,
+    Intermediate: 3000,
+    Professional: 8000,
+  };
+
+  const startXp = XP_START[path] ?? 0;
+
   const {
     rows: [user],
   } = await db.query(
-    "UPDATE users SET selected_path = $1 WHERE id = $2 RETURNING selected_path",
-    [path, userId],
+    `UPDATE users SET selected_path = $1, current_level = $1, total_xp = $2
+    WHERE id = $3 
+    RETURNING selected_path, current_level, total_xp`,
+    [path, startXp, userId]
   );
+
+  await db.query(`DELETE FROM daily_goals WHERE user_id = $1`, [userId]);
+
   return user;
 }
 
@@ -81,7 +94,7 @@ export async function getBookmarkedContent(userId) {
     `SELECT c.* FROM content c
      JOIN bookmarks b ON c.id = b.content_id
      WHERE b.user_id = $1`,
-    [userId],
+    [userId]
   );
   return rows;
 }
@@ -91,21 +104,21 @@ export async function toggleBookmark(userId, contentId) {
   // Check if bookmark already exists
   const { rowCount } = await db.query(
     "SELECT 1 FROM bookmarks WHERE user_id = $1 AND content_id = $2",
-    [userId, contentId],
+    [userId, contentId]
   );
 
   if (rowCount > 0) {
     // If it exists, delete it
     await db.query(
       "DELETE FROM bookmarks WHERE user_id = $1 AND content_id = $2",
-      [userId, contentId],
+      [userId, contentId]
     );
     return { bookmarked: false };
   } else {
     // If it doesn't exist, create it
     await db.query(
       "INSERT INTO bookmarks (user_id, content_id) VALUES ($1, $2)",
-      [userId, contentId],
+      [userId, contentId]
     );
     return { bookmarked: true };
   }
@@ -119,7 +132,7 @@ export async function recordPlaySession(userId, contentId, accuracy, xp) {
     `INSERT INTO play_sessions (user_id, content_id, accuracy_score, xp_earned)
      VALUES ($1, $2, $3, $4)
      RETURNING *`,
-    [userId, contentId, accuracy, xp],
+    [userId, contentId, accuracy, xp]
   );
   return session;
 }
@@ -142,7 +155,7 @@ export async function getUserStats(userId) {
     LEFT JOIN play_sessions ps ON ps.user_id = u.id
     WHERE u.id = $1
     GROUP BY u.username, u.selected_path, u.current_level, u.total_xp, u.current_streak`,
-    [userId],
+    [userId]
   );
   return stats;
 }
@@ -154,7 +167,7 @@ export async function getUserBookmarks(userId) {
     JOIN content c ON c.id = b.content_id
     WHERE b.user_id = $1
     ORDER BY b.saved_at DESC`,
-    [userId],
+    [userId]
   );
   return rows;
 }
@@ -173,7 +186,7 @@ export async function getUserProgress(userId) {
     WHERE up.user_id = $1
     ORDER BY up.completed_at DESC
     LIMIT 10`,
-    [userId],
+    [userId]
   );
   return rows;
 }
@@ -188,7 +201,7 @@ export async function getUserXPHistory(userId) {
     AND played_at >= NOW() - INTERVAL '7 days'
     GROUP BY TO_CHAR(played_at, 'Dy'), DATE(played_at)
     ORDER BY DATE(played_at) ASC`,
-    [userId],
+    [userId]
   );
   return rows;
 }
@@ -206,7 +219,7 @@ export async function updateLoginStreak(userId) {
     last_login = NOW()
     WHERE id = $1
     RETURNING current_streak`,
-    [userId],
+    [userId]
   );
   return user;
 }
@@ -221,7 +234,7 @@ export async function getUserSkillDistribution(userId) {
     WHERE user_id = $1
     AND skill_category IS NOT NULL
     GROUP BY skill_category`,
-    [userId],
+    [userId]
   );
   return rows;
 }
@@ -230,7 +243,7 @@ export async function getDailyGoals(userId) {
   const { rows: existing } = await db.query(
     `SELECT * FROM daily_goals
     WHERE user_id = $1 AND date = CURRENT_DATE`,
-    [userId],
+    [userId]
   );
 
   if (existing.length > 0) return existing;
@@ -246,7 +259,7 @@ export async function getDailyGoals(userId) {
     GROUP BY skill_category
     ORDER BY total_xp ASC
     LIMIT 1`,
-    [userId],
+    [userId]
   );
 
   const weakestSkill = skills[0]?.skill_category || "Theory";
@@ -280,10 +293,10 @@ export async function getDailyGoals(userId) {
         (user_id, goal_type, goal_label, target, bonus_xp)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING *`,
-          [userId, goal.goal_type, goal.goal_label, goal.target, goal.bonus_xp],
+          [userId, goal.goal_type, goal.goal_label, goal.target, goal.bonus_xp]
         )
-        .then((r) => r.rows[0]),
-    ),
+        .then((r) => r.rows[0])
+    )
   );
 
   return inserted;
@@ -295,7 +308,7 @@ export async function updateDailyGoals(userId, xpEarned, skillCategory) {
   const { rows: goals } = await db.query(
     `SELECT * FROM daily_goals
     WHERE user_id = $1 AND date = CURRENT_DATE AND completed = FALSE`,
-    [userId],
+    [userId]
   );
 
   console.log("Goals found:", goals);
@@ -320,13 +333,13 @@ export async function updateDailyGoals(userId, xpEarned, skillCategory) {
       `UPDATE daily_goals
       SET current = $1, completed = $2
       WHERE id = $3`,
-      [newCurrent, completed, goal.id],
+      [newCurrent, completed, goal.id]
     );
 
     if (completed) {
       await db.query(
         `UPDATE users SET total_xp = total_xp + $1 WHERE id = $2`,
-        [goal.bonus_xp, userId],
+        [goal.bonus_xp, userId]
       );
     }
   }

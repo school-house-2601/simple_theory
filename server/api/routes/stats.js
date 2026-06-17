@@ -11,7 +11,7 @@ const router = Router();
 
 const XP_THRESHOLDS = {
   Novice: 3000,
-  Intermediate: 5000,
+  Intermediate: 8000,
   Professional: Infinity,
 };
 
@@ -43,7 +43,7 @@ router.get("/recommendations", requireUser, async (req, res) => {
       rows: [user],
     } = await db.query(
       `SELECT selected_path, current_level, interests FROM users WHERE id = $1`,
-      [userId],
+      [userId]
     );
 
     const { rows: skills } = await db.query(
@@ -52,19 +52,19 @@ router.get("/recommendations", requireUser, async (req, res) => {
             WHERE user_id = $1 AND skill_category IS NOT NULL
             GROUP BY skill_category
             ORDER BY sessions DESC`,
-      [userId],
+      [userId]
     );
 
     const level = user.current_level;
     const userInterests = user.interests || [];
     const dominantSkill = skills.find((s) => Number(s.sessions) >= 5);
     const interestSkills = skills.filter((s) =>
-      userInterests.includes(s.skill_category),
+      userInterests.includes(s.skill_category)
     );
     const weakestInterest =
       interestSkills.length > 0
         ? interestSkills.reduce((a, b) =>
-            Number(a.total_xp) < Number(b.total_xp) ? a : b,
+            Number(a.total_xp) < Number(b.total_xp) ? a : b
           )
         : null;
 

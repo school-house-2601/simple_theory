@@ -7,7 +7,7 @@ export async function completeContent(userId, contentId) {
         VALUES ($1, $2)
         ON CONFLICT (user_id, content_id) DO NOTHING
         RETURNING *;`,
-    [userId, contentId],
+    [userId, contentId]
   );
 
   if (progressResult.rowCount === 0) {
@@ -29,7 +29,7 @@ export async function completeContent(userId, contentId) {
         SET total_xp = total_xp + $1
         WHERE id = $2
         RETURNING *;`,
-    [content.xp_reward, userId],
+    [content.xp_reward, userId]
   );
 
   const newLevel = calculateLevel(user.total_xp);
@@ -42,7 +42,7 @@ export async function completeContent(userId, contentId) {
             SET current_level = $1
             WHERE id = $2
             RETURNING *;`,
-      [newLevel, userId],
+      [newLevel, userId]
     );
 
     return { user: updatedUser, leveledUp: true };
@@ -55,20 +55,20 @@ export async function completeVideoWatch(
   userId,
   videoId,
   xpEarned,
-  skillCategory,
+  skillCategory
 ) {
   console.log(
     "completeVideoWatch called:",
     userId,
     videoId,
     xpEarned,
-    skillCategory,
+    skillCategory
   );
 
   await db.query(
     `INSERT INTO play_sessions (user_id, xp_earned, skill_category)
     VALUES ($1, $2, $3)`,
-    [userId, xpEarned, skillCategory],
+    [userId, xpEarned, skillCategory]
   );
 
   const {
@@ -78,7 +78,7 @@ export async function completeVideoWatch(
     SET total_xp = total_xp + $1
     WHERE id = $2
     RETURNING *`,
-    [xpEarned, userId],
+    [xpEarned, userId]
   );
 
   await updateDailyGoals(userId, xpEarned, skillCategory);
@@ -96,7 +96,7 @@ export async function completeVideoWatch(
 }
 
 function calculateLevel(xp) {
-  if (xp >= 5000) return "Professional";
+  if (xp >= 8000) return "Professional";
   if (xp >= 3000) return "Intermediate";
   return "Novice";
 }

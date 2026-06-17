@@ -15,11 +15,12 @@ export default function Footer() {
           Master your instrument with data-driven theory and interactive
           practice.
         </p>
+        <p>© 2026 Simple Theory</p>
       </div>
 
       <div className="footer-column">
         <h3>Learning</h3>
-        <NavLink to="/selection">Courses</NavLink>
+        <NavLink to="/lessons">Courses</NavLink>
         <NavLink to="/browse">Browse Videos</NavLink>
         <NavLink to="/practice">Practice</NavLink>
       </div>
