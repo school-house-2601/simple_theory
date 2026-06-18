@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import NoteDetector from "../components/NoteDetector";
 import MidiDetector from "../components/MidiDetector";
 import AccuracyMeter from "../components/AccuracyMeter";
@@ -13,9 +13,26 @@ export default function GuitarDetector() {
   const [correctNotes, setCorrectNotes] = useState(0);
   const [totalNotes, setTotalNotes] = useState(0);
   const [showResults, setShowResults] = useState(false);
+  const [midiConnected, setMidiConnected] = useState(false);
 
   const accuracyScore =
     totalNotes > 0 ? Math.round((correctNotes / totalNotes) * 100) : 0;
+
+  useEffect(() => {
+    const checkMidi = async () => {
+      try {
+        const midi = await navigator.requestMIDIAccess();
+        const updateStatus = () => {
+          setMidiConnected(midi.inputs.size > 0);
+        };
+        updateStatus();
+        midi.onstatechange = updateStatus;
+      } catch {
+        setMidiConnected(false);
+      }
+    };
+    checkMidi();
+  }, []);
 
   const handleNoteDetected = useCallback((note) => {
     setDetectedNote(note);
@@ -94,6 +111,18 @@ export default function GuitarDetector() {
         Detected: <strong>{detectedNote || "-"}</strong>
       </p>
 
+      <p
+        style={{
+          fontSize: "12px",
+          color: midiConnected ? "#4caf7d" : "#aaa",
+          marginBottom: "8px",
+        }}
+      >
+        {midiConnected
+          ? "🎛️ MIDI Connected — using MIDI input"
+          : "🎤 No MIDI detected — using microphone"}
+      </p>
+
       <AccuracyMeter accuracy={accuracyScore} />
 
       <div style={{ display: "flex", gap: "12px", marginTop: "16px" }}>
@@ -108,17 +137,17 @@ export default function GuitarDetector() {
         )}
       </div>
 
-      {/* Microphone pitch detection */}
+      {/* Mic always runs when listening — MIDI wired up for when routing is fixed */}
       <NoteDetector
         isListening={isListening}
         onNoteDetected={handleNoteDetected}
         instrument="Guitar"
       />
 
-      {/* MIDI keyboard detection */}
       <MidiDetector
-        isListening={isListening}
+        isListening={isListening && midiConnected}
         onNoteDetected={handleNoteDetected}
+        holdMs={50}
       />
 
       {showResults && (

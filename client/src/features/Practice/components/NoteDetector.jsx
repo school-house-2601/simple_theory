@@ -43,7 +43,6 @@ export default function NoteDetector({
   const pitchDetectorRef = useRef(null);
   const onNoteDetectedRef = useRef(onNoteDetected);
 
-  // Always keep ref current without triggering re-attachment
   useEffect(() => {
     onNoteDetectedRef.current = onNoteDetected;
   }, [onNoteDetected]);
@@ -113,7 +112,7 @@ export default function NoteDetector({
           }
           rms = Math.sqrt(rms / buffer.length);
 
-          if (rms > 0.03) {
+          if (rms > 0.01) {
             const frequencyRaw = pitchDetector.do(buffer);
 
             if (frequencyRaw > 0) {
