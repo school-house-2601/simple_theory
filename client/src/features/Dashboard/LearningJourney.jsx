@@ -30,6 +30,7 @@ export default function LearningJourney() {
       .then((res) => res.json())
       .then((data) => setJourney(data))
       .catch(() => setJourney([]));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   if (journey.length === 0) return null;

@@ -3,25 +3,6 @@
   min-height: 100vh;
 }
 
-.browse-sidebar {
-  width: 250px;
-  background: #1c1f26;
-  padding: 20px;
-  border-right: 1px solid #2d333d;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  min-width: 250px;
-}
-
-.video-carousel {
-  display: flex;
-  overflow-x: auto;
-  gap: 20px;
-  padding-bottom: 20px;
-  align-items: flex-start;
-}
-
 .video-card {
   width: 100%;
   flex-shrink: 0;
@@ -79,12 +60,6 @@
   color: #9ca3af;
 }
 
-.video-card-link {
-  text-decoration: none;
-  color: inherit;
-  display: block;
-}
-
 .video-modal-overlay {
   position: fixed;
   top: 0;
@@ -136,12 +111,6 @@
   &:hover {
     filter: invert();
   }
-}
-
-.active-tab {
-  background: #4f46e5 !important;
-  font-weight: bold;
-  color: black !important;
 }
 
 .category-pills {

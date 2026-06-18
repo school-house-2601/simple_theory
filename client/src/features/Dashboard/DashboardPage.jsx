@@ -29,6 +29,7 @@ export default function DashboardPage() {
     })
       .then((res) => res.json())
       .then((data) => setStats(data));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   return (
@@ -38,7 +39,7 @@ export default function DashboardPage() {
           <div>
             <h1>Your Progress</h1>
             <p>
-              Keep up the great work! You're in the top 5% of learners this
+              Keep up the great work! You&apos;re in the top 5% of learners this
               week.
             </p>
           </div>

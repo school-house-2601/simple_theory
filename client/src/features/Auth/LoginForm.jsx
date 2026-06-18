@@ -100,7 +100,8 @@ export default function Login() {
         </form>
 
         <p className="footer-text">
-          Don't have an account? <Link to="/register">Create an account</Link>
+          Don&apos;t have an account?{" "}
+          <Link to="/register">Create an account</Link>
         </p>
       </div>
     </div>

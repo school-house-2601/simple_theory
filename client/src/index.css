@@ -52,23 +52,6 @@ main {
   min-height: 100vh;
 }
 
-.app-container {
-  width: 100% !important;
-  max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-  box-shadow: none !important;
-  background-color: #0d0d0f;
-}
-
-@media (min-width: 768px) {
-  .app-container {
-    max-width: 1400px;
-    padding: 20px 40px;
-  }
-}
-
 /* ── GLOBAL LIGHT MODE ── */
 body.light-mode {
   --bg-dark: #f4f6fb;

@@ -46,16 +46,6 @@
   margin: 24px 0;
 }
 
-.social-btn {
-  background: #2d333d;
-  border: 1px solid #3f444e;
-  color: white;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
 .divider {
   display: flex;
   align-items: center;

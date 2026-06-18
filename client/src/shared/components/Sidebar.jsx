@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   BookOpen,
   Bookmark,
-  Trophy,
   Music,
   Settings,
   LogOut,
@@ -67,6 +66,7 @@ export default function Sidebar() {
             <NavLink
               key={item.label}
               to={item.path}
+              onClick={handleSidebarClose}
               className={({ isActive }) =>
                 `sidebar-link ${isActive ? "active" : ""}`
               }
@@ -81,6 +81,7 @@ export default function Sidebar() {
             className={`sidebar-link ${isSavedActive ? "active" : ""}`}
             onClick={() => {
               navigate(`/browse?tab=saved&t=${Date.now()}`);
+              handleSidebarClose();
             }}
           >
             <Bookmark size={18} />
@@ -88,11 +89,21 @@ export default function Sidebar() {
           </button>
         </nav>
         <div className="sidebar-bottom">
-          <NavLink to="/settings" className="sidebar-link">
+          <NavLink
+            to="/settings"
+            className="sidebar-link"
+            onClick={handleSidebarClose}
+          >
             <Settings size={18} />
             <span className="sidebar-label">Settings</span>
           </NavLink>
-          <button className="logout-btn" onClick={logout}>
+          <button
+            className="logout-btn"
+            onClick={() => {
+              handleSidebarClose();
+              logout();
+            }}
+          >
             <LogOut size={18} />
             <span className="sidebar-label">Log Out</span>
           </button>

@@ -12,16 +12,6 @@
   box-sizing: border-box;
 }
 
-.step-label {
-  background-color: #1a1a2e;
-  border: 1px solid #3b3b6b;
-  color: #a0a0c0;
-  font-size: 0.75rem;
-  padding: 4px 14px;
-  border-radius: 20px;
-  margin-bottom: 24px;
-}
-
 .selection-page h1 {
   font-size: 3rem;
   font-weight: 800;

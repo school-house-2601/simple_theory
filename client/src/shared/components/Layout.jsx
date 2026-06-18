@@ -30,6 +30,7 @@ export default function Layout() {
     if (!user && !PUBLIC_ROUTES.includes(location.pathname)) {
       navigate("/login");
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, location.pathname]);
 
   return (

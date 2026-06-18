@@ -1,11 +1,6 @@
 import { useState } from "react";
-import { useAuth } from "../Auth/AuthContext";
 import SongBrowser from "./SongBrowser";
 import SongPlayer from "./SongPlayer";
-import PianoDetector from "./instruments/PianoDetector";
-import GuitarDetector from "./instruments/GuitarDetector";
-import VocalDetector from "./instruments/VocalDetector";
-import DrumDetector from "./instruments/DrumDetector";
 import ProductionQuiz from "./instruments/ProductionQuiz";
 import "./PracticePage.css";
 
@@ -18,7 +13,6 @@ const INSTRUMENTS = [
 ];
 
 export default function PracticePage() {
-  const { user } = useAuth();
   const [selectedInstrument, setSelectedInstrument] = useState(null);
   const [selectedSong, setSelectedSong] = useState(null);
 
@@ -35,8 +29,8 @@ export default function PracticePage() {
       <div className="practice-header">
         <h1>Practice Room</h1>
         <p>
-          Select your instrument and start playing. We'll listen and score you
-          in real time.
+          Select your instrument and start playing. We&apos;ll listen and score
+          you in real time.
         </p>
       </div>
 

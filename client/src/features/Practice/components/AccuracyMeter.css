@@ -1,34 +1,34 @@
 .accuracy-meter {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
 }
 
 .accuracy-label {
-    font-size: 0.85rem;
-    color: #a0a0c0;
-    width: 70px;
-    flex-shrink: 0;
+  font-size: 0.85rem;
+  color: #a0a0c0;
+  width: 70px;
+  flex-shrink: 0;
 }
 
 .accuracy-bar-bg {
-    flex: 1;
-    height: 8px;
-    background-color: #1e1e3a;
-    border-radius: 99px;
-    overflow: hidden;
+  flex: 1;
+  height: 8px;
+  background-color: #1e1e3a;
+  border-radius: 99px;
+  overflow: hidden;
 }
 
 .accuracy-bar-fill {
-    height: 100%;
-    border-radius: 99px;
+  height: 100%;
+  border-radius: 99px;
 }
 
 .accuracy-value {
-    font-size: 1rem;
-    font-weight: 700;
-    width: 45px;
-    text-align: right;
-    flex-shrink: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  width: 45px;
+  text-align: right;
+  flex-shrink: 0;
 }

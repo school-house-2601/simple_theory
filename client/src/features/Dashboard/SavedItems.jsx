@@ -1,21 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./SavedItems.css";
 
 export default function SavedItems() {
-    const [saved, setSaved] = useState([]);
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        try {    
+    const [saved] = useState(() => {
+        try {
             const savedLessons = localStorage.getItem("savedLessons");
-            if (savedLessons) {
-                setSaved(JSON.parse(savedLessons).slice(0, 3));
-            }
+            return savedLessons ? JSON.parse(savedLessons).slice(0, 3) : [];
         } catch {
-            setSaved([]);
+            return [];
         }
-    }, []);
+    });
+    const navigate = useNavigate();
 
     const goToSaved = () => {
         navigate("/browse?tab=saved");

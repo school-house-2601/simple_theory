@@ -32,6 +32,7 @@ export default function XPChart() {
         setData(merged);
       })
       .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   return (

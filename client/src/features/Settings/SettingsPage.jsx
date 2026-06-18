@@ -1,4 +1,4 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../Auth/AuthContext";
 import "./SettingsPage.css";
 
@@ -23,6 +23,7 @@ export default function SettingsPage() {
   useEffect(() => {
     if (user && !saved) {
       // don't reset if just saved
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPath(user.selected_path || "Novice");
       if (user.interests && user.interests[0]) {
         setInstrument(user.interests[0]);
@@ -31,6 +32,7 @@ export default function SettingsPage() {
         setAlsoPlays(user.interests.slice(1));
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const toggleAlsoPlays = (item) => {
@@ -68,6 +70,7 @@ export default function SettingsPage() {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(error);
     }
   };
@@ -86,6 +89,7 @@ export default function SettingsPage() {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(error);
     } finally {
       setResetting(false);

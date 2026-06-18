@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import "./VideoPlayer.css";
 import { MOCK_VIDEOS } from "../../data/mockData";
@@ -45,6 +45,7 @@ export default function BrowsePage() {
   useEffect(() => {
     const key = user?.id ? `savedLessons_${user.id}` : "savedLessons_guest";
     const saved = localStorage.getItem(key);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSavedVideos(saved ? JSON.parse(saved) : []);
   }, [user?.id]);
 
@@ -86,9 +87,7 @@ export default function BrowsePage() {
       if (data.leveledUp) {
         await fetchUser();
       }
-    } catch (err) {
-      console.error("Failed to award XP", err);
-    }
+    } catch { /* XP award failed silently */ }
   };
 
   const handleVideoSelect = (videoId) => {
@@ -109,73 +108,77 @@ export default function BrowsePage() {
     setSelectedVideoId(null);
   };
 
+  const handleSearch = useCallback(
+    async (query) => {
+      if (searchCache[query]) {
+        setSearchResults(searchCache[query]);
+      } else {
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_API_URL}/lessons/youtube-search?query=${query}`
+          );
+          if (!res.ok) throw new Error(`YouTube API Error: ${res.status}`);
+          const data = await res.json();
+          if (data.items && data.items.length > 0) {
+            const newCache = { ...searchCache, [query]: data.items };
+            setSearchCache(newCache);
+            localStorage.setItem("youtube_cache", JSON.stringify(newCache));
+            setSearchResults(data.items);
+          } else {
+            setSearchResults(MOCK_VIDEOS);
+          }
+        } catch {
+          setSearchResults(MOCK_VIDEOS);
+        }
+      }
+
+      if (flatCache[query]) {
+        setFlatResults(flatCache[query]);
+      } else {
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_API_URL}/lessons/flat-search?query=${query}`
+          );
+          if (!res.ok) throw new Error(`Flat.io API Error: ${res.status}`);
+          const data = await res.json();
+          const sheets = Array.isArray(data) ? data : data.results || [];
+          const newFlatCache = { ...flatCache, [query]: sheets };
+          setFlatCache(newFlatCache);
+          localStorage.setItem("flat_io_cache", JSON.stringify(newFlatCache));
+          setFlatResults(sheets);
+        } catch {
+          setFlatResults([]);
+        }
+      }
+    },
+    [searchCache, flatCache]
+  );
+
   useEffect(() => {
     const tab = searchParams.get("tab");
     if (tab === "saved") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentTab("saved");
       setActiveInstrument(null);
     }
-  }, [searchParams.get("tab"), searchParams.get("t")]);
+  }, [searchParams]);
 
   useEffect(() => {
     if (queryFromUrl) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentTab("other");
       setActiveInstrument(null);
       handleSearch(queryFromUrl);
     }
-  }, [queryFromUrl]);
+  }, [queryFromUrl, handleSearch]);
 
   useEffect(() => {
     if (!queryFromUrl && !activeInstrument) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveInstrument("Theory");
       handleSearch("Music Theory for Beginners");
     }
-  }, [queryFromUrl, activeInstrument]);
-
-  const handleSearch = async (query) => {
-    if (searchCache[query]) {
-      setSearchResults(searchCache[query]);
-    } else {
-      try {
-        const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/lessons/youtube-search?query=${query}`
-        );
-        if (!res.ok) throw new Error(`YouTube API Error: ${res.status}`);
-        const data = await res.json();
-        if (data.items && data.items.length > 0) {
-          const newCache = { ...searchCache, [query]: data.items };
-          setSearchCache(newCache);
-          localStorage.setItem("youtube_cache", JSON.stringify(newCache));
-          setSearchResults(data.items);
-        } else {
-          setSearchResults(MOCK_VIDEOS);
-        }
-      } catch (err) {
-        console.error("YouTube Error. Using mock data.", err);
-        setSearchResults(MOCK_VIDEOS);
-      }
-    }
-
-    if (flatCache[query]) {
-      setFlatResults(flatCache[query]);
-    } else {
-      try {
-        const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/lessons/flat-search?query=${query}`
-        );
-        if (!res.ok) throw new Error(`Flat.io API Error: ${res.status}`);
-        const data = await res.json();
-        const sheets = Array.isArray(data) ? data : data.results || [];
-        const newFlatCache = { ...flatCache, [query]: sheets };
-        setFlatCache(newFlatCache);
-        localStorage.setItem("flat_io_cache", JSON.stringify(newFlatCache));
-        setFlatResults(sheets);
-      } catch (err) {
-        console.error("Flat.io layout fetch failed.", err);
-        setFlatResults([]);
-      }
-    }
-  };
+  }, [queryFromUrl, activeInstrument, handleSearch]);
 
   return (
     <div className="browse-container">
@@ -229,7 +232,7 @@ export default function BrowsePage() {
                     />
                   ))
                 ) : (
-                  <p>You haven't saved any...yet.</p>
+                  <p>You haven&apos;t saved any...yet.</p>
                 )}
               </div>
             </section>
