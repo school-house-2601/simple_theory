@@ -96,11 +96,7 @@ export default function MidiDetector({
             input.onmidimessage = handleMessage;
           });
         };
-
-        console.log("MIDI connected:", midi.inputs.size, "device(s)");
-      } catch (err) {
-        console.log("MIDI not available:", err);
-      }
+      } catch { /* MIDI access unavailable */ }
     };
 
     startMidi();

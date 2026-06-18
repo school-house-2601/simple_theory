@@ -13,30 +13,6 @@
   }
 }
 
-.progress-bg {
-  height: 6px;
-  background: #333;
-  border-radius: 3px;
-  margin: 15px 0;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: #6366f1;
-  transition: width 0.3s ease;
-}
-
-.tab-placeholder {
-  aspect-ratio: 3/4;
-  background: #252529;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #555;
-}
-
 .resource-icon-box {
   width: 60px;
   height: 60px;
@@ -48,16 +24,6 @@
   font-size: 1.5rem;
   flex-shrink: 0;
   overflow: hidden;
-}
-
-.download-btn {
-  background: #4f46e5;
-  border: none;
-  color: white;
-  padding: 5px 12px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  margin-top: 8px;
 }
 
 .lesson-card,
@@ -120,14 +86,6 @@
 
 .progress-container {
   margin: 10px 0;
-}
-
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: #9ca3af;
-  margin-bottom: 4px;
 }
 
 .progress-bar-bg {

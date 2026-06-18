@@ -77,11 +77,7 @@ export default function DrumDetector() {
             input.onmidimessage = handleMessage;
           });
         };
-
-        console.log("Drum MIDI connected:", midi.inputs.size, "device(s)");
-      } catch (err) {
-        console.log("MIDI not available:", err);
-      }
+      } catch { /* MIDI access unavailable */ }
     };
 
     startMidi();

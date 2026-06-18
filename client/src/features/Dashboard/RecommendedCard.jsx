@@ -33,10 +33,10 @@ export default function RecommendedCard() {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("Recommendation data:", data);
         setRec(data);
       })
       .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   if (!rec) return null;

@@ -61,7 +61,7 @@ export default function HowItWorksPage() {
         {/* FEATURES GRID */}
         <section className="hiw-section">
           <h2 className="hiw-section-title">
-            Everything you need, nothing you don't
+            Everything you need, nothing you don&apos;t
           </h2>
           <div className="hiw-features">
             {FEATURES.map((feat, i) => (

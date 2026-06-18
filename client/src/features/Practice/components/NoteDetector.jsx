@@ -148,9 +148,7 @@ export default function NoteDetector({
         };
 
         detect();
-      } catch (err) {
-        console.error("Audio detection error:", err);
-      }
+      } catch { /* audio context unavailable */ }
     };
 
     startListening();

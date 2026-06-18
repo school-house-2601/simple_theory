@@ -48,6 +48,14 @@ export default function SongPlayer({ song, instrument }) {
   const accuracyScore =
     totalNotes > 0 ? Math.round((correctNotes / totalNotes) * 100) : 0;
 
+  function pitchToNote(pitch) {
+    const noteNames = ["C", "D", "E", "F", "G", "A", "B"];
+    if (pitch.pitch === undefined) return null;
+    const noteIndex = ((pitch.pitch % 7) + 7) % 7;
+    const octave = Math.floor(pitch.pitch / 7) + 4;
+    return `${noteNames[noteIndex]}${octave}`;
+  }
+
   useEffect(() => {
     if (!scoreRef.current || !song?.abc) return;
 
@@ -105,14 +113,6 @@ export default function SongPlayer({ song, instrument }) {
       setSongNotes(notes);
     }
   }, [song, tempo, instrument]);
-
-  function pitchToNote(pitch) {
-    const noteNames = ["C", "D", "E", "F", "G", "A", "B"];
-    if (pitch.pitch === undefined) return null;
-    const noteIndex = ((pitch.pitch % 7) + 7) % 7;
-    const octave = Math.floor(pitch.pitch / 7) + 4;
-    return `${noteNames[noteIndex]}${octave}`;
-  }
 
   useEffect(() => {
     document.querySelectorAll(".abcjs-note_selected").forEach((el) => {

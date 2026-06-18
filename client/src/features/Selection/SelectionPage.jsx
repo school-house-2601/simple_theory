@@ -56,7 +56,7 @@ const PATHS = [
 ];
 
 export default function SelectionPage() {
-  const [selected, setSelected] = useState(null);
+  const [setSelected] = useState(null);
   const [isProcessingToken, setIsProcessingToken] = useState(() => {
     return new URLSearchParams(window.location.search).has("token");
   });
@@ -85,6 +85,7 @@ export default function SelectionPage() {
           navigate("/dashboard");
         });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Render nothing while processing the Google OAuth token

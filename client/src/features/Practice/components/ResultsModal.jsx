@@ -11,7 +11,7 @@ export default function ResultsModal({
   onRetry,
 }) {
   const { user, token } = useAuth();
-  const [xpAwarded, setXpAwarded] = useState(0);
+  const [setXpAwarded] = useState(0);
   const [leveledUp, setLeveledUp] = useState(false);
   const [newLevel, setNewLevel] = useState(null);
 
@@ -46,11 +46,10 @@ export default function ResultsModal({
           setLeveledUp(true);
           setNewLevel(data.newLevel);
         }
-      } catch (err) {
-        console.error("Failed to award XP", err);
-      }
+      } catch { /* XP award failed silently */ }
     };
     awardXP();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getGrade = () => {

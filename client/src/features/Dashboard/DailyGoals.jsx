@@ -14,6 +14,7 @@ export default function DailyGoals() {
       .then((res) => res.json())
       .then((data) => setGoals(Array.isArray(data) ? data : []))
       .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const completedCount = goals.filter((g) => g.completed).length;
@@ -33,7 +34,6 @@ export default function DailyGoals() {
       <div className="goals-list">
         {goals.map((goal) => {
           const percent = Math.min((goal.current / goal.target) * 100, 100);
-          const completed = goal.current >= goal.target;
           return (
             <div key={goal.id} className="goal-item">
               <div className="goal-item-top">

@@ -24,6 +24,22 @@ export function AuthProvider({ children }) {
     return hasToken && !hasUser;
   });
 
+  const logout = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+        credentials: "include",
+      });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to clear backend auth session cookie:", err);
+    } finally {
+      setToken(null);
+      setUser(null);
+      localStorage.removeItem("user");
+      setLoading(false);
+    }
+  };
+
   const fetchUser = useCallback(async () => {
     if (!token) {
       setLoading(false);
@@ -46,6 +62,7 @@ export function AuthProvider({ children }) {
         logout();
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Failed to fetch user:", error);
       logout();
     } finally {
@@ -59,6 +76,7 @@ export function AuthProvider({ children }) {
       // Only fetch if we don't already have user data
       const savedUser = localStorage.getItem("user");
       if (!savedUser) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchUser();
       } else {
         setLoading(false);
@@ -99,21 +117,6 @@ export function AuthProvider({ children }) {
     localStorage.setItem("user", JSON.stringify(userData));
     setToken(userToken);
     setUser(userData);
-  };
-
-  const logout = async () => {
-    try {
-      await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
-        credentials: "include",
-      });
-    } catch (err) {
-      console.error("Failed to clear backend auth session cookie:", err);
-    } finally {
-      setToken(null);
-      setUser(null);
-      localStorage.removeItem("user");
-      setLoading(false);
-    }
   };
 
   const value = {

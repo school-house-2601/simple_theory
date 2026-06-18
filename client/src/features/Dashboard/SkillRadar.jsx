@@ -68,6 +68,7 @@ export default function SkillRadar() {
     fetchSkills();
     const interval = setInterval(fetchSkills, 30000);
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const strongestSkill = data.reduce((a, b) => (a.value > b.value ? a : b));

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useAuth } from "../Auth/AuthContext";
 import "./SongBrowser.css";
 
 const BUILT_IN_SONGS = [
@@ -263,7 +262,6 @@ const DIFFICULTY_COLORS = {
 };
 
 export default function SongBrowser({ instrument, onSelectSong }) {
-  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("library");
   const [error, setError] = useState(null);
 

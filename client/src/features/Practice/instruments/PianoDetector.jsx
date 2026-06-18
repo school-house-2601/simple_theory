@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import NoteDetector from "../components/NoteDetector";
 import MidiDetector from "../components/MidiDetector";
 import AccuracyMeter from "../components/AccuracyMeter";
@@ -59,7 +59,9 @@ export default function PianoDetector() {
     <div className="instrument-detector">
       <div className="detector-header">
         <h2>🎹 Piano - C Major Scale</h2>
-        <p>Play each note in order. We'll detect what you play in real time.</p>
+        <p>
+          Play each note in order. We&apos;ll detect what you play in real time.
+        </p>
       </div>
 
       <FallingNotes

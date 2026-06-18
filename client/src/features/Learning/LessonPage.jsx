@@ -10,26 +10,11 @@ import {
 import "./LessonPage.css";
 
 export default function LessonsPage() {
-  const { token, user } = useAuth();
+  const { token, user, fetchUser } = useAuth();
   const location = useLocation();
   const [activeVideo, setActiveVideo] = useState(null);
   const [activeScoreId, setActiveScoreId] = useState(null);
-  const [flatUserData, setFlatUserData] = useState(null);
   const progressIntervalRef = useRef(null);
-
-  useEffect(() => {
-    if (token) {
-      fetch(`${import.meta.env.VITE_API_URL}/lessons/flat-me`)
-        .then((res) => {
-          if (!res.ok) throw new Error("Could not verify Flat.io account");
-          return res.json();
-        })
-        .then((data) => {
-          setFlatUserData(data);
-        })
-        .catch((err) => console.error(err));
-    }
-  }, [token]);
 
   useEffect(() => {
     return () => {
@@ -64,6 +49,7 @@ export default function LessonsPage() {
         await fetchUser();
       }
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error("Failed to award lesson XP", err);
     }
   };
@@ -267,9 +253,6 @@ export default function LessonsPage() {
                   className="practice-btn resource-action-btn"
                   onClick={() => {
                     if (!token) {
-                      console.log(
-                        "Access denied: Please log in to view sheet music tabs."
-                      );
                       return;
                     }
                     if (currentPath === "Novice") {
@@ -354,7 +337,7 @@ export default function LessonsPage() {
                 className="complete-practice-btn"
                 onClick={() => setActiveScoreId(null)}
               >
-                I'm Finished Practicing
+                I&apos;m Finished Practicing
               </button>
             </div>
           </div>

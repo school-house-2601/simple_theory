@@ -14,7 +14,6 @@ import HowItWorksPage from "./shared/components/HowItWorks.jsx";
 import ProfilePage from "./features/Profile/ProfilePage.jsx";
 import DashboardPage from "./features/Dashboard/DashboardPage.jsx";
 import ProtectedRoute from "./shared/components/ProtectedRoute.jsx";
-import { AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import PageTransition from "./shared/components/PageTransition.jsx";
 
