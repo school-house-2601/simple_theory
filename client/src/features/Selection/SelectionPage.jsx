@@ -56,12 +56,12 @@ const PATHS = [
 ];
 
 export default function SelectionPage() {
-  const [setSelected] = useState(null);
+  const [, setSelected] = useState(null);
   const [isProcessingToken, setIsProcessingToken] = useState(() => {
     return new URLSearchParams(window.location.search).has("token");
   });
   const navigate = useNavigate();
-  const { token, loginWithGoogle } = useAuth();
+  const { token, loginWithGoogle, fetchUser } = useAuth();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -85,7 +85,7 @@ export default function SelectionPage() {
           navigate("/dashboard");
         });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Render nothing while processing the Google OAuth token
@@ -101,17 +101,26 @@ export default function SelectionPage() {
       />
     );
 
-  const handleSelect = (level) => {
+  const handleSelect = async (level) => {
     setSelected(level);
-    if (
-      level === "Novice" ||
-      level === "Intermediate" ||
-      level === "Professional"
-    ) {
-      navigate("/lessons", { state: { selectedPath: level } });
-    } else {
-      navigate(`/dashboard`, { state: { selectedPath: level } });
+
+    if (token) {
+      try {
+        await fetch(`${import.meta.env.VITE_API_URL}/users/path`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ path: level }),
+        });
+        await fetchUser();
+      } catch (err) {
+        console.error("Failed to update path", err);
+      }
     }
+
+    navigate("/lessons", { state: { selectedPath: level } });
   };
 
   return (
