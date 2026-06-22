@@ -66,21 +66,13 @@ export async function updateUserXP(userId, xpAmount) {
 
 /** Updates the user's selected learning path (Novice/Intermediate/Professional) */
 export async function updateSelectedPath(userId, path) {
-  const XP_START = {
-    Novice: 0,
-    Intermediate: 3000,
-    Professional: 8000,
-  };
-
-  const startXp = XP_START[path] ?? 0;
-
   const {
     rows: [user],
   } = await db.query(
-    `UPDATE users SET selected_path = $1, current_level = $1, total_xp = $2
-    WHERE id = $3 
+    `UPDATE users SET selected_path = $1, current_level = $1
+    WHERE id = $2 
     RETURNING selected_path, current_level, total_xp`,
-    [path, startXp, userId]
+    [path, userId]
   );
 
   await db.query(`DELETE FROM daily_goals WHERE user_id = $1`, [userId]);

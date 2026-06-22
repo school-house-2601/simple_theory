@@ -18,10 +18,8 @@ export function AuthProvider({ children }) {
   });
 
   const [loading, setLoading] = useState(() => {
-    const hasUser = !!localStorage.getItem("user");
     const hasToken = !!localStorage.getItem("token");
-    // If we already have user data, no loading needed
-    return hasToken && !hasUser;
+    return hasToken;
   });
 
   const logout = async () => {
@@ -30,7 +28,6 @@ export function AuthProvider({ children }) {
         credentials: "include",
       });
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error("Failed to clear backend auth session cookie:", err);
     } finally {
       setToken(null);
@@ -62,7 +59,6 @@ export function AuthProvider({ children }) {
         logout();
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to fetch user:", error);
       logout();
     } finally {
@@ -72,17 +68,12 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem("token", token);
-      // Only fetch if we don't already have user data
-      const savedUser = localStorage.getItem("user");
-      if (!savedUser) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        fetchUser();
-      } else {
-        setLoading(false);
-      }
+      // Store token as side effect
+      queueMicrotask(() => localStorage.setItem("token", token));
+      // Always fetch fresh user data to update streak and XP
+      fetchUser();
     } else {
-      localStorage.removeItem("token");
+      queueMicrotask(() => localStorage.removeItem("token"));
       setUser(null);
       setLoading(false);
     }
